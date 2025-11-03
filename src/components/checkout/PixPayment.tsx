@@ -75,21 +75,21 @@ export default function PixPayment({
             }
           });
           
-          // Se não temos QR da API, usar o local
-          if (!qrCodeFinal) {
-            console.log("⚠️ Usando QR Code gerado localmente (API não forneceu)");
-            qrCodeFinal = generatedQR;
-          } else {
-            console.log("✅ QR Code local gerado como backup (usando API)");
-          }
+          // Sempre preferir o QR local (garante URL válida)
+          console.log("✅ QR Code local gerado; priorizando este como imagem principal");
+          qrCodeFinal = generatedQR;
         } catch (qrError) {
           console.error("❌ Erro ao gerar QR Code localmente:", qrError);
           if (!qrCodeFinal) {
+            // Se não gerou local e não temos da API, exibir erro
             onError("Erro ao gerar QR Code. Tente copiar o código PIX manualmente.");
             setLoading(false);
             return;
           }
         }
+        
+        // Higienizar possíveis quebras de linha/ espaços
+        qrCodeFinal = qrCodeFinal.replace(/\s+/g, '');
         
         console.log("🎯 QR Code final definido (length):", qrCodeFinal.length);
         console.log("🎯 QR Code final (preview):", qrCodeFinal.substring(0, 50));
