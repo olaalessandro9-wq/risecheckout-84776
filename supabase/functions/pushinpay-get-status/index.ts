@@ -34,6 +34,8 @@ serve(async (req) => {
         ? "https://api-sandbox.pushinpay.com.br/api"
         : "https://api.pushinpay.com.br/api";
 
+    console.log("[pushinpay-get-status] Calling PushinPay API:", `${baseURL}/pix/consult/${pixId}`);
+    
     const res = await fetch(`${baseURL}/pix/consult/${pixId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -41,16 +43,32 @@ serve(async (req) => {
       },
     });
 
+    console.log("[pushinpay-get-status] PushinPay response status:", res.status);
+
     if (!res.ok) {
       const errText = await res.text();
+      console.error("[pushinpay-get-status] PushinPay error:", errText);
       return withCorsError(req, `PushinPay status error: ${errText}`, 502);
     }
 
-    const status = await res.json(); // { status: "created" | "paid" | "expired" | "canceled" ... }
+    const status = await res.json();
+    console.log("[pushinpay-get-status] PushinPay response data:", status);
 
+    // Atualizar status no banco
+    console.log("[pushinpay-get-status] Updating order status...");
     await updateOrderStatusFromGateway(orderId, status);
+    console.log("[pushinpay-get-status] Order status updated successfully");
 
-    return withCorsJson(req, { ok: true, status });
+    // Criar resposta simples para evitar problemas de serialização
+    const response = {
+      ok: true,
+      status: {
+        status: status?.status || status?.data?.status || "created"
+      }
+    };
+    
+    console.log("[pushinpay-get-status] Returning response:", response);
+    return withCorsJson(req, response);
   } catch (e) {
     console.error("[pushinpay-get-status] Error:", e);
     const errorMsg = e instanceof Error ? e.message : JSON.stringify(e);

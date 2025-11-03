@@ -181,10 +181,16 @@ const PublicCheckout = () => {
         .from("products")
         .select("user_id")
         .eq("id", checkout!.product.id)
-        .single();
+        .maybeSingle();
 
-      if (productError || !productData) {
+      if (productError) {
+        console.error("Erro ao buscar produto:", productError);
         throw new Error("Erro ao buscar informações do produto");
+      }
+
+      if (!productData) {
+        console.error("Produto não encontrado:", checkout!.product.id);
+        throw new Error("Produto não encontrado");
       }
 
       // 2. Calcular valor total (produto + taxa)
