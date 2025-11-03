@@ -17,6 +17,7 @@ export const QRCanvas = ({ value, size = 256, className = "" }: QRCanvasProps) =
       return;
     }
 
+    console.log("[QRCanvas] v2.5 ativo");
     console.log("[QRCanvas] Gerando QR Code:", {
       valueLength: value.length,
       valuePreview: value.substring(0, 50),
@@ -60,6 +61,8 @@ export const QRCanvas = ({ value, size = 256, className = "" }: QRCanvasProps) =
     <canvas
       ref={canvasRef}
       className={`rounded-lg ${className}`}
+      width={size}
+      height={size}
       style={{ width: size, height: size }}
     />
   );
