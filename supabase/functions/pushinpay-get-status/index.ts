@@ -27,51 +27,54 @@ serve(async (req) => {
     
     const { token, environment, pixId } = await loadTokenEnvAndPixId(orderId);
     
-    console.log("[pushinpay-get-status] Loaded data:", { environment, pixId });
+    console.log("[pushinpay-get-status] Config loaded:", { environment, pixId });
     
     const baseURL =
       environment === "sandbox"
         ? "https://api-sandbox.pushinpay.com.br/api"
         : "https://api.pushinpay.com.br/api";
 
-    console.log("[pushinpay-get-status] Calling PushinPay API:", `${baseURL}/pix/consult/${pixId}`);
+    // 🔧 ENDPOINT CORRETO: GET /pix/{id} (não /pix/consult/{id})
+    const endpoint = `${baseURL}/pix/${pixId}`;
+    console.log("[pushinpay-get-status] Calling:", endpoint);
     
-    const res = await fetch(`${baseURL}/pix/consult/${pixId}`, {
+    const res = await fetch(endpoint, {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
+        "Content-Type": "application/json",
       },
     });
 
-    console.log("[pushinpay-get-status] PushinPay response status:", res.status);
+    console.log("[pushinpay-get-status] Response status:", res.status);
 
     if (!res.ok) {
       const errText = await res.text();
-      console.error("[pushinpay-get-status] PushinPay error:", errText);
-      return withCorsError(req, `PushinPay status error: ${errText}`, 502);
+      console.error("[pushinpay-get-status] API error:", errText);
+      return withCorsError(req, `Failed to get PIX status: ${errText}`, res.status);
     }
 
-    const status = await res.json();
-    console.log("[pushinpay-get-status] PushinPay response data:", status);
+    const data = await res.json();
+    console.log("[pushinpay-get-status] Response data:", { 
+      id: data.id, 
+      status: data.status,
+      hasPixDetails: !!data.pix_details 
+    });
 
     // Atualizar status no banco
-    console.log("[pushinpay-get-status] Updating order status...");
-    await updateOrderStatusFromGateway(orderId, status);
-    console.log("[pushinpay-get-status] Order status updated successfully");
+    await updateOrderStatusFromGateway(orderId, data);
 
-    // Criar resposta simples para evitar problemas de serialização
-    const response = {
+    // Resposta simplificada
+    return withCorsJson(req, {
       ok: true,
       status: {
-        status: status?.status || status?.data?.status || "created"
+        status: data.status || "created"
       }
-    };
-    
-    console.log("[pushinpay-get-status] Returning response:", response);
-    return withCorsJson(req, response);
+    });
   } catch (e) {
     console.error("[pushinpay-get-status] Error:", e);
-    const errorMsg = e instanceof Error ? e.message : JSON.stringify(e);
-    return withCorsError(req, `Status error: ${errorMsg}`, 500);
+    const errorMsg = e instanceof Error ? e.message : String(e);
+    return withCorsError(req, `Error: ${errorMsg}`, 500);
   }
 });

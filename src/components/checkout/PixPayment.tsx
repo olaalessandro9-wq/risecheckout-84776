@@ -49,38 +49,41 @@ export default function PixPayment({
         setPixId(response.pix.pix_id);
         setStatus(response.pix.status as any);
         
-        // 🔧 ESTRATÉGIA: Gerar QR Code local (mais confiável)
-        let qrCodeFinal = "";
-        
+        // 🔧 ESTRATÉGIA ROBUSTA: SEMPRE gerar QR local (nunca usar da API)
         try {
-          const generatedQR = await QRCode.toDataURL(response.pix.qr_code, {
+          console.log("🔄 Gerando QR Code local a partir do código PIX...");
+          console.log("📝 Código PIX (length):", response.pix.qr_code.length);
+          
+          const localQR = await QRCode.toDataURL(response.pix.qr_code, {
             width: 256,
             margin: 2,
             errorCorrectionLevel: "M",
           });
           
-          console.log("✅ QR Code local gerado com sucesso");
-          qrCodeFinal = generatedQR;
-        } catch (qrError) {
-          console.error("❌ Erro ao gerar QR Code localmente:", qrError);
+          console.log("✅ QR Code local gerado:", localQR.substring(0, 60));
           
-          // Fallback: tentar usar o base64 da API
-          if (response.pix.qr_code_base64) {
-            console.log("⚠️ Usando QR da API como fallback");
-            qrCodeFinal = response.pix.qr_code_base64;
+          // Normalizar (remove duplicações, valida formato)
+          const normalizedQR = normalizeDataUrl(localQR);
+          
+          // Validação rigorosa antes de usar
+          if (
+            normalizedQR.startsWith('data:image/png;base64,') && 
+            normalizedQR.length > 100 &&
+            !normalizedQR.includes('undefined') &&
+            !normalizedQR.includes('null')
+          ) {
+            console.log("✅ QR Code validado e pronto para uso");
+            setQrCodeBase64(normalizedQR);
           } else {
-            onError("Erro ao gerar QR Code. Tente copiar o código PIX manualmente.");
-            setLoading(false);
-            return;
+            throw new Error("QR Code gerado está inválido");
           }
+          
+        } catch (qrError) {
+          console.error("❌ FALHA CRÍTICA ao gerar QR Code:", qrError);
+          // Não define qrCodeBase64 - forçará exibição do fallback "QR indisponível"
+          // Mas mantém qrCode para o botão "Copiar" funcionar
+          setQrCodeBase64("");
         }
-        
-        // Normalizar o QR Code (remove duplicações e garante prefixo correto)
-        qrCodeFinal = normalizeDataUrl(qrCodeFinal);
-        
-        console.log("🎯 QR Code final normalizado (length):", qrCodeFinal.length);
-        console.log("🎯 QR Code final (preview):", qrCodeFinal.substring(0, 60));
-        setQrCodeBase64(qrCodeFinal);
         
         setLoading(false);
       } catch (error) {
