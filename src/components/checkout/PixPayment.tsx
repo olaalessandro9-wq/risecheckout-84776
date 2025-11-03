@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Loader2, Copy, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { createPixCharge, getPixStatus } from "@/services/pushinpay";
+import QRCode from "qrcode";
 
 interface PixPaymentProps {
   orderId: string;
@@ -36,12 +37,45 @@ export default function PixPayment({
           return;
         }
 
+        // 🔍 LOGS DE DIAGNÓSTICO
+        console.log("✅ PIX Response completa:", response);
+        console.log("📦 PIX Data:", response.pix);
+        console.log("🖼️ QR Code Base64 length:", response.pix.qr_code_base64?.length || 0);
+        console.log("🖼️ QR Code Base64 (primeiros 100 chars):", response.pix.qr_code_base64?.substring(0, 100));
+        console.log("📝 QR Code String:", response.pix.qr_code);
+
         setQrCode(response.pix.qr_code);
-        setQrCodeBase64(response.pix.qr_code_base64);
         setPixId(response.pix.pix_id);
         setStatus(response.pix.status as any);
+        
+        // 🔧 FALLBACK: Gerar QR Code localmente se não vier da API
+        if (response.pix.qr_code_base64 && response.pix.qr_code_base64.length > 0) {
+          console.log("✅ Usando QR Code base64 da API PushinPay");
+          setQrCodeBase64(response.pix.qr_code_base64);
+        } else {
+          console.log("⚠️ QR Code base64 vazio, gerando localmente...");
+          try {
+            const generatedQR = await QRCode.toDataURL(response.pix.qr_code, {
+              width: 256,
+              margin: 2,
+              color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+              }
+            });
+            // Remove o prefixo "data:image/png;base64," que já vem do QRCode.toDataURL
+            const base64Only = generatedQR.replace(/^data:image\/png;base64,/, '');
+            setQrCodeBase64(base64Only);
+            console.log("✅ QR Code gerado localmente com sucesso");
+          } catch (qrError) {
+            console.error("❌ Erro ao gerar QR Code localmente:", qrError);
+            onError("Erro ao gerar QR Code. Tente copiar o código PIX manualmente.");
+          }
+        }
+        
         setLoading(false);
       } catch (error) {
+        console.error("❌ Erro geral ao criar PIX:", error);
         onError(String(error));
       }
     }
@@ -134,11 +168,27 @@ export default function PixPayment({
       {qrCodeBase64 && status === "created" && (
         <div className="flex flex-col items-center space-y-4">
           <div className="bg-white p-4 rounded-lg border-2 border-border">
-            <img
-              src={`data:image/png;base64,${qrCodeBase64}`}
-              alt="QR Code PIX"
-              className="w-64 h-64"
-            />
+            {qrCodeBase64.length > 0 ? (
+              <img
+                src={`data:image/png;base64,${qrCodeBase64}`}
+                alt="QR Code PIX"
+                className="w-64 h-64"
+                onError={(e) => {
+                  console.error("❌ Erro ao carregar imagem QR Code:", {
+                    src: e.currentTarget.src?.substring(0, 100),
+                    qrCodeBase64Length: qrCodeBase64?.length
+                  });
+                  e.currentTarget.style.display = 'none';
+                }}
+                onLoad={() => {
+                  console.log("✅ QR Code carregado com sucesso!");
+                }}
+              />
+            ) : (
+              <div className="w-64 h-64 flex items-center justify-center bg-muted text-muted-foreground text-sm">
+                QR Code indisponível. Use o código PIX abaixo.
+              </div>
+            )}
           </div>
 
           <p className="text-sm text-center text-muted-foreground max-w-md">

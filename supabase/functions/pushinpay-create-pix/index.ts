@@ -157,6 +157,16 @@ serve(async (req) => {
 
     const pixData = await response.json();
 
+    // 🔍 LOG DE DIAGNÓSTICO
+    console.log("[pushinpay-create-pix] PIX data from PushinPay:", {
+      id: pixData.id,
+      status: pixData.status,
+      hasQrCode: !!pixData.qr_code,
+      hasQrCodeBase64: !!pixData.qr_code_base64,
+      qrCodeBase64Length: pixData.qr_code_base64?.length || 0,
+      qrCodeBase64Preview: pixData.qr_code_base64?.substring(0, 50) || 'EMPTY'
+    });
+
     // 8) Salvar mapeamento order_id -> pix_id
     const { error: mapErr } = await supabase
       .from("payments_map")
