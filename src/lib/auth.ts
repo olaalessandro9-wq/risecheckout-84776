@@ -1,13 +1,8 @@
 // src/lib/auth.ts
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
-export const supabase =
-  // Se já existe um cliente centralizado, use-o; este é um fallback seguro.
-  (globalThis as any).supabaseClient ||
-  createClient(
-    import.meta.env.VITE_SUPABASE_URL!,
-    import.meta.env.VITE_SUPABASE_ANON_KEY!
-  );
+// Re-exportar o cliente centralizado
+export { supabase };
 
 export async function signOut() {
   try {

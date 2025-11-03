@@ -1,6 +1,7 @@
 import { Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { normalizeDataUrl } from "@/lib/utils/normalizeDataUrl";
 
 interface PixQRCodeProps {
   qrBase64: string;
@@ -9,6 +10,9 @@ interface PixQRCodeProps {
 
 export function PixQRCode({ qrBase64, qrText }: PixQRCodeProps) {
   const [copied, setCopied] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  
+  const normalizedQr = normalizeDataUrl(qrBase64);
 
   const handleCopy = async () => {
     try {
@@ -25,11 +29,23 @@ export function PixQRCode({ qrBase64, qrText }: PixQRCodeProps) {
     <div className="space-y-4">
       {/* QR Code */}
       <div className="flex justify-center">
-        <img
-          src={`data:image/png;base64,${qrBase64}`}
-          alt="QR Code PIX"
-          className="w-64 h-64 border border-border rounded-lg"
-        />
+        {!imageError ? (
+          <img
+            src={normalizedQr}
+            alt="QR Code PIX"
+            className="w-64 h-64 border border-border rounded-lg"
+            onError={() => {
+              console.error("❌ Erro ao carregar QR Code, src:", normalizedQr.substring(0, 60));
+              setImageError(true);
+            }}
+          />
+        ) : (
+          <div className="w-64 h-64 border border-border rounded-lg flex items-center justify-center bg-muted">
+            <p className="text-sm text-muted-foreground text-center px-4">
+              QR Code indisponível.<br/>Use o código PIX abaixo.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Botão Copiar */}
