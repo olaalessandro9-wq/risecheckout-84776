@@ -1,261 +1,273 @@
-import { useState, useEffect } from "react";
-import { Loader2, Copy, CheckCircle2, XCircle, Clock } from "lucide-react";
-import { createPixCharge, getPixStatus } from "@/services/pushinpay";
-import QRCode from "qrcode";
-import { normalizeDataUrl } from "@/lib/utils/normalizeDataUrl";
+import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Copy, CheckCircle2, Clock, XCircle, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { PushinPayLegal } from "../pix/PushinPayLegal";
+import { QRCanvas } from "../pix/QRCanvas";
+import { CountdownTimer } from "../CountdownTimer";
 
 interface PixPaymentProps {
   orderId: string;
   valueInCents: number;
-  onSuccess: () => void;
-  onError: (error: string) => void;
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
 }
 
-export default function PixPayment({
-  orderId,
-  valueInCents,
-  onSuccess,
-  onError,
-}: PixPaymentProps) {
+export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPaymentProps) => {
   const [loading, setLoading] = useState(true);
   const [qrCode, setQrCode] = useState("");
-  const [qrCodeBase64, setQrCodeBase64] = useState("");
   const [pixId, setPixId] = useState("");
-  const [status, setStatus] = useState<"created" | "paid" | "expired" | "canceled">("created");
+  const [paymentStatus, setPaymentStatus] = useState<"waiting" | "paid" | "expired" | "error">("waiting");
   const [copied, setCopied] = useState(false);
-  const [pollingCount, setPollingCount] = useState(0);
+  const [expiresAt, setExpiresAt] = useState<number>(0);
+  const [isExpired, setIsExpired] = useState(false);
 
-  // Criar cobrança PIX ao montar o componente
-  useEffect(() => {
-    async function createCharge() {
-      try {
-        const response = await createPixCharge(orderId, valueInCents);
-        
-        if (!response.ok || !response.pix) {
-          const errorMsg = response.error || "Erro ao criar cobrança PIX. Verifique sua integração em Financeiro.";
-          onError(errorMsg);
-          setLoading(false);
-          return;
-        }
+  // Criar cobrança PIX
+  const createPixCharge = useCallback(async () => {
+    setLoading(true);
+    setPaymentStatus("waiting");
+    setIsExpired(false);
 
-        // 🔍 LOGS DE DIAGNÓSTICO
-        console.log("✅ PIX Response completa:", response);
-        console.log("📦 PIX Data:", response.pix);
-        console.log("🖼️ QR Code Base64 length:", response.pix.qr_code_base64?.length || 0);
-        console.log("🖼️ QR Code Base64 (primeiros 100 chars):", response.pix.qr_code_base64?.substring(0, 100));
-        console.log("📝 QR Code String:", response.pix.qr_code);
+    try {
+      console.log("[PixPayment] Criando cobrança PIX:", { orderId, valueInCents });
 
-        setQrCode(response.pix.qr_code);
-        setPixId(response.pix.pix_id);
-        setStatus(response.pix.status as any);
-        
-        // 🔧 ESTRATÉGIA ROBUSTA: SEMPRE gerar QR local (nunca usar da API)
-        try {
-          console.log("🔄 Gerando QR Code local a partir do código PIX...");
-          console.log("📝 Código PIX (length):", response.pix.qr_code.length);
-          
-          const localQR = await QRCode.toDataURL(response.pix.qr_code, {
-            width: 256,
-            margin: 2,
-            errorCorrectionLevel: "M",
-          });
-          
-          console.log("✅ QR Code local gerado:", localQR.substring(0, 60));
-          
-          // Normalizar (remove duplicações, valida formato)
-          const normalizedQR = normalizeDataUrl(localQR);
-          
-          // Validação rigorosa antes de usar
-          if (
-            normalizedQR.startsWith('data:image/png;base64,') && 
-            normalizedQR.length > 100 &&
-            !normalizedQR.includes('undefined') &&
-            !normalizedQR.includes('null')
-          ) {
-            console.log("✅ QR Code validado e pronto para uso");
-            setQrCodeBase64(normalizedQR);
-          } else {
-            throw new Error("QR Code gerado está inválido");
-          }
-          
-        } catch (qrError) {
-          console.error("❌ FALHA CRÍTICA ao gerar QR Code:", qrError);
-          // Não define qrCodeBase64 - forçará exibição do fallback "QR indisponível"
-          // Mas mantém qrCode para o botão "Copiar" funcionar
-          setQrCodeBase64("");
-        }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("❌ Erro geral ao criar PIX:", error);
-        onError(String(error));
+      const { data, error } = await supabase.functions.invoke("pushinpay-create-pix", {
+        body: { orderId, valueInCents },
+      });
+
+      if (error) {
+        console.error("[PixPayment] Erro ao criar cobrança:", error);
+        setPaymentStatus("error");
+        onError?.(`Erro ao criar cobrança PIX: ${error.message}`);
+        toast.error("Erro ao criar cobrança PIX");
+        return;
       }
+
+      if (!data?.ok || !data?.pix) {
+        console.error("[PixPayment] Resposta inválida:", data);
+        setPaymentStatus("error");
+        onError?.("Erro ao processar resposta do pagamento");
+        toast.error("Erro ao processar pagamento");
+        return;
+      }
+
+      const { pix } = data;
+      console.log("[PixPayment] PIX criado:", {
+        id: pix.id || pix.pix_id,
+        hasQrCode: !!pix.qr_code,
+      });
+
+      setPixId(pix.id || pix.pix_id);
+      setQrCode(pix.qr_code || "");
+      
+      // Definir expiração em 15 minutos
+      const expirationTime = Date.now() + 15 * 60 * 1000;
+      setExpiresAt(expirationTime);
+
+      setLoading(false);
+      toast.success("QR Code gerado com sucesso!");
+    } catch (err) {
+      console.error("[PixPayment] Erro inesperado:", err);
+      setPaymentStatus("error");
+      onError?.("Erro inesperado ao criar cobrança PIX");
+      toast.error("Erro inesperado ao criar PIX");
+      setLoading(false);
     }
+  }, [orderId, valueInCents, onError]);
 
-    createCharge();
-  }, [orderId, valueInCents]);
-
-  // Polling de status
+  // Criar cobrança ao montar
   useEffect(() => {
-    if (loading || status === "paid" || status === "expired" || status === "canceled") {
+    createPixCharge();
+  }, [createPixCharge]);
+
+  // Polling do status do pagamento
+  useEffect(() => {
+    if (!pixId || paymentStatus !== "waiting" || isExpired) {
       return;
     }
 
-    // Polling a cada 7 segundos por até 5 minutos (43 tentativas)
-    const interval = setInterval(async () => {
+    console.log("[PixPayment] Iniciando polling para pixId:", pixId);
+
+    const pollInterval = setInterval(async () => {
       try {
-        const response = await getPixStatus(orderId);
-        
-        if (response.ok && response.status) {
-          setStatus(response.status.status);
-          
-          if (response.status.status === "paid") {
-            clearInterval(interval);
-            onSuccess();
-          } else if (response.status.status === "expired" || response.status.status === "canceled") {
-            clearInterval(interval);
-            onError("Pagamento expirado ou cancelado");
-          }
+        const { data, error } = await supabase.functions.invoke("pushinpay-get-status", {
+          body: { orderId },
+        });
+
+        if (error) {
+          console.error("[PixPayment] Erro ao verificar status:", error);
+          return;
         }
-        
-        setPollingCount(prev => prev + 1);
-        
-        // Parar após 5 minutos (43 tentativas * 7 segundos ≈ 5 minutos)
-        if (pollingCount >= 43) {
-          clearInterval(interval);
-          onError("Tempo limite excedido. Atualize a página para verificar o status.");
+
+        if (data?.status?.status === "paid") {
+          console.log("[PixPayment] ✅ Pagamento confirmado!");
+          setPaymentStatus("paid");
+          clearInterval(pollInterval);
+          toast.success("Pagamento confirmado!");
+          onSuccess?.();
+        } else if (data?.status?.status === "expired" || data?.status?.status === "canceled") {
+          console.log("[PixPayment] ⏰ Pagamento expirado/cancelado");
+          setPaymentStatus("expired");
+          setIsExpired(true);
+          clearInterval(pollInterval);
         }
-      } catch (error) {
-        console.error("Erro no polling:", error);
+      } catch (err) {
+        console.error("[PixPayment] Erro no polling:", err);
       }
     }, 7000);
 
-    return () => clearInterval(interval);
-  }, [loading, status, orderId, pollingCount]);
+    return () => {
+      clearInterval(pollInterval);
+    };
+  }, [pixId, paymentStatus, isExpired, orderId, onSuccess]);
 
+  // Verificar expiração local via countdown
+  useEffect(() => {
+    if (!expiresAt || paymentStatus !== "waiting") return;
+
+    const checkExpiration = setInterval(() => {
+      if (Date.now() >= expiresAt) {
+        console.log("[PixPayment] ⏰ Expirado localmente após 15min");
+        setPaymentStatus("expired");
+        setIsExpired(true);
+        toast.error("QR Code expirado após 15 minutos");
+        clearInterval(checkExpiration);
+      }
+    }, 1000);
+
+    return () => clearInterval(checkExpiration);
+  }, [expiresAt, paymentStatus]);
+
+  // Copiar código PIX
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(qrCode);
       setCopied(true);
+      toast.success("Código PIX copiado!");
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error("Erro ao copiar:", error);
+    } catch (err) {
+      console.error("[PixPayment] Erro ao copiar:", err);
+      toast.error("Erro ao copiar código");
     }
   };
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center p-8 space-y-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="text-sm text-muted-foreground">Gerando QR Code PIX...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <p className="text-muted-foreground">Gerando código PIX...</p>
       </div>
     );
   }
 
+  const timeLeftSeconds = expiresAt ? Math.max(0, Math.floor((expiresAt - Date.now()) / 1000)) : 0;
+  const initialMinutes = Math.floor(timeLeftSeconds / 60);
+  const initialSeconds = timeLeftSeconds % 60;
+
   return (
-    <div className="space-y-6">
-      {/* Status */}
-      <div className="flex items-center justify-center gap-2">
-        {status === "created" && (
+    <div className="w-full space-y-6">
+      {/* Countdown Timer */}
+      {paymentStatus === "waiting" && expiresAt > 0 && !isExpired && (
+        <CountdownTimer
+          initialMinutes={initialMinutes}
+          initialSeconds={initialSeconds}
+          backgroundColor="hsl(var(--primary))"
+          textColor="hsl(var(--primary-foreground))"
+          activeText="Expira em"
+          finishedText="Expirado"
+          fixedTop={false}
+        />
+      )}
+
+      {/* Status do Pagamento */}
+      <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-muted">
+        {paymentStatus === "waiting" && !isExpired && (
           <>
-            <Clock className="h-5 w-5 text-yellow-500" />
-            <span className="text-sm font-medium">Aguardando pagamento</span>
+            <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400 animate-pulse" />
+            <span className="text-sm font-medium">Aguardando pagamento...</span>
           </>
         )}
-        {status === "paid" && (
+        {paymentStatus === "paid" && (
           <>
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
-            <span className="text-sm font-medium text-green-600">Pagamento confirmado!</span>
+            <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+            <span className="text-sm font-medium">Pagamento confirmado!</span>
           </>
         )}
-        {(status === "expired" || status === "canceled") && (
+        {(paymentStatus === "expired" || isExpired) && (
           <>
-            <XCircle className="h-5 w-5 text-red-500" />
-            <span className="text-sm font-medium text-red-600">Pagamento expirado</span>
+            <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+            <span className="text-sm font-medium">Cobrança expirada</span>
           </>
         )}
       </div>
 
-      {/* QR Code */}
-      {qrCodeBase64 && status === "created" && (
+      {/* QR Code via Canvas */}
+      {qrCode && paymentStatus === "waiting" && !isExpired && (
         <div className="flex flex-col items-center space-y-4">
-          <div className="bg-white p-4 rounded-lg border-2 border-border">
-            {qrCodeBase64.length > 0 ? (
-              <img
-                src={qrCodeBase64}
-                alt="QR Code PIX"
-                className="w-64 h-64"
-                onError={(e) => {
-                  console.error("❌ Erro ao carregar imagem QR Code:", {
-                    src: e.currentTarget.src?.substring(0, 100),
-                    qrCodeBase64Length: qrCodeBase64?.length
-                  });
-                  e.currentTarget.style.display = 'none';
-                }}
-                onLoad={() => {
-                  console.log("✅ QR Code carregado com sucesso!");
-                }}
-              />
-            ) : (
-              <div className="w-64 h-64 flex items-center justify-center bg-muted text-muted-foreground text-sm">
-                QR Code indisponível. Use o código PIX abaixo.
-              </div>
-            )}
+          <div className="p-4 bg-white rounded-lg shadow-lg">
+            <QRCanvas value={qrCode} size={256} />
           </div>
-
-          <p className="text-sm text-center text-muted-foreground max-w-md">
-            Escaneie o QR Code com o app do seu banco ou copie o código PIX abaixo
+          <p className="text-sm text-center text-muted-foreground">
+            Escaneie o QR Code com o app do seu banco
           </p>
+        </div>
+      )}
 
-          {/* Código PIX copiável */}
-          <div className="w-full max-w-md">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={qrCode}
-                readOnly
-                className="flex-1 rounded-md border border-input bg-muted px-3 py-2 text-xs font-mono"
-              />
-              <button
-                onClick={copyToClipboard}
-                className="rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 flex items-center gap-2"
-              >
-                {copied ? (
-                  <>
-                    <CheckCircle2 className="h-4 w-4" />
-                    Copiado!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4" />
-                    Copiar
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
+      {/* Botão Gerar Novo QR (quando expirado) */}
+      {isExpired && paymentStatus === "expired" && (
+        <div className="flex flex-col items-center space-y-4">
+          <p className="text-sm text-center text-muted-foreground">
+            O QR Code expirou após 15 minutos.
+          </p>
+          <Button 
+            onClick={createPixCharge}
+            className="gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Gerar novo QR Code
+          </Button>
+        </div>
+      )}
 
-          {/* Aviso de polling */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Loader2 className="h-3 w-3 animate-spin" />
-            <span>Verificando pagamento automaticamente...</span>
+      {/* Código PIX - Copiar e Colar */}
+      {qrCode && paymentStatus === "waiting" && !isExpired && (
+        <div className="flex flex-col items-center space-y-2">
+          <p className="text-xs text-muted-foreground">Ou copie o código PIX:</p>
+          <div className="w-full max-w-md flex gap-2">
+            <input
+              type="text"
+              value={qrCode}
+              readOnly
+              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
+            />
+            <Button
+              onClick={copyToClipboard}
+              variant="outline"
+              className="gap-2"
+            >
+              {copied ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  Copiado!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  Copiar
+                </>
+              )}
+            </Button>
           </div>
         </div>
       )}
 
-      {/* Aviso legal PushinPay */}
-      <div className="mt-6 p-4 bg-muted rounded-lg border border-border">
-        <p className="text-xs text-muted-foreground text-center">
-          A <strong>PUSHIN PAY</strong> atua exclusivamente como processadora de pagamentos e não
-          possui qualquer responsabilidade pela entrega, suporte, conteúdo, qualidade ou
-          cumprimento das obrigações relacionadas aos produtos ou serviços oferecidos pelo
-          vendedor.
-        </p>
-      </div>
+      {/* Aviso Legal PushinPay */}
+      <PushinPayLegal />
 
       {/* Informações adicionais */}
       <div className="text-center space-y-2">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Valor: <strong>R$ {(valueInCents / 100).toFixed(2)}</strong>
         </p>
         {pixId && (
@@ -266,4 +278,6 @@ export default function PixPayment({
       </div>
     </div>
   );
-}
+};
+
+export default PixPayment;
