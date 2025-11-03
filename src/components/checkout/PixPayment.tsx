@@ -70,7 +70,7 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
       // Inicializar countdown imediatamente
       const remaining = Math.floor((expirationTime - Date.now()) / 1000);
       setTimeRemaining(remaining);
-      console.log("[PixPayment] v2.3 - QR criado, expira em 15:00");
+      console.log("[PixPayment] v2.4 - QR criado, expira em 15:00");
 
       setLoading(false);
       toast.success("QR Code gerado com sucesso!");
