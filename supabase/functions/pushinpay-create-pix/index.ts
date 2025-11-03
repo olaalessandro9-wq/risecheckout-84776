@@ -106,10 +106,11 @@ serve(async (req) => {
     // 6) Construir webhook URL
     const webhookUrl = `${new URL(req.url).origin}/functions/v1/pushinpay-webhook`;
 
-    // 7) Criar cobrança na PushinPay
+    // 7) Criar cobrança na PushinPay com expiração de 15 minutos
     const requestBody = {
       value: valueInCents, // API PushinPay espera "value" em centavos
       webhook_url: webhookUrl,
+      expires_in: 900, // 15 minutos em segundos
       ...(split_rules.length > 0 && { split_rules }),
     };
 
