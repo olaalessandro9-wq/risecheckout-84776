@@ -8,40 +8,23 @@
  */
 
 /**
- * Whitelist de origens permitidas usando Set para lookup O(1)
- */
-const ALLOWED_ORIGINS = new Set<string>([
-  'https://risecheckout.lovable.app',          // Produção
-  'https://preview--risecheckout.lovable.app', // Preview
-  'http://localhost:5173',                     // Vite dev
-  'http://localhost:3000',                     // Alternativa local
-]);
-
-/**
- * Gera headers CORS baseados na origem da requisição
+ * Gera headers CORS permitindo qualquer origem
  * 
- * @param origin - Origem da requisição (header Origin)
+ * @param origin - Origem da requisição (não usado, permitimos todas)
  * @returns Headers CORS para incluir na resposta
  */
 export function corsHeaders(origin: string | null): Record<string, string> {
-  // Se origem não está na whitelist, usa a origem de produção como fallback
-  const allowOrigin = origin && ALLOWED_ORIGINS.has(origin) 
-    ? origin 
-    : 'https://risecheckout.lovable.app';
-  
   return {
-    'Access-Control-Allow-Origin': allowOrigin,
-    'Vary': 'Origin',
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
     'Access-Control-Allow-Headers': [
       'authorization',
       'content-type',
       'apikey',
-      'x-client-info',      // Adicionado pelo @supabase/supabase-js
-      'prefer',             // Usado pelo PostgREST
+      'x-client-info',
+      'prefer',
       'x-requested-with',
     ].join(', '),
-    // false: não usamos cookies/credenciais
     'Access-Control-Allow-Credentials': 'false',
   };
 }
