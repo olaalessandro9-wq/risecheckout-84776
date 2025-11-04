@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import {
   Dialog,
-  DialogContent,
+  DialogContentWithoutClose,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -202,12 +202,12 @@ export function DateRangeFilter({
         open={isCalendarOpen} 
         onOpenChange={handleCalendarOpenChange}
       >
-        <DialogContent className="max-w-fit p-0">
-          <DialogHeader className="sr-only">
+        <DialogContentWithoutClose className="max-w-fit p-0">
+          <DialogHeader className="px-6 pt-6 pb-0">
             <DialogTitle>Selecionar período personalizado</DialogTitle>
           </DialogHeader>
           
-          <div className="flex gap-0">
+          <div className="flex gap-4 p-4">
             <CalendarComponent
               mode="range"
               selected={tempDateRange}
@@ -218,7 +218,7 @@ export function DateRangeFilter({
               fixedWeeks
               className={cn("p-3 pointer-events-auto")}
             />
-            <div className="w-px bg-border" />
+            <div className="w-px bg-border/60" />
             <CalendarComponent
               mode="range"
               selected={tempDateRange}
@@ -231,7 +231,7 @@ export function DateRangeFilter({
             />
           </div>
           
-          <div className="flex items-center justify-end gap-2 p-3 border-t">
+          <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-border/60 bg-muted/30">
             <Button
               variant="outline"
               size="sm"
@@ -253,7 +253,7 @@ export function DateRangeFilter({
               Aplicar
             </Button>
           </div>
-        </DialogContent>
+        </DialogContentWithoutClose>
       </Dialog>
     </>
   );
