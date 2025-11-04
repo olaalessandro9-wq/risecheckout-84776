@@ -56,22 +56,17 @@ export function DateRangeFilter({
     return next;
   });
 
-  // Validação: calendário esquerdo sempre deve estar antes do direito
-  useEffect(() => {
-    if (leftMonth >= rightMonth) {
-      const newRightMonth = new Date(leftMonth);
-      newRightMonth.setMonth(newRightMonth.getMonth() + 1);
-      setRightMonth(newRightMonth);
-    }
-  }, [leftMonth, rightMonth]);
+  // FASE 2: Estado de validação de data
+  const [hasDateError, setHasDateError] = useState(false);
 
+  // FASE 2: Monitora datas selecionadas e valida em tempo real
   useEffect(() => {
-    if (rightMonth <= leftMonth) {
-      const newLeftMonth = new Date(rightMonth);
-      newLeftMonth.setMonth(newLeftMonth.getMonth() - 1);
-      setLeftMonth(newLeftMonth);
+    if (leftDate && rightDate) {
+      setHasDateError(rightDate <= leftDate);
+    } else {
+      setHasDateError(false);
     }
-  }, [rightMonth, leftMonth]);
+  }, [leftDate, rightDate]);
 
   // Limpa timeout quando componente desmonta
   useEffect(() => {
@@ -250,6 +245,15 @@ export function DateRangeFilter({
                 />
               </div>
             </div>
+
+          {/* FASE 3: Mensagem de erro visual */}
+          {hasDateError && (
+            <div className="px-4 py-2 bg-destructive/10 border-t border-destructive/20">
+              <p className="text-sm text-destructive font-medium">
+                A data de início deve ser anterior à data de término.
+              </p>
+            </div>
+          )}
           
           <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-border/60 bg-muted/30">
             <Button
@@ -268,7 +272,10 @@ export function DateRangeFilter({
                 e.stopPropagation();
                 handleApply();
               }}
-              disabled={!leftDate || !rightDate || (rightDate <= leftDate)}
+              disabled={!leftDate || !rightDate || hasDateError}
+              className={cn(
+                hasDateError && "opacity-50 cursor-not-allowed"
+              )}
             >
               Aplicar
             </Button>
