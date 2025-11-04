@@ -22,7 +22,7 @@ type Item = { label: string; icon: React.ElementType; to?: string; external?: st
 type Section = { title: string; items: Item[] };
 
 // Ajuste de altura do brand no topo do sidebar
-const BRAND_H = 68; // px (maior que antes; menor que o Rise Insights)
+const BRAND_H = 88; // px (maior que antes; menor que o Rise Insights)
 
 // Função que retorna estrutura dinâmica baseada no estado do sidebar
 const getNavSections = (isCollapsed: boolean): Section[] => {
@@ -99,13 +99,13 @@ export function Sidebar() {
       {/* Brand / Logo */}
       <div
         className={clsx(
-          "flex items-center border-b border-border/60",
+          "flex items-center border-b border-border/60 py-2",
           isCollapsed ? "justify-center px-2" : "justify-between px-4"
         )}
         style={{ height: BRAND_H }}
       >
         {!isCollapsed && (
-          <div className="text-lg font-semibold tracking-tight overflow-hidden">
+          <div className="text-xl font-semibold tracking-tight overflow-hidden">
             RiseCheckout
           </div>
         )}
@@ -118,7 +118,7 @@ export function Sidebar() {
           {isCollapsed ? (
             <ChevronRight className="h-5 w-5" />
           ) : (
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-5 w-5" />
           )}
         </button>
       </div>
