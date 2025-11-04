@@ -172,10 +172,10 @@ export function OrderDetailsDialog({ open, onOpenChange, orderData }: OrderDetai
             </div>
             <div className="space-y-2">
               {/* Valor em destaque */}
-              <div className="p-3 rounded-lg border-2 border-primary/20 bg-primary/5">
+              <div className={`p-3 rounded-lg border-2 ${statusConfig.color} border`}>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">Valor Total</span>
-                  <span className="text-xl font-bold text-primary">{orderData.amount}</span>
+                  <span className={`text-xl font-bold ${statusConfig.iconColor}`}>{orderData.amount}</span>
                 </div>
               </div>
 
