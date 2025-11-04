@@ -93,8 +93,16 @@ export function DateRangeFilter({
   };
 
   const handleDateSelect = (range: { from: Date; to?: Date } | undefined) => {
+    console.log('🔍 handleDateSelect:', range);
+    
+    // Atualiza visual mesmo com seleção parcial
+    if (range?.from) {
+      setDateRange(range.to ? { from: range.from, to: range.to } : undefined);
+    }
+    
+    // Só fecha quando range completo
     if (range?.from && range?.to) {
-      setDateRange({ from: range.from, to: range.to });
+      console.log('✅ Range completo, fechando calendário');
       onCustomDateChange(range.from, range.to);
       onPresetChange("custom");
       
@@ -149,7 +157,7 @@ export function DateRangeFilter({
           <Popover 
             open={isCalendarOpen} 
             onOpenChange={handleCalendarOpenChange}
-            modal={false}
+            modal={true}
           >
             <PopoverTrigger asChild>
               <div className="w-full flex items-center gap-2 cursor-pointer">
@@ -162,6 +170,15 @@ export function DateRangeFilter({
               align="end" 
               side="right"
               onOpenAutoFocus={(e) => e.preventDefault()}
+              onInteractOutside={(e) => {
+                // Só previne se clicar dentro do próprio calendário
+                const target = e.target as HTMLElement;
+                const isClickInsideCalendar = target.closest('.rdp') || target.closest('[role="dialog"]');
+                
+                if (isClickInsideCalendar) {
+                  e.preventDefault();
+                }
+              }}
             >
               <CalendarComponent
                 mode="range"
@@ -169,6 +186,7 @@ export function DateRangeFilter({
                 onSelect={handleDateSelect}
                 numberOfMonths={2}
                 locale={ptBR}
+                fixedWeeks
                 className={cn("p-3 pointer-events-auto")}
               />
             </PopoverContent>
