@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Calendar, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -35,6 +35,7 @@ export function DateRangeFilter({
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | undefined>(
     customStartDate && customEndDate ? { from: customStartDate, to: customEndDate } : undefined
   );
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Mantém dropdown aberto quando calendário estiver aberto
   useEffect(() => {
@@ -42,6 +43,15 @@ export function DateRangeFilter({
       setIsDropdownOpen(true);
     }
   }, [isCalendarOpen]);
+
+  // Limpa timeout quando componente desmonta
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const presets = [
     { value: "today" as const, label: "Hoje" },
@@ -66,10 +76,18 @@ export function DateRangeFilter({
 
   const handleCalendarOpenChange = (open: boolean) => {
     setIsCalendarOpen(open);
+    
+    // Limpa timeout anterior se existir
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    
     if (!open) {
-      // Pequeno delay para não fechar o dropdown imediatamente
-      setTimeout(() => {
+      // Armazena o timeout na ref
+      timeoutRef.current = setTimeout(() => {
         setIsDropdownOpen(false);
+        timeoutRef.current = null;
       }, 100);
     }
   };
@@ -79,6 +97,13 @@ export function DateRangeFilter({
       setDateRange({ from: range.from, to: range.to });
       onCustomDateChange(range.from, range.to);
       onPresetChange("custom");
+      
+      // Limpa timeout pendente antes de fechar
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      
       setIsCalendarOpen(false);
       setIsDropdownOpen(false);
     }
