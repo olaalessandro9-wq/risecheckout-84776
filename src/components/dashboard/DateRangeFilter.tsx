@@ -2,7 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import { Calendar, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -159,21 +164,15 @@ export function DateRangeFilter({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Popover 
+      <Dialog 
         open={isCalendarOpen} 
         onOpenChange={handleCalendarOpenChange}
-        modal={false}
       >
-        <PopoverContent 
-          className="w-auto p-0 z-50" 
-          align="end"
-          onInteractOutside={(e) => {
-            const target = e.target as HTMLElement;
-            if (target.closest('button')) {
-              e.preventDefault();
-            }
-          }}
-        >
+        <DialogContent className="max-w-fit p-0">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Selecionar período personalizado</DialogTitle>
+          </DialogHeader>
+          
           <CalendarComponent
             mode="range"
             selected={tempDateRange}
@@ -206,8 +205,8 @@ export function DateRangeFilter({
               Aplicar
             </Button>
           </div>
-        </PopoverContent>
-      </Popover>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
