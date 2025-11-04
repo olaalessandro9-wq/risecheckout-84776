@@ -45,6 +45,14 @@ export function DateRangeFilter({
     customStartDate && customEndDate ? { from: customStartDate, to: customEndDate } : undefined
   );
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Estados para navegação independente dos calendários (estilo Cakto)
+  const [leftMonth, setLeftMonth] = useState(new Date());
+  const [rightMonth, setRightMonth] = useState(() => {
+    const next = new Date();
+    next.setMonth(next.getMonth() + 1);
+    return next;
+  });
 
   // Não precisa mais forçar dropdown aberto, arquitetura separada
 
@@ -95,8 +103,34 @@ export function DateRangeFilter({
 
   const handleDateSelect = (range: { from: Date; to?: Date } | undefined) => {
     console.log('🔍 Date selected:', range);
-    // Apenas atualiza visual temporário, não aplica ainda
-    setTempDateRange(range);
+    
+    if (!range) {
+      setTempDateRange(undefined);
+      return;
+    }
+
+    // Se já tem um range completo (from + to) e clica em nova data, reinicia
+    if (tempDateRange?.from && tempDateRange?.to && range.from) {
+      setTempDateRange({ from: range.from, to: undefined });
+      return;
+    }
+
+    // Se só tem 'from', é o primeiro clique
+    if (range.from && !range.to) {
+      setTempDateRange({ from: range.from, to: undefined });
+      return;
+    }
+
+    // Se tem 'from' e 'to', é o segundo clique (range completo)
+    if (range.from && range.to) {
+      // Garante que 'to' é sempre depois de 'from'
+      if (range.to < range.from) {
+        setTempDateRange({ from: range.to, to: range.from });
+      } else {
+        setTempDateRange({ from: range.from, to: range.to });
+      }
+      return;
+    }
   };
 
   const handleApply = () => {
@@ -173,15 +207,29 @@ export function DateRangeFilter({
             <DialogTitle>Selecionar período personalizado</DialogTitle>
           </DialogHeader>
           
-          <CalendarComponent
-            mode="range"
-            selected={tempDateRange}
-            onSelect={handleDateSelect}
-            numberOfMonths={2}
-            locale={ptBR}
-            fixedWeeks
-            className={cn("p-3 pointer-events-auto")}
-          />
+          <div className="flex gap-0">
+            <CalendarComponent
+              mode="range"
+              selected={tempDateRange}
+              onSelect={handleDateSelect}
+              month={leftMonth}
+              onMonthChange={setLeftMonth}
+              locale={ptBR}
+              fixedWeeks
+              className={cn("p-3 pointer-events-auto")}
+            />
+            <div className="w-px bg-border" />
+            <CalendarComponent
+              mode="range"
+              selected={tempDateRange}
+              onSelect={handleDateSelect}
+              month={rightMonth}
+              onMonthChange={setRightMonth}
+              locale={ptBR}
+              fixedWeeks
+              className={cn("p-3 pointer-events-auto")}
+            />
+          </div>
           
           <div className="flex items-center justify-end gap-2 p-3 border-t">
             <Button
