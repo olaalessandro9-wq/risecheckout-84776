@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { BusyProvider } from "@/ui/BusyProvider";
 import AppShell from "./layouts/AppShell";
 import Index from "./pages/Index";
 import Produtos from "./pages/Produtos";
@@ -28,11 +29,12 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
-      <BrowserRouter>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Routes>
+      <BusyProvider>
+        <BrowserRouter>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <Routes>
             {/* Public routes without sidebar */}
             <Route path="/auth" element={<Auth />} />
             <Route path="/c/:slug" element={<PaymentLinkRedirect />} />
@@ -59,9 +61,10 @@ const App = () => (
               <Route path="ajuda" element={<Ajuda />} />
               <Route path="admin/health" element={<AdminHealth />} />
             </Route>
-          </Routes>
-        </TooltipProvider>
-      </BrowserRouter>
+            </Routes>
+          </TooltipProvider>
+        </BrowserRouter>
+      </BusyProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
