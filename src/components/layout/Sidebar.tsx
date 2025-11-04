@@ -120,7 +120,7 @@ export function Sidebar() {
                       rel="noopener noreferrer"
                       className={rowClass(undefined, isCollapsed)}
                     >
-                      <Icon className={isCollapsed ? "h-5 w-5 shrink-0" : "h-4 w-4"} />
+                      <Icon className={isCollapsed ? "h-5 w-5 shrink-0 mx-auto" : "h-4 w-4"} />
                       {!isCollapsed && <span>{it.label}</span>}
                     </a>
                   ) : (
@@ -128,16 +128,16 @@ export function Sidebar() {
                       to={it.to!} 
                       className={({ isActive }) => rowClass(isActive, isCollapsed)}
                     >
-                      <Icon className={isCollapsed ? "h-5 w-5 shrink-0" : "h-4 w-4"} />
+                      <Icon className={isCollapsed ? "h-5 w-5 shrink-0 mx-auto" : "h-4 w-4"} />
                       {!isCollapsed && <span>{it.label}</span>}
                     </NavLink>
                   );
 
                   if (isCollapsed) {
                     return (
-                      <li key={it.label}>
+                      <li key={it.label} className="flex">
                         <Tooltip>
-                          <TooltipTrigger asChild>
+                          <TooltipTrigger asChild className="flex-1">
                             {content}
                           </TooltipTrigger>
                           <TooltipContent side="right">
@@ -164,7 +164,7 @@ export function Sidebar() {
 
 function rowClass(active?: boolean, collapsed?: boolean) {
   return clsx(
-    "group flex items-center rounded-md text-sm transition",
+    "group flex items-center rounded-md text-sm transition w-full",
     collapsed ? "justify-center px-4 py-3" : "gap-3 px-2 py-2",
     active
       ? "bg-muted text-foreground font-medium"
