@@ -33,7 +33,7 @@ interface Product {
   id: string;
   name: string;
   price: number;
-  status: "active" | "blocked";
+  status: "active" | "blocked" | "deleted";
 }
 
 export function ProductsTable() {
@@ -83,8 +83,20 @@ export function ProductsTable() {
       await qc.invalidateQueries({ queryKey: ["products:list"] });
     },
     onError: (err: any) => {
-      console.error(err);
-      toast.error(`Falha ao excluir: ${err?.message ?? "erro desconhecido"}`);
+      console.error('[deleteMutation] Error:', err);
+      
+      // Mensagens de erro mais amigáveis
+      let errorMessage = "Erro ao excluir produto";
+      
+      if (err?.message?.includes('pedido')) {
+        errorMessage = err.message;
+      } else if (err?.message?.includes('foreign key')) {
+        errorMessage = "Este produto possui dados vinculados e não pode ser excluído.";
+      } else if (err?.message) {
+        errorMessage = `Falha ao excluir: ${err.message}`;
+      }
+      
+      toast.error(errorMessage);
     },
   });
 
@@ -101,6 +113,7 @@ export function ProductsTable() {
         .from("products")
         .select("*")
         .eq("user_id", user.id)
+        .neq("status", "deleted") // 🔥 Filtrar produtos com soft delete
         .order("created_at", { ascending: false });
 
       if (error) throw error;
