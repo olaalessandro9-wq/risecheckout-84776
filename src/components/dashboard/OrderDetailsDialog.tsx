@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Package, User, Mail, Phone, CreditCard, Calendar, CheckCircle2, Clock, XCircle } from "lucide-react";
 
 interface OrderDetailsDialogProps {
   open: boolean;
@@ -18,72 +19,144 @@ interface OrderDetailsDialogProps {
     productName: string;
     productImageUrl: string;
     amount: string;
-    status: "Pago" | "Pendente";
+    status: "Pago" | "Pendente" | "Reembolso" | "Chargeback";
     createdAt: string;
   } | null;
 }
 
+const getStatusConfig = (status: string) => {
+  switch (status) {
+    case "Pago":
+      return {
+        color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
+        icon: CheckCircle2,
+        iconColor: "text-emerald-600",
+        gradient: "from-emerald-500/5 to-transparent"
+      };
+    case "Pendente":
+      return {
+        color: "bg-amber-500/10 text-amber-700 border-amber-500/20",
+        icon: Clock,
+        iconColor: "text-amber-600",
+        gradient: "from-amber-500/5 to-transparent"
+      };
+    case "Reembolso":
+    case "Chargeback":
+      return {
+        color: "bg-red-500/10 text-red-700 border-red-500/20",
+        icon: XCircle,
+        iconColor: "text-red-600",
+        gradient: "from-red-500/5 to-transparent"
+      };
+    default:
+      return {
+        color: "bg-gray-500/10 text-gray-700 border-gray-500/20",
+        icon: Clock,
+        iconColor: "text-gray-600",
+        gradient: "from-gray-500/5 to-transparent"
+      };
+  }
+};
+
 export function OrderDetailsDialog({ open, onOpenChange, orderData }: OrderDetailsDialogProps) {
   if (!orderData) return null;
 
+  const statusConfig = getStatusConfig(orderData.status);
+  const StatusIcon = statusConfig.icon;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>Detalhes da Compra</span>
-            <Badge 
-              variant={orderData.status === "Pago" ? "default" : "secondary"}
-              className={orderData.status === "Pago" ? "bg-success/20 text-success hover:bg-success/30" : ""}
-            >
-              {orderData.status}
-            </Badge>
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[580px] p-0 overflow-hidden">
+        {/* Header com gradiente baseado no status */}
+        <div className={`relative bg-gradient-to-br ${statusConfig.gradient} p-6 pb-8`}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between text-xl">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${statusConfig.color} border`}>
+                  <StatusIcon className={`w-5 h-5 ${statusConfig.iconColor}`} />
+                </div>
+                <span>Detalhes da Compra</span>
+              </div>
+              <Badge 
+                className={`${statusConfig.color} border px-3 py-1 text-sm font-semibold`}
+              >
+                {orderData.status}
+              </Badge>
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          {/* ID da Compra */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-muted-foreground">ID da Compra</label>
-            <p className="text-sm font-mono bg-muted/50 p-2 rounded-md break-all">{orderData.id}</p>
+          {/* ID da Compra em destaque */}
+          <div className="mt-4 space-y-1">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">ID da Compra</label>
+            <p className="text-sm font-mono bg-background/50 backdrop-blur-sm p-3 rounded-lg border border-border/50 break-all">
+              {orderData.id}
+            </p>
           </div>
+        </div>
 
-          <Separator />
-
-          {/* Produto */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Produto</label>
-            <div className="flex items-center gap-3">
-              <img 
-                src={orderData.productImageUrl} 
-                alt={orderData.productName}
-                className="w-16 h-16 rounded-md object-cover border border-border"
-                onError={(e) => {
-                  e.currentTarget.src = '/placeholder.svg';
-                }}
-              />
-              <p className="text-sm font-medium">{orderData.productName}</p>
+        <div className="p-6 space-y-6">
+          {/* Produto - Card destacado */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <Package className="w-4 h-4" />
+              <span>Produto</span>
+            </div>
+            <div className="flex items-center gap-4 p-4 rounded-xl border border-border bg-muted/30">
+              <div className="relative">
+                <img 
+                  src={orderData.productImageUrl} 
+                  alt={orderData.productName}
+                  className="w-20 h-20 rounded-lg object-cover border-2 border-border shadow-sm"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder.svg';
+                  }}
+                />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-foreground">{orderData.productName}</p>
+                <p className="text-sm text-muted-foreground mt-1">Produto digital</p>
+              </div>
             </div>
           </div>
 
           <Separator />
 
-          {/* Cliente */}
+          {/* Cliente - Grid organizado */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-muted-foreground">Cliente</label>
-            <div className="space-y-2">
-              <div className="flex items-start gap-2">
-                <span className="text-sm text-muted-foreground w-20">Nome:</span>
-                <span className="text-sm font-medium">{orderData.customerName}</span>
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <User className="w-4 h-4" />
+              <span>Informações do Cliente</span>
+            </div>
+            <div className="grid gap-3">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                <div className="p-2 rounded-md bg-background">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">Nome</p>
+                  <p className="text-sm font-medium text-foreground">{orderData.customerName}</p>
+                </div>
               </div>
-              <div className="flex items-start gap-2">
-                <span className="text-sm text-muted-foreground w-20">Email:</span>
-                <span className="text-sm font-medium break-all">{orderData.customerEmail}</span>
+              
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                <div className="p-2 rounded-md bg-background">
+                  <Mail className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground">Email</p>
+                  <p className="text-sm font-medium text-foreground break-all">{orderData.customerEmail}</p>
+                </div>
               </div>
+
               {orderData.customerPhone && orderData.customerPhone !== 'N/A' && (
-                <div className="flex items-start gap-2">
-                  <span className="text-sm text-muted-foreground w-20">Telefone:</span>
-                  <span className="text-sm font-medium">{orderData.customerPhone}</span>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                  <div className="p-2 rounded-md bg-background">
+                    <Phone className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Telefone</p>
+                    <p className="text-sm font-medium text-foreground">{orderData.customerPhone}</p>
+                  </div>
                 </div>
               )}
             </div>
@@ -91,26 +164,39 @@ export function OrderDetailsDialog({ open, onOpenChange, orderData }: OrderDetai
 
           <Separator />
 
-          {/* Pagamento */}
+          {/* Pagamento - Destaque para o valor */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-muted-foreground">Pagamento</label>
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <CreditCard className="w-4 h-4" />
+              <span>Informações de Pagamento</span>
+            </div>
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Valor:</span>
-                <span className="text-lg font-bold text-primary">{orderData.amount}</span>
+              {/* Valor em destaque */}
+              <div className="p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Valor Total</span>
+                  <span className="text-2xl font-bold text-primary">{orderData.amount}</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Status:</span>
+
+              {/* Status */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <span className="text-sm text-muted-foreground">Status do Pagamento</span>
                 <Badge 
-                  variant={orderData.status === "Pago" ? "default" : "secondary"}
-                  className={orderData.status === "Pago" ? "bg-success/20 text-success hover:bg-success/30" : ""}
+                  className={`${statusConfig.color} border px-3 py-1 font-semibold`}
                 >
+                  <StatusIcon className="w-3 h-3 mr-1" />
                   {orderData.status}
                 </Badge>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Data:</span>
-                <span className="text-sm font-medium">{orderData.createdAt}</span>
+
+              {/* Data */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Data da Compra</span>
+                </div>
+                <span className="text-sm font-medium text-foreground">{orderData.createdAt}</span>
               </div>
             </div>
           </div>

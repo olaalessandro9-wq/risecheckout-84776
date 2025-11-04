@@ -31,7 +31,7 @@ interface RecentCustomer {
   email: string;
   createdAt: string;
   value: string;
-  status: "Pago" | "Pendente";
+  status: "Pago" | "Pendente" | "Reembolso" | "Chargeback";
   // Dados completos para o dialog
   productName: string;
   productImageUrl: string;

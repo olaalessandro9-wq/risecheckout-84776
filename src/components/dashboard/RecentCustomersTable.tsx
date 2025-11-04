@@ -23,7 +23,7 @@ interface Customer {
   email: string;
   createdAt: string;
   value: string;
-  status: "Pago" | "Pendente";
+  status: "Pago" | "Pendente" | "Reembolso" | "Chargeback";
   productName: string;
   productImageUrl: string;
   customerName: string;
