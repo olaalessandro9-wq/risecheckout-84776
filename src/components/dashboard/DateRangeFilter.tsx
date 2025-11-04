@@ -44,6 +44,7 @@ export function DateRangeFilter({
   // Mantém dropdown aberto quando calendário estiver aberto
   useEffect(() => {
     if (isCalendarOpen) {
+      console.log('📅 Calendar opened, forcing dropdown open');
       setIsDropdownOpen(true);
     }
   }, [isCalendarOpen]);
@@ -74,11 +75,13 @@ export function DateRangeFilter({
   };
 
   const handlePresetClick = (preset: DateRangePreset) => {
+    console.log('⚡ Preset clicked:', preset);
     onPresetChange(preset);
     setIsDropdownOpen(false);
   };
 
   const handleCalendarOpenChange = (open: boolean) => {
+    console.log('📅 Calendar openChange:', open);
     setIsCalendarOpen(open);
     
     // Limpa timeout anterior se existir
@@ -87,21 +90,18 @@ export function DateRangeFilter({
       timeoutRef.current = null;
     }
     
-    if (!open) {
-      // Armazena o timeout na ref
-      timeoutRef.current = setTimeout(() => {
-        setIsDropdownOpen(false);
-        timeoutRef.current = null;
-      }, 100);
-    }
+    // NÃO fecha dropdown automaticamente quando calendário fecha
+    // Deixa o usuário decidir se quer fechar ou escolher outro preset
   };
 
   const handleDateSelect = (range: { from: Date; to?: Date } | undefined) => {
+    console.log('🔍 Date selected:', range);
     // Apenas atualiza visual temporário, não aplica ainda
     setTempDateRange(range);
   };
 
   const handleApply = () => {
+    console.log('✅ handleApply called', tempDateRange);
     if (tempDateRange?.from && tempDateRange?.to) {
       const completeRange = { from: tempDateRange.from, to: tempDateRange.to };
       onCustomDateChange(completeRange.from, completeRange.to);
@@ -109,29 +109,26 @@ export function DateRangeFilter({
       setSavedDateRange(completeRange);
       setDateRange(completeRange);
       setIsCalendarOpen(false);
-      setIsDropdownOpen(false);
+      setIsDropdownOpen(false); // Fecha tudo ao aplicar
     }
   };
 
   const handleCancel = () => {
+    console.log('🚫 handleCancel called');
     setTempDateRange(savedDateRange); // Restaura seleção anterior
-    setIsCalendarOpen(false);
-    
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    
-    setTimeout(() => setIsDropdownOpen(false), 100);
+    setIsCalendarOpen(false); // Fecha apenas o calendário, mantém dropdown aberto
   };
 
   return (
     <DropdownMenu 
       open={isDropdownOpen} 
       onOpenChange={(open) => {
-        // Só permite fechar se o calendário não estiver aberto
-        if (!isCalendarOpen || !open) {
-          setIsDropdownOpen(open);
+        console.log('🔽 Dropdown onOpenChange:', open, 'calendar:', isCalendarOpen);
+        // Permite abrir sempre, mas só fecha se calendário estiver fechado
+        if (open) {
+          setIsDropdownOpen(true);
+        } else if (!isCalendarOpen) {
+          setIsDropdownOpen(false);
         }
       }}
     >
