@@ -20,13 +20,13 @@ export default function AdminHealth() {
 
   async function loadData() {
     try {
-      const { data: metricsData } = await supabase
+      const { data: metricsData } = await (supabase as any)
         .from("v_system_health_summary")
         .select("*")
         .order("hour", { ascending: false })
         .limit(24);
 
-      const { data: errorsData } = await supabase
+      const { data: errorsData } = await (supabase as any)
         .from("v_unresolved_errors")
         .select("*")
         .limit(50);

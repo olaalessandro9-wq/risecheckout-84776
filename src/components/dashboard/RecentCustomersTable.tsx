@@ -63,7 +63,7 @@ export function RecentCustomersTable({ customers, isLoading = false }: RecentCus
           createdAt: selectedOrder.createdAt,
         } : null}
       />
-    <Card className="p-6 border-border/50">
+      <Card className="p-6 border-border/50">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold" style={{ color: 'var(--text)' }}>Últimos Clientes</h3>
