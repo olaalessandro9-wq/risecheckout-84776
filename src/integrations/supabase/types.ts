@@ -721,6 +721,7 @@ export type Database = {
           events: string[]
           id: string
           secret: string
+          secret_encrypted: string | null
           updated_at: string
           url: string
           vendor_id: string
@@ -731,6 +732,7 @@ export type Database = {
           events: string[]
           id?: string
           secret: string
+          secret_encrypted?: string | null
           updated_at?: string
           url: string
           vendor_id: string
@@ -741,6 +743,7 @@ export type Database = {
           events?: string[]
           id?: string
           secret?: string
+          secret_encrypted?: string | null
           updated_at?: string
           url?: string
           vendor_id?: string
