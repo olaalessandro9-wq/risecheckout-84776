@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, startOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { DateRangePreset } from "@/hooks/useDashboardAnalytics";
 
@@ -40,7 +40,9 @@ export function DateRangeFilter({
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | undefined>(
     customStartDate && customEndDate ? { from: customStartDate, to: customEndDate } : undefined
   );
-  const [tempDateRange, setTempDateRange] = useState<{ from: Date; to?: Date } | undefined>();
+  // Estados separados para cada calendário (arquitetura dual single)
+  const [leftDate, setLeftDate] = useState<Date | undefined>();
+  const [rightDate, setRightDate] = useState<Date | undefined>();
   const [savedDateRange, setSavedDateRange] = useState<{ from: Date; to: Date } | undefined>(
     customStartDate && customEndDate ? { from: customStartDate, to: customEndDate } : undefined
   );
@@ -54,7 +56,22 @@ export function DateRangeFilter({
     return next;
   });
 
-  // Não precisa mais forçar dropdown aberto, arquitetura separada
+  // Validação: calendário esquerdo sempre deve estar antes do direito
+  useEffect(() => {
+    if (leftMonth >= rightMonth) {
+      const newRightMonth = new Date(leftMonth);
+      newRightMonth.setMonth(newRightMonth.getMonth() + 1);
+      setRightMonth(newRightMonth);
+    }
+  }, [leftMonth, rightMonth]);
+
+  useEffect(() => {
+    if (rightMonth <= leftMonth) {
+      const newLeftMonth = new Date(rightMonth);
+      newLeftMonth.setMonth(newLeftMonth.getMonth() - 1);
+      setLeftMonth(newLeftMonth);
+    }
+  }, [rightMonth, leftMonth]);
 
   // Limpa timeout quando componente desmonta
   useEffect(() => {
@@ -101,55 +118,37 @@ export function DateRangeFilter({
     // Deixa o usuário decidir se quer fechar ou escolher outro preset
   };
 
-  const handleDateSelect = (range: { from: Date; to?: Date } | undefined) => {
-    console.log('🔍 Date selected:', range);
-    
-    if (!range) {
-      setTempDateRange(undefined);
-      return;
-    }
-
-    // Se já tem um range completo (from + to) e clica em nova data, reinicia
-    if (tempDateRange?.from && tempDateRange?.to && range.from) {
-      setTempDateRange({ from: range.from, to: undefined });
-      return;
-    }
-
-    // Se só tem 'from', é o primeiro clique
-    if (range.from && !range.to) {
-      setTempDateRange({ from: range.from, to: undefined });
-      return;
-    }
-
-    // Se tem 'from' e 'to', é o segundo clique (range completo)
-    if (range.from && range.to) {
-      // Garante que 'to' é sempre depois de 'from'
-      if (range.to < range.from) {
-        setTempDateRange({ from: range.to, to: range.from });
-      } else {
-        setTempDateRange({ from: range.from, to: range.to });
-      }
-      return;
-    }
-  };
+  // Função não é mais necessária - cada calendário gerencia sua própria data independentemente
 
   const handleApply = () => {
-    console.log('✅ handleApply called', tempDateRange);
-    if (tempDateRange?.from && tempDateRange?.to) {
-      const completeRange = { from: tempDateRange.from, to: tempDateRange.to };
-      onCustomDateChange(completeRange.from, completeRange.to);
-      onPresetChange("custom");
-      setSavedDateRange(completeRange);
-      setDateRange(completeRange);
-      setIsCalendarOpen(false);
-      setIsDropdownOpen(false); // Fecha tudo ao aplicar
+    console.log("✅ handleApply called", { leftDate, rightDate });
+
+    // Validação: ambas as datas devem estar preenchidas
+    if (!leftDate || !rightDate) {
+      console.warn("⚠️ Ambas as datas devem ser selecionadas");
+      return;
     }
+
+    // Validação: data direita deve ser posterior à esquerda
+    if (rightDate <= leftDate) {
+      console.warn("⚠️ Data final deve ser posterior à data inicial");
+      return;
+    }
+
+    // Aplica o filtro
+    onCustomDateChange(leftDate, rightDate);
+    onPresetChange("custom");
+    setSavedDateRange({ from: leftDate, to: rightDate });
+    setDateRange({ from: leftDate, to: rightDate });
+    setIsCalendarOpen(false);
+    setIsDropdownOpen(false);
   };
 
   const handleCancel = () => {
-    console.log('🚫 handleCancel called');
-    setTempDateRange(undefined); // Limpa seleção ao cancelar
-    setIsCalendarOpen(false); // Fecha apenas o calendário, mantém dropdown aberto
+    console.log("🚫 handleCancel called");
+    setLeftDate(undefined);
+    setRightDate(undefined);
+    setIsCalendarOpen(false);
   };
 
   return (
@@ -186,8 +185,9 @@ export function DateRangeFilter({
 
           <DropdownMenuItem 
             onClick={() => {
-              console.log('🔓 Opening calendar');
-              setTempDateRange(undefined); // Calendário limpo, sem pré-seleção
+              console.log("🔓 Opening calendar");
+              setLeftDate(undefined);
+              setRightDate(undefined);
               setIsCalendarOpen(true);
               setIsDropdownOpen(false);
             }}
@@ -207,29 +207,41 @@ export function DateRangeFilter({
             <DialogTitle>Selecionar período personalizado</DialogTitle>
           </DialogHeader>
           
-          <div className="flex gap-4 p-4">
-            <CalendarComponent
-              mode="range"
-              selected={tempDateRange}
-              onSelect={handleDateSelect}
-              month={leftMonth}
-              onMonthChange={setLeftMonth}
-              locale={ptBR}
-              fixedWeeks
-              className={cn("p-3 pointer-events-auto")}
-            />
-            <div className="w-px bg-border/60" />
-            <CalendarComponent
-              mode="range"
-              selected={tempDateRange}
-              onSelect={handleDateSelect}
-              month={rightMonth}
-              onMonthChange={setRightMonth}
-              locale={ptBR}
-              fixedWeeks
-              className={cn("p-3 pointer-events-auto")}
-            />
-          </div>
+            <div className="flex gap-4 p-4">
+              <div className="flex flex-col gap-2">
+                <span className="text-sm text-muted-foreground px-3 font-medium">
+                  Data inicial
+                </span>
+                <CalendarComponent
+                  mode="single"
+                  selected={leftDate}
+                  onSelect={setLeftDate}
+                  month={leftMonth}
+                  onMonthChange={setLeftMonth}
+                  locale={ptBR}
+                  fixedWeeks
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </div>
+
+              <div className="w-px bg-border/60 self-stretch" />
+
+              <div className="flex flex-col gap-2">
+                <span className="text-sm text-muted-foreground px-3 font-medium">
+                  Data final
+                </span>
+                <CalendarComponent
+                  mode="single"
+                  selected={rightDate}
+                  onSelect={setRightDate}
+                  month={rightMonth}
+                  onMonthChange={setRightMonth}
+                  locale={ptBR}
+                  fixedWeeks
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </div>
+            </div>
           
           <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-border/60 bg-muted/30">
             <Button
@@ -248,7 +260,7 @@ export function DateRangeFilter({
                 e.stopPropagation();
                 handleApply();
               }}
-              disabled={!tempDateRange?.from || !tempDateRange?.to}
+              disabled={!leftDate || !rightDate || (rightDate <= leftDate)}
             >
               Aplicar
             </Button>
