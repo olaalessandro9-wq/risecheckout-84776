@@ -1,1 +1,4 @@
 project_id = "wivbtmtgpsxupfjwwovf"
+
+[functions.dashboard-analytics]
+verify_jwt = false

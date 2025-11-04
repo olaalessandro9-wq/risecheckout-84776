@@ -10,9 +10,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Search, RefreshCw, Download, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Dados zerados - aguardando dados reais do banco
-const mockCustomers: Array<{
+interface Customer {
   id: string;
   offer: string;
   client: string;
@@ -20,9 +20,14 @@ const mockCustomers: Array<{
   createdAt: string;
   value: string;
   status: "Pago" | "Pendente";
-}> = [];
+}
 
-export function RecentCustomersTable() {
+interface RecentCustomersTableProps {
+  customers: Customer[];
+  isLoading?: boolean;
+}
+
+export function RecentCustomersTable({ customers, isLoading = false }: RecentCustomersTableProps) {
   return (
     <Card className="p-6 border-border/50">
       <div className="space-y-4">
@@ -64,7 +69,20 @@ export function RecentCustomersTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockCustomers.length === 0 ? (
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-8 w-24" /></TableCell>
+                  </TableRow>
+                ))
+              ) : customers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-12">
                     <div className="flex flex-col items-center gap-2" style={{ color: 'var(--subtext)' }}>
@@ -77,7 +95,7 @@ export function RecentCustomersTable() {
                   </TableCell>
                 </TableRow>
               ) : (
-                mockCustomers.map((customer) => (
+                customers.map((customer) => (
                 <TableRow key={customer.id} className="hover:bg-muted/30">
                   <TableCell className="font-mono text-sm" style={{ color: 'var(--text)' }}>{customer.id}</TableCell>
                   <TableCell className="text-sm" style={{ color: 'var(--text)' }}>{customer.offer}</TableCell>
@@ -106,9 +124,9 @@ export function RecentCustomersTable() {
           </Table>
         </div>
 
-        {mockCustomers.length > 0 && (
+        {!isLoading && customers.length > 0 && (
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Mostrando {mockCustomers.length} de {mockCustomers.length} registros</span>
+            <span>Mostrando {customers.length} de {customers.length} registros</span>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" disabled>
               Previous

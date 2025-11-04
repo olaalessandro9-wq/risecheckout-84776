@@ -44,11 +44,12 @@ export function ProductCheckoutSettings({ productId }: { productId: string }) {
         console.error(error);
         toast.error("Não foi possível carregar as configurações.");
       } else if (data) {
+        const requiredFieldsData = data.required_fields as Record<string, boolean> | null;
         setRequiredFields({
-          name: data.required_fields?.name ?? true,
-          email: data.required_fields?.email ?? true,
-          phone: data.required_fields?.phone ?? false,
-          cpf:   data.required_fields?.cpf   ?? false,
+          name: requiredFieldsData?.name ?? true,
+          email: requiredFieldsData?.email ?? true,
+          phone: requiredFieldsData?.phone ?? false,
+          cpf:   requiredFieldsData?.cpf   ?? false,
         });
         setDefaultMethod((data.default_payment_method ?? "pix") as "pix" | "credit_card");
       }

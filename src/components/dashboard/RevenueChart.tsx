@@ -1,25 +1,31 @@
 import { Card } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface RevenueChartProps {
   title: string;
   data: Array<{ date: string; value: number }>;
+  isLoading?: boolean;
 }
 
-export function RevenueChart({ title, data }: RevenueChartProps) {
+export function RevenueChart({ title, data, isLoading = false }: RevenueChartProps) {
   return (
     <div className="relative bg-gradient-to-br from-card/80 to-card border border-border/50 rounded-2xl p-6 hover:border-primary/30 transition-all duration-300 overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-base font-semibold text-foreground">{title}</h3>
-          <select className="px-3 py-1.5 text-sm bg-card/50 border border-border/50 rounded-lg text-foreground hover:border-primary/30 transition-all cursor-pointer">
-            <option>Todas</option>
-            <option>Aprovados</option>
-            <option>Pendentes</option>
-          </select>
         </div>
-        <ResponsiveContainer width="100%" height={180}>
+        {isLoading ? (
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={180}>
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
             <XAxis 
@@ -50,6 +56,7 @@ export function RevenueChart({ title, data }: RevenueChartProps) {
             />
           </LineChart>
         </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

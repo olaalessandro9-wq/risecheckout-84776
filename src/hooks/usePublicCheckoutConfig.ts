@@ -106,8 +106,9 @@ export async function loadPublicCheckoutData(slug: string) {
       throw new Error('Produto não encontrado');
     }
 
-    // Validar status do produto
-    if (productData.status === 'deleted' || productData.status === 'blocked') {
+    // Validar status do produto (se existir o campo)
+    const productWithStatus = productData as typeof productData & { status?: string };
+    if (productWithStatus.status === 'deleted' || productWithStatus.status === 'blocked') {
       throw new Error('Este produto não está mais disponível');
     }
 
@@ -209,8 +210,9 @@ export async function loadPublicCheckoutData(slug: string) {
     throw new Error('Produto não encontrado');
   }
 
-  // Validar status do produto
-  if (productData.status === 'deleted' || productData.status === 'blocked') {
+  // Validar status do produto (se existir o campo)
+  const productWithStatus2 = productData as typeof productData & { status?: string };
+  if (productWithStatus2.status === 'deleted' || productWithStatus2.status === 'blocked') {
     throw new Error('Este produto não está mais disponível');
   }
 
