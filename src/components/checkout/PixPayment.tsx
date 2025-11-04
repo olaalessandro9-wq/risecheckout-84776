@@ -96,22 +96,24 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
   // Polling do status do pagamento (a cada 5s, conforme recomendação PushinPay)
   useEffect(() => {
     if (!pixId || paymentStatus !== "waiting" || isExpired) {
+      console.log("[PixPayment] Polling não iniciado:", { pixId, paymentStatus, isExpired });
       return;
     }
 
-    console.log("[PixPayment] Iniciando polling a cada 5s (documentação PushinPay)");
+    console.log("[PixPayment] ✅ Iniciando polling a cada 5s (documentação PushinPay)");
     let attemptCount = 0;
     const maxAttempts = 30; // 30 tentativas × 5s = 2.5 minutos
+    let currentInterval: NodeJS.Timeout | null = null;
 
     const poll = async () => {
       attemptCount++;
-      console.log(`[PixPayment] Polling tentativa ${attemptCount}/${maxAttempts}`);
+      console.log(`[PixPayment] 🔍 Polling tentativa ${attemptCount}/${maxAttempts}`);
 
       if (attemptCount > maxAttempts) {
-        console.warn("[PixPayment] Limite de tentativas atingido, parando polling");
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-          setPollingInterval(null);
+        console.warn("[PixPayment] ⚠️ Limite de tentativas atingido, parando polling");
+        if (currentInterval) {
+          clearInterval(currentInterval);
+          currentInterval = null;
         }
         return;
       }
@@ -122,13 +124,13 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
         });
 
         if (error) {
-          console.error("[PixPayment] Erro ao verificar status:", error);
+          console.error("[PixPayment] ❌ Erro ao verificar status:", error);
           setFailedAttempts(prev => prev + 1);
           return;
         }
 
         if (data?.ok === false) {
-          console.warn("[PixPayment] Status desconhecido retornado");
+          console.warn("[PixPayment] ⚠️ Status desconhecido retornado");
           setFailedAttempts(prev => prev + 1);
           return;
         }
@@ -136,14 +138,14 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
         // Resetar tentativas em caso de sucesso
         setFailedAttempts(0);
 
-        console.log("[PixPayment] Status recebido:", data?.status?.status);
+        console.log("[PixPayment] 📊 Status recebido:", data?.status?.status);
 
         if (data?.status?.status === "paid") {
           console.log("[PixPayment] ✅ Pagamento confirmado!");
           setPaymentStatus("paid");
-          if (pollingInterval) {
-            clearInterval(pollingInterval);
-            setPollingInterval(null);
+          if (currentInterval) {
+            clearInterval(currentInterval);
+            currentInterval = null;
           }
           toast.success("Pagamento confirmado!");
           onSuccess?.();
@@ -151,31 +153,41 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
           console.log("[PixPayment] ⏰ Pagamento expirado/cancelado");
           setPaymentStatus("expired");
           setIsExpired(true);
-          if (pollingInterval) {
-            clearInterval(pollingInterval);
-            setPollingInterval(null);
+          if (currentInterval) {
+            clearInterval(currentInterval);
+            currentInterval = null;
           }
         }
       } catch (err) {
-        console.error("[PixPayment] Erro no polling:", err);
+        console.error("[PixPayment] ❌ Erro no polling:", err);
         setFailedAttempts(prev => prev + 1);
       }
     };
 
-    // Polling a cada 5 segundos (conforme documentação PushinPay)
-    const interval = setInterval(poll, 5000);
-    setPollingInterval(interval);
+    // Executar primeira verificação imediatamente
+    poll();
+
+    // Depois continuar verificando a cada 5 segundos (conforme documentação PushinPay)
+    currentInterval = setInterval(poll, 5000);
+    setPollingInterval(currentInterval);
 
     return () => {
-      if (interval) clearInterval(interval);
+      console.log("[PixPayment] 🛑 Limpando polling interval");
+      if (currentInterval) clearInterval(currentInterval);
     };
-  }, [pixId, paymentStatus, isExpired, orderId, onSuccess, pollingInterval]);
+  }, [pixId, paymentStatus, isExpired, orderId, onSuccess]);
 
 
   // Verificar expiração local e atualizar countdown
+  // Gerenciar countdown de expiração (15 minutos)
   useEffect(() => {
-    if (!expiresAt) return;
+    if (!expiresAt) {
+      console.log("[PixPayment] ⏱️ Countdown não iniciado: expiresAt não definido");
+      return;
+    }
 
+    console.log("[PixPayment] ⏱️ Iniciando countdown de 15 minutos");
+    
     const checkExpiration = setInterval(() => {
       const remaining = Math.floor((expiresAt - Date.now()) / 1000);
       
@@ -191,10 +203,14 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
         toast.error("QR Code expirado após 15 minutos");
       } else {
         setTimeRemaining(remaining);
+        console.log(`[PixPayment] ⏱️ Tempo restante: ${Math.floor(remaining / 60)}:${(remaining % 60).toString().padStart(2, '0')}`);
       }
     }, 1000);
 
-    return () => clearInterval(checkExpiration);
+    return () => {
+      console.log("[PixPayment] 🛑 Limpando countdown interval");
+      clearInterval(checkExpiration);
+    };
   }, [expiresAt, pollingInterval]);
 
   // Copiar código PIX
