@@ -92,8 +92,8 @@ export function Sidebar() {
   return (
     <aside
       className={clsx(
-        "flex h-screen shrink-0 flex-col border-r border-border/60 bg-background text-foreground transition-all duration-300",
-        isCollapsed ? "w-[100px]" : "w-[248px]"
+        "flex h-screen shrink-0 flex-col border-r border-border/60 bg-background text-foreground transition-all duration-300 ease-in-out",
+        isCollapsed ? "w-[90px]" : "w-[248px]"
       )}
     >
       {/* Brand / Logo */}
@@ -126,21 +126,21 @@ export function Sidebar() {
       {/* Navegação */}
       <TooltipProvider delayDuration={300}>
         <nav className={clsx(
-          "scrollbar-none flex-1 overflow-y-auto py-4 transition-all",
-          isCollapsed ? "px-1.5" : "px-2"
+          "scrollbar-none flex-1 overflow-y-auto py-4 transition-all duration-300 ease-in-out",
+          isCollapsed ? "px-2.5" : "px-2"
         )}>
           {getNavSections(isCollapsed).map((section) => (
             <div 
               key={section.title} 
               className={clsx(
                 "mb-4",
-                section.title === "OPERAÇÕES" && isCollapsed && "pt-3 border-t border-border/40 mt-3"
+                section.title === "OPERAÇÕES" && isCollapsed && "pt-3 border-t border-border/20 mt-3"
               )}
             >
               <div className={clsx(
-                "px-2 font-semibold uppercase tracking-wider transition-all",
+                "px-2 font-medium uppercase tracking-widest transition-all duration-300 ease-in-out",
                 isCollapsed 
-                  ? "text-center pb-1.5 text-[9px] text-muted-foreground/70 bg-muted/30 rounded-md mx-1 mb-2" 
+                  ? "text-center pb-1 text-[10px] text-muted-foreground/60 mb-2.5" 
                   : "pb-2 text-[11px] text-muted-foreground/80"
               )}>
                 {section.title}
@@ -155,7 +155,7 @@ export function Sidebar() {
                       rel="noopener noreferrer"
                       className={rowClass(undefined, isCollapsed)}
                     >
-                      <Icon className={isCollapsed ? "h-6 w-6 shrink-0 mx-auto" : "h-4 w-4"} />
+                      <Icon className={isCollapsed ? "h-[22px] w-[22px] shrink-0 mx-auto" : "h-4 w-4"} />
                       {!isCollapsed && <span>{it.label}</span>}
                     </a>
                   ) : (
@@ -163,7 +163,7 @@ export function Sidebar() {
                       to={it.to!} 
                       className={({ isActive }) => rowClass(isActive, isCollapsed)}
                     >
-                      <Icon className={isCollapsed ? "h-6 w-6 shrink-0 mx-auto" : "h-4 w-4"} />
+                      <Icon className={isCollapsed ? "h-[22px] w-[22px] shrink-0 mx-auto" : "h-4 w-4"} />
                       {!isCollapsed && <span>{it.label}</span>}
                     </NavLink>
                   );
@@ -199,10 +199,12 @@ export function Sidebar() {
 
 function rowClass(active?: boolean, collapsed?: boolean) {
   return clsx(
-    "group flex items-center rounded-md text-sm transition w-full",
-    collapsed ? "justify-center px-3 py-3.5" : "gap-3 px-2 py-2",
-    active
-      ? "bg-muted text-foreground font-medium"
-      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+    "group flex items-center rounded-md text-sm transition-all duration-200 w-full",
+    collapsed ? "justify-center px-2 py-3" : "gap-3 px-2 py-2",
+    active && collapsed
+      ? "bg-muted text-foreground font-medium border-l-2 border-primary"
+      : active
+        ? "bg-muted text-foreground font-medium"
+        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground hover:scale-[1.02]"
   );
 }
