@@ -135,37 +135,6 @@ export default function Financeiro() {
           </div>
         )}
 
-        {/* Alertas Contextuais */}
-        {environment === 'production' && (
-          <div className="rounded-lg border border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 p-3 text-xs">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <strong className="text-yellow-900 dark:text-yellow-100">Modo Produção Ativo</strong>
-                <p className="text-yellow-800 dark:text-yellow-200 mt-1">
-                  Você está utilizando credenciais de produção. Pagamentos reais serão processados.
-                  Certifique-se de que o webhook está configurado corretamente.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {environment === 'sandbox' && (
-          <div className="rounded-lg border border-blue-500 bg-blue-50 dark:bg-blue-900/20 p-3 text-xs">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <strong className="text-blue-900 dark:text-blue-100">Modo Sandbox (Testes)</strong>
-                <p className="text-blue-800 dark:text-blue-200 mt-1">
-                  Você está em ambiente de testes. Use o painel da PushinPay para simular pagamentos.
-                  Nenhum dinheiro real será movimentado.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {hasExistingToken ? (
           <Collapsible open={isUpdateSectionOpen} onOpenChange={setIsUpdateSectionOpen} className="space-y-2">
             <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-full">
@@ -250,24 +219,6 @@ export default function Financeiro() {
         )}
 
         <div className="space-y-4">
-
-          {message && (
-            <div
-              className={`flex items-center gap-2 rounded-md p-3 text-sm ${
-                message.type === "success"
-                  ? "bg-green-50 text-green-900 dark:bg-green-900/20 dark:text-green-100"
-                  : "bg-red-50 text-red-900 dark:bg-red-900/20 dark:text-red-100"
-              }`}
-            >
-              {message.type === "success" ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <AlertCircle className="h-4 w-4" />
-              )}
-              <span>{message.text}</span>
-            </div>
-          )}
-
           <button
             disabled={loading || !apiToken}
             onClick={onSave}
