@@ -94,10 +94,19 @@ export function OrderDetailsDialog({ open, onOpenChange, orderData }: OrderDetai
           {/* Pagamento */}
           <div className="space-y-3">
             <label className="text-sm font-medium text-muted-foreground">Pagamento</label>
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Valor:</span>
                 <span className="text-lg font-bold text-primary">{orderData.amount}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Status:</span>
+                <Badge 
+                  variant={orderData.status === "Pago" ? "default" : "secondary"}
+                  className={orderData.status === "Pago" ? "bg-success/20 text-success hover:bg-success/30" : ""}
+                >
+                  {orderData.status}
+                </Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Data:</span>
