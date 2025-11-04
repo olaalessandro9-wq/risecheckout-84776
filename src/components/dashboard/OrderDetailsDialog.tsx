@@ -66,19 +66,19 @@ export function OrderDetailsDialog({ open, onOpenChange, orderData }: OrderDetai
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[580px] p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[520px] p-0 overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header com gradiente baseado no status */}
-        <div className={`relative bg-gradient-to-br ${statusConfig.gradient} p-6 pb-8`}>
+        <div className={`relative bg-gradient-to-br ${statusConfig.gradient} p-4 pb-5`}>
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between text-xl">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${statusConfig.color} border`}>
-                  <StatusIcon className={`w-5 h-5 ${statusConfig.iconColor}`} />
+            <DialogTitle className="flex items-center justify-between text-lg">
+              <div className="flex items-center gap-2">
+                <div className={`p-1.5 rounded-lg ${statusConfig.color} border`}>
+                  <StatusIcon className={`w-4 h-4 ${statusConfig.iconColor}`} />
                 </div>
                 <span>Detalhes da Compra</span>
               </div>
               <Badge 
-                className={`${statusConfig.color} border px-3 py-1 text-sm font-semibold`}
+                className={`${statusConfig.color} border px-2 py-0.5 text-xs font-semibold`}
               >
                 {orderData.status}
               </Badge>
@@ -86,35 +86,35 @@ export function OrderDetailsDialog({ open, onOpenChange, orderData }: OrderDetai
           </DialogHeader>
 
           {/* ID da Compra em destaque */}
-          <div className="mt-4 space-y-1">
+          <div className="mt-3 space-y-1">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">ID da Compra</label>
-            <p className="text-sm font-mono bg-background/50 backdrop-blur-sm p-3 rounded-lg border border-border/50 break-all">
+            <p className="text-xs font-mono bg-background/50 backdrop-blur-sm p-2 rounded-lg border border-border/50 break-all">
               {orderData.id}
             </p>
           </div>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-4 space-y-4 overflow-y-auto flex-1">
           {/* Produto - Card destacado */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Package className="w-4 h-4" />
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+              <Package className="w-3.5 h-3.5" />
               <span>Produto</span>
             </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl border border-border bg-muted/30">
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
               <div className="relative">
                 <img 
                   src={orderData.productImageUrl} 
                   alt={orderData.productName}
-                  className="w-20 h-20 rounded-lg object-cover border-2 border-border shadow-sm"
+                  className="w-14 h-14 rounded-md object-cover border border-border shadow-sm"
                   onError={(e) => {
                     e.currentTarget.src = '/placeholder.svg';
                   }}
                 />
               </div>
-              <div className="flex-1">
-                <p className="font-semibold text-foreground">{orderData.productName}</p>
-                <p className="text-sm text-muted-foreground mt-1">Produto digital</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm text-foreground truncate">{orderData.productName}</p>
+                <p className="text-xs text-muted-foreground">Produto digital</p>
               </div>
             </div>
           </div>
@@ -122,36 +122,36 @@ export function OrderDetailsDialog({ open, onOpenChange, orderData }: OrderDetai
           <Separator />
 
           {/* Cliente - Grid organizado */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <User className="w-4 h-4" />
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+              <User className="w-3.5 h-3.5" />
               <span>Informações do Cliente</span>
             </div>
-            <div className="grid gap-3">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
-                <div className="p-2 rounded-md bg-background">
-                  <User className="w-4 h-4 text-muted-foreground" />
+            <div className="grid gap-2">
+              <div className="flex items-center gap-2 p-2 rounded-md bg-muted/30">
+                <div className="p-1.5 rounded-md bg-background">
+                  <User className="w-3.5 h-3.5 text-muted-foreground" />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <p className="text-xs text-muted-foreground">Nome</p>
-                  <p className="text-sm font-medium text-foreground">{orderData.customerName}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{orderData.customerName}</p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
-                <div className="p-2 rounded-md bg-background">
-                  <Mail className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 p-2 rounded-md bg-muted/30">
+                <div className="p-1.5 rounded-md bg-background">
+                  <Mail className="w-3.5 h-3.5 text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-muted-foreground">Email</p>
-                  <p className="text-sm font-medium text-foreground break-all">{orderData.customerEmail}</p>
+                  <p className="text-xs font-medium text-foreground break-all">{orderData.customerEmail}</p>
                 </div>
               </div>
 
               {orderData.customerPhone && orderData.customerPhone !== 'N/A' && (
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
-                  <div className="p-2 rounded-md bg-background">
-                    <Phone className="w-4 h-4 text-muted-foreground" />
+                <div className="flex items-center gap-2 p-2 rounded-md bg-muted/30">
+                  <div className="p-1.5 rounded-md bg-background">
+                    <Phone className="w-3.5 h-3.5 text-muted-foreground" />
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Telefone</p>
@@ -165,25 +165,25 @@ export function OrderDetailsDialog({ open, onOpenChange, orderData }: OrderDetai
           <Separator />
 
           {/* Pagamento - Destaque para o valor */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <CreditCard className="w-4 h-4" />
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+              <CreditCard className="w-3.5 h-3.5" />
               <span>Informações de Pagamento</span>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {/* Valor em destaque */}
-              <div className="p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
+              <div className="p-3 rounded-lg border-2 border-primary/20 bg-primary/5">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Valor Total</span>
-                  <span className="text-2xl font-bold text-primary">{orderData.amount}</span>
+                  <span className="text-xs text-muted-foreground">Valor Total</span>
+                  <span className="text-xl font-bold text-primary">{orderData.amount}</span>
                 </div>
               </div>
 
               {/* Status */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                <span className="text-sm text-muted-foreground">Status do Pagamento</span>
+              <div className="flex items-center justify-between p-2 rounded-md bg-muted/30">
+                <span className="text-xs text-muted-foreground">Status do Pagamento</span>
                 <Badge 
-                  className={`${statusConfig.color} border px-3 py-1 font-semibold`}
+                  className={`${statusConfig.color} border px-2 py-0.5 text-xs font-semibold`}
                 >
                   <StatusIcon className="w-3 h-3 mr-1" />
                   {orderData.status}
@@ -191,12 +191,12 @@ export function OrderDetailsDialog({ open, onOpenChange, orderData }: OrderDetai
               </div>
 
               {/* Data */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Data da Compra</span>
+              <div className="flex items-center justify-between p-2 rounded-md bg-muted/30">
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Data da Compra</span>
                 </div>
-                <span className="text-sm font-medium text-foreground">{orderData.createdAt}</span>
+                <span className="text-xs font-medium text-foreground">{orderData.createdAt}</span>
               </div>
             </div>
           </div>
