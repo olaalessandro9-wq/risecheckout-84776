@@ -64,6 +64,48 @@ export const CheckoutCustomizationPanel = ({
 }: CheckoutCustomizationPanelProps) => {
   const [activeTab, setActiveTab] = useState("components");
 
+  const handleDesignUpdate = (field: string, value: any) => {
+    // Se o campo é 'design.colors.ALGUMA_COR', marca como tema custom
+    if (field.startsWith('design.colors.') && field !== 'design') {
+      // Usuário editou uma cor individual → marca como custom
+      const newDesign = { ...customization.design };
+      
+      // Atualiza o valor usando dot notation
+      const keys = field.replace('design.', '').split('.');
+      let current: any = newDesign;
+      for (let i = 0; i < keys.length - 1; i++) {
+        if (!current[keys[i]]) {
+          current[keys[i]] = {};
+        }
+        current = current[keys[i]];
+      }
+      current[keys[keys.length - 1]] = value;
+      
+      // Marca como custom (usuário customizou uma cor)
+      newDesign.theme = 'custom';
+      
+      onUpdateDesign(newDesign);
+      
+    } else if (field === 'design') {
+      // Usuário trocou o tema inteiro (light/dark) → aplica preset completo
+      onUpdateDesign(value);
+      
+    } else if (field === 'design.theme') {
+      // Apenas mudança de tema sem preset (custom)
+      onUpdateDesign({
+        ...customization.design,
+        theme: value,
+      });
+      
+    } else if (field === 'design.font') {
+      // Mudança de fonte
+      onUpdateDesign({
+        ...customization.design,
+        font: value,
+      });
+    }
+  };
+
   if (selectedComponent) {
     return (
       <div className="w-96 border-l bg-card p-6 overflow-auto">
@@ -1166,69 +1208,8 @@ export const CheckoutCustomizationPanel = ({
           </div>
 
         <CheckoutColorSettings 
-          customization={customization.design}
-          onUpdate={(field, value) => {
-            const keys = field.split('.');
-            
-            // Create new object using spread (MUCH faster than JSON.parse/stringify)
-            if (keys[0] === 'theme' || keys[0] === 'font') {
-              // Top-level fields
-              onUpdateDesign({
-                ...customization.design,
-                [keys[0]]: value
-              });
-            } else if (keys[0] === 'colors') {
-              // Nested color fields
-              const colorKeys = keys.slice(1);
-              
-              if (colorKeys.length === 1) {
-                // Single level color (ex: colors.background)
-                onUpdateDesign({
-                  ...customization.design,
-                  colors: {
-                    ...customization.design.colors,
-                    [colorKeys[0]]: value
-                  }
-                });
-              } else if (colorKeys.length === 2) {
-                // Nested color (ex: colors.unselectedButton.text)
-                onUpdateDesign({
-                  ...customization.design,
-                  colors: {
-                    ...customization.design.colors,
-                    [colorKeys[0]]: {
-                      ...(customization.design.colors as any)[colorKeys[0]],
-                      [colorKeys[1]]: value
-                    }
-                  }
-                });
-              } else if (colorKeys.length === 3) {
-                // Deeply nested (ex: colors.box.headerBg)
-                onUpdateDesign({
-                  ...customization.design,
-                  colors: {
-                    ...customization.design.colors,
-                    [colorKeys[0]]: {
-                      ...(customization.design.colors as any)[colorKeys[0]],
-                      [colorKeys[1]]: {
-                        ...((customization.design.colors as any)[colorKeys[0]] || {})[colorKeys[1]],
-                        [colorKeys[2]]: value
-                      }
-                    }
-                  }
-                });
-              }
-            } else if (keys[0] === 'backgroundImage') {
-              // Background image fields
-              onUpdateDesign({
-                ...customization.design,
-                backgroundImage: {
-                  ...customization.design.backgroundImage,
-                  [keys[1]]: value
-                }
-              });
-            }
-          }}
+          customization={customization}
+          onUpdate={handleDesignUpdate}
         />
         </TabsContent>
       </Tabs>

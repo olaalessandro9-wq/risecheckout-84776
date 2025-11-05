@@ -1,24 +1,81 @@
 import { ColorPicker } from "./ColorPicker";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { THEME_PRESETS, FONT_OPTIONS } from "@/lib/checkout/themePresets";
+import { Label } from "@/components/ui/label";
 
 interface CheckoutColorSettingsProps {
   customization: any;
-  onUpdate: (field: string, value: string) => void;
+  onUpdate: (field: string, value: any) => void;
 }
 
 export const CheckoutColorSettings = ({ customization, onUpdate }: CheckoutColorSettingsProps) => {
+  const handleThemeChange = (themeName: 'light' | 'dark' | 'custom') => {
+    if (themeName === 'custom') {
+      // Apenas muda o theme para custom, mantém as cores atuais
+      onUpdate('design.theme', themeName);
+    } else {
+      // Aplica TODAS as cores do preset
+      const preset = THEME_PRESETS[themeName];
+      onUpdate('design', {
+        ...customization.design,
+        theme: themeName,
+        colors: preset.colors,
+      });
+    }
+  };
+
+  const handleFontChange = (font: string) => {
+    onUpdate('design.font', font);
+  };
+
   return (
     <div className="space-y-6 p-4">
       {/* Tema e Fonte */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Tema e Fonte</h3>
+        
+        {/* SELETOR DE TEMA */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Tema</label>
-          <p className="text-xs text-muted-foreground">Customizado</p>
+          <Label className="text-sm font-medium">Tema</Label>
+          <Select
+            value={customization.design?.theme || 'custom'}
+            onValueChange={handleThemeChange}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione o tema" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="light">Claro (Light)</SelectItem>
+              <SelectItem value="dark">Escuro (Dark)</SelectItem>
+              <SelectItem value="custom">Personalizado</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            {customization.design?.theme === 'light' && 'Tema claro padrão aplicado'}
+            {customization.design?.theme === 'dark' && 'Tema escuro padrão aplicado'}
+            {(!customization.design?.theme || customization.design?.theme === 'custom') && 'Tema personalizado - você pode editar todas as cores abaixo'}
+          </p>
         </div>
+        
+        {/* SELETOR DE FONTE */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Fonte</label>
-          <p className="text-xs text-muted-foreground">Roboto</p>
+          <Label className="text-sm font-medium">Fonte</Label>
+          <Select
+            value={customization.design?.font || 'Inter'}
+            onValueChange={handleFontChange}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione a fonte" />
+            </SelectTrigger>
+            <SelectContent>
+              {FONT_OPTIONS.map(font => (
+                <SelectItem key={font.value} value={font.value}>
+                  {font.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -29,20 +86,20 @@ export const CheckoutColorSettings = ({ customization, onUpdate }: CheckoutColor
         <h3 className="text-lg font-semibold">Cores Gerais</h3>
         <ColorPicker
           label="Cor de Fundo Principal"
-          value={customization.background_color || '#000000'}
-          onChange={(value) => onUpdate('background_color', value)}
+          value={customization.design?.colors?.background || '#FFFFFF'}
+          onChange={(value) => onUpdate('design.colors.background', value)}
           description="Fundo geral do checkout"
         />
         <ColorPicker
           label="Cor do Texto Principal"
-          value={customization.primary_text_color || '#FFFFFF'}
-          onChange={(value) => onUpdate('primary_text_color', value)}
+          value={customization.design?.colors?.primaryText || '#000000'}
+          onChange={(value) => onUpdate('design.colors.primaryText', value)}
           description="Títulos e textos principais"
         />
         <ColorPicker
           label="Cor do Texto Secundário"
-          value={customization.secondary_text_color || '#CCCCCC'}
-          onChange={(value) => onUpdate('secondary_text_color', value)}
+          value={customization.design?.colors?.secondaryText || '#6B7280'}
+          onChange={(value) => onUpdate('design.colors.secondaryText', value)}
           description="Descrições e subtítulos"
         />
       </div>
@@ -54,21 +111,9 @@ export const CheckoutColorSettings = ({ customization, onUpdate }: CheckoutColor
         <h3 className="text-lg font-semibold">Formulário de Pagamento</h3>
         <ColorPicker
           label="Cor de Fundo do Formulário"
-          value={customization.form_background_color || '#1A1A1A'}
-          onChange={(value) => onUpdate('form_background_color', value)}
+          value={customization.design?.colors?.formBackground || '#F9FAFB'}
+          onChange={(value) => onUpdate('design.colors.formBackground', value)}
           description="Fundo da seção de pagamento"
-        />
-        <ColorPicker
-          label="Cor do Texto dos Inputs"
-          value={customization.input_text_color || '#FFFFFF'}
-          onChange={(value) => onUpdate('input_text_color', value)}
-          description="Cor do texto dentro dos campos de formulário"
-        />
-        <ColorPicker
-          label="Cor de Fundo dos Inputs"
-          value={customization.input_bg_color || '#2A2A2A'}
-          onChange={(value) => onUpdate('input_bg_color', value)}
-          description="Cor de fundo dos campos de formulário"
         />
       </div>
 
@@ -80,25 +125,35 @@ export const CheckoutColorSettings = ({ customization, onUpdate }: CheckoutColor
         <h4 className="text-md font-semibold">Não Selecionado</h4>
         <ColorPicker
           label="Cor do Texto"
-          value={customization.unselected_button_text_color || '#000000'}
-          onChange={(value) => onUpdate('unselected_button_text_color', value)}
+          value={customization.design?.colors?.unselectedButton?.text || '#000000'}
+          onChange={(value) => onUpdate('design.colors.unselectedButton.text', value)}
         />
         <ColorPicker
           label="Cor de Fundo"
-          value={customization.unselected_button_bg_color || '#FFFFFF'}
-          onChange={(value) => onUpdate('unselected_button_bg_color', value)}
+          value={customization.design?.colors?.unselectedButton?.background || '#FFFFFF'}
+          onChange={(value) => onUpdate('design.colors.unselectedButton.background', value)}
+        />
+        <ColorPicker
+          label="Cor do Ícone"
+          value={customization.design?.colors?.unselectedButton?.icon || '#000000'}
+          onChange={(value) => onUpdate('design.colors.unselectedButton.icon', value)}
         />
         <h4 className="text-md font-semibold">Selecionado</h4>
         <ColorPicker
           label="Cor do Texto"
-          value={customization.selected_button_text_color || '#FFFFFF'}
-          onChange={(value) => onUpdate('selected_button_text_color', value)}
+          value={customization.design?.colors?.selectedButton?.text || '#FFFFFF'}
+          onChange={(value) => onUpdate('design.colors.selectedButton.text', value)}
         />
         <ColorPicker
           label="Cor de Fundo"
-          value={customization.selected_button_bg_color || '#10B981'}
-          onChange={(value) => onUpdate('selected_button_bg_color', value)}
+          value={customization.design?.colors?.selectedButton?.background || '#10B981'}
+          onChange={(value) => onUpdate('design.colors.selectedButton.background', value)}
           description="Padrão verde"
+        />
+        <ColorPicker
+          label="Cor do Ícone"
+          value={customization.design?.colors?.selectedButton?.icon || '#FFFFFF'}
+          onChange={(value) => onUpdate('design.colors.selectedButton.icon', value)}
         />
       </div>
 
@@ -109,13 +164,13 @@ export const CheckoutColorSettings = ({ customization, onUpdate }: CheckoutColor
         <h3 className="text-lg font-semibold">Botão Principal de Pagamento</h3>
         <ColorPicker
           label="Cor do Texto"
-          value={customization.payment_button_text_color || '#FFFFFF'}
-          onChange={(value) => onUpdate('payment_button_text_color', value)}
+          value={customization.design?.colors?.button?.text || '#FFFFFF'}
+          onChange={(value) => onUpdate('design.colors.button.text', value)}
         />
         <ColorPicker
           label="Cor de Fundo"
-          value={customization.payment_button_bg_color || '#10B981'}
-          onChange={(value) => onUpdate('payment_button_bg_color', value)}
+          value={customization.design?.colors?.button?.background || '#10B981'}
+          onChange={(value) => onUpdate('design.colors.button.background', value)}
           description="Padrão verde"
         />
       </div>
