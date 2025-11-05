@@ -366,8 +366,8 @@ const PublicCheckout = () => {
           color: design.colors.primaryText
         }}
       >
-        <div className="max-w-[1120px] mx-auto px-4 lg:px-6 pt-2 pb-4 lg:pt-2 lg:pb-8">
-          <div className="max-w-4xl mx-auto">
+        <div className="max-w-[1400px] mx-auto px-4 lg:px-6 pt-2 pb-4 lg:pt-2 lg:pb-8">
+          <div className="max-w-5xl mx-auto">
             {/* Coluna Principal - Formulário (Esquerda no Desktop) */}
             <div className="space-y-1 min-w-0">
               {/* Header do Produto */}
