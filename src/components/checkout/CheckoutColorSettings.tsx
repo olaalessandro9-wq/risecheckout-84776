@@ -240,51 +240,6 @@ export const CheckoutColorSettings = ({ customization, onUpdate }: CheckoutColor
         />
       </div>
 
-      <Separator />
-
-      {/* Bloco "Compra Segura" - Desktop */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Bloco "Compra Segura" (Desktop)</h3>
-        <p className="text-xs text-muted-foreground">
-          ⓘ Este bloco aparece apenas na versão desktop, no lado direito da tela
-        </p>
-        <ColorPicker
-          label="Fundo do Cabeçalho"
-          value={customization.design?.colors?.securePurchase?.headerBackground || '#10B981'}
-          onChange={(value) => onUpdate('design.colors.securePurchase.headerBackground', value)}
-          description="Fundo verde com ícone de cadeado"
-        />
-        <ColorPicker
-          label="Texto do Cabeçalho"
-          value={customization.design?.colors?.securePurchase?.headerText || '#FFFFFF'}
-          onChange={(value) => onUpdate('design.colors.securePurchase.headerText', value)}
-          description="Texto 'Compra segura'"
-        />
-        <ColorPicker
-          label="Fundo do Card"
-          value={customization.design?.colors?.securePurchase?.cardBackground || '#FFFFFF'}
-          onChange={(value) => onUpdate('design.colors.securePurchase.cardBackground', value)}
-          description="Fundo do bloco branco"
-        />
-        <ColorPicker
-          label="Texto Principal"
-          value={customization.design?.colors?.securePurchase?.primaryText || '#000000'}
-          onChange={(value) => onUpdate('design.colors.securePurchase.primaryText', value)}
-          description="Nome do produto e total"
-        />
-        <ColorPicker
-          label="Texto Secundário"
-          value={customization.design?.colors?.securePurchase?.secondaryText || '#6B7280'}
-          onChange={(value) => onUpdate('design.colors.securePurchase.secondaryText', value)}
-          description="Descrições e informações adicionais"
-        />
-        <ColorPicker
-          label="Links"
-          value={customization.design?.colors?.securePurchase?.linkText || '#3B82F6'}
-          onChange={(value) => onUpdate('design.colors.securePurchase.linkText', value)}
-          description="Link 'Veja o contato do vendedor'"
-        />
-      </div>
     </div>
   );
 };
