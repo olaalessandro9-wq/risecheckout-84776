@@ -121,8 +121,8 @@ const ComponentRenderer = ({
               alt="Componente" 
               className="rounded object-contain"
               style={{
-                maxWidth: '400px',      // largura máxima
-                maxHeight: '350px',     // altura máxima
+                maxWidth: '100%',       // largura máxima
+                maxHeight: '320px',     // altura máxima reduzida
                 width: '100%',          // responsivo
                 height: 'auto',         // mantém proporção
               }}
@@ -548,10 +548,8 @@ const CheckoutPreviewComponent = ({
       }}
     >
       <div className="w-full">
-        <div className={viewMode === "mobile" ? "max-w-md mx-auto space-y-4" : "max-w-[1120px] mx-auto px-4 lg:px-6"}>
-          <div className={viewMode === "mobile" ? "space-y-4" : "grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]"}>
-            {/* Coluna Esquerda - Formulário */}
-            <div className="space-y-4 min-w-0">
+        <div className={viewMode === "mobile" ? "max-w-md mx-auto space-y-4" : "max-w-4xl mx-auto px-4 lg:px-6"}>
+          <div className="space-y-4 min-w-0">
         {/* Top Drop Zone */}
         {!isPreviewMode && (
           <div
@@ -1242,7 +1240,6 @@ const CheckoutPreviewComponent = ({
         )}
             </div>
 
-          </div>
         </div>
       </div>
     </div>

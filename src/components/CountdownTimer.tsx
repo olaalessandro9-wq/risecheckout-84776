@@ -58,20 +58,22 @@ export const CountdownTimer = ({
       {/* centraliza e fixa a largura ao mesmo "corpo" do cartão abaixo */}
       <div className="max-w-[720px] mx-auto px-4 lg:px-6">
         <div
-          className={`mt-4 mb-2 lg:mb-6 rounded-xl min-h-[64px] px-6 py-4 flex items-center justify-center gap-4 shadow-sm ${className}`}
+          className={`mt-4 mb-2 lg:mb-6 rounded-xl px-5 py-3 flex items-center justify-center gap-3 shadow-sm ${className}`}
           onClick={onClick}
           style={{ 
             backgroundColor, 
             color: textColor,
-            margin: '1rem 0'
+            margin: '1rem 0',
+            minHeight: '80px',
+            maxHeight: '100px'
           }}
         >
           {/* Ordem: tempo -> ícone -> texto (texto sempre visível no mobile) */}
-          <span className="text-3xl lg:text-2xl font-semibold tabular-nums">
+          <span className="text-2xl lg:text-xl font-semibold tabular-nums">
             {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
           </span>
 
-          <AlarmClock size={28} style={{ color: textColor }} />
+          <AlarmClock size={20} style={{ color: textColor }} />
 
           {(isFinished ? finishedText : activeText) && (
             <span className="text-sm opacity-90 ml-2">
