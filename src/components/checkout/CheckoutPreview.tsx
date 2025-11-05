@@ -122,7 +122,7 @@ const ComponentRenderer = ({
               className="rounded object-contain"
               style={{
                 maxWidth: '100%',       // largura máxima
-                maxHeight: '320px',     // altura máxima reduzida
+                maxHeight: '400px',     // altura máxima aumentada
                 width: '100%',          // responsivo
                 height: 'auto',         // mantém proporção
               }}

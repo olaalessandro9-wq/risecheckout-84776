@@ -56,16 +56,16 @@ export const CountdownTimer = ({
       style={{ backgroundColor: 'transparent' }}
     >
       {/* centraliza e fixa a largura ao mesmo "corpo" do cartão abaixo */}
-      <div className="max-w-[720px] mx-auto px-4 lg:px-6">
+      <div className="max-w-4xl mx-auto px-4 lg:px-6">
         <div
-          className={`mt-4 mb-2 lg:mb-6 rounded-xl px-5 py-3 flex items-center justify-center gap-3 shadow-sm ${className}`}
+          className={`mt-4 mb-2 lg:mb-6 rounded-xl px-6 py-2.5 flex items-center justify-center gap-3 shadow-sm ${className}`}
           onClick={onClick}
           style={{ 
             backgroundColor, 
             color: textColor,
             margin: '1rem 0',
-            minHeight: '80px',
-            maxHeight: '100px'
+            minHeight: '64px',
+            maxHeight: '72px'
           }}
         >
           {/* Ordem: tempo -> ícone -> texto (texto sempre visível no mobile) */}

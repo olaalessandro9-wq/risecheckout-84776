@@ -36,11 +36,11 @@ const CheckoutComponentRenderer = ({ component, design }: CheckoutComponentRende
 
       return (
         <div className="w-full flex justify-center">
-          {/* reduzir levemente o max-width para encurtar horizontalmente */}
-          <div className="w-full max-w-[680px] mx-auto px-4">
+          {/* largura alinhada com o formulário */}
+          <div className="w-full max-w-4xl mx-auto px-4">
             <div className="p-0.5 rounded-sm mb-0.5">
-              {/* Manter 16/9 para preservar área visível da imagem */}
-              <div className="aspect-[16/9] relative overflow-hidden">
+              {/* 16/9 no mobile, 21/9 no desktop para aproveitar largura */}
+              <div className="aspect-[16/9] lg:aspect-[21/9] relative overflow-hidden">
                 <img
                   key={component.id}
                   src={src}
