@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { attachOfferToCheckoutSmart } from "@/lib/links/attachOfferToCheckoutSmart";
-import { useBusy } from "@/ui/BusyProvider";
+import { useBusy } from "@/components/BusyProvider";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";

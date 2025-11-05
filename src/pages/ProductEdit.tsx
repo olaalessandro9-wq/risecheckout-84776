@@ -26,7 +26,7 @@ import { LinksTable, type PaymentLink } from "@/components/products/LinksTable";
 import { OffersManager, type Offer } from "@/components/products/OffersManager";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useBusy } from "@/ui/BusyProvider";
+import { useBusy } from "@/components/BusyProvider";
 import { useConfirmDelete } from "@/components/common/ConfirmDelete";
 import { UnsavedChangesGuard } from "@/providers/UnsavedChangesGuard";
 import { useConfirmDiscard } from "@/hooks/useConfirmDiscard";

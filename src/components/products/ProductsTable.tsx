@@ -5,7 +5,7 @@ import { formatCentsToBRL } from "@/utils/money";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AddProductDialog } from "./AddProductDialog";
-import { useBusy } from "@/ui/BusyProvider";
+import { useBusy } from "@/components/BusyProvider";
 import {
   Select,
   SelectContent,

@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import { BusyProvider } from "@/ui/BusyProvider";
+import { BusyProvider } from "@/components/BusyProvider";
 import AppShell from "./layouts/AppShell";
 import Index from "./pages/Index";
 import Produtos from "./pages/Produtos";
