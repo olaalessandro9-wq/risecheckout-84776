@@ -112,6 +112,30 @@ export interface CheckoutDesign {
       background: string;
       text: string;
     };
+
+    orderSummary?: {
+      background: string;
+      titleText: string;
+      productName: string;
+      priceText: string;
+      labelText: string;
+      borderColor: string;
+    };
+
+    footer?: {
+      background: string;
+      primaryText: string;
+      secondaryText: string;
+    };
+
+    securePurchase?: {
+      headerBackground: string;
+      headerText: string;
+      cardBackground: string;
+      primaryText: string;
+      secondaryText: string;
+      linkText: string;
+    };
   };
   backgroundImage?: {
     url?: string;

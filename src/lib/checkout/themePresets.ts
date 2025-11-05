@@ -45,6 +45,27 @@ export interface ThemePreset {
       background: string;
       text: string;
     };
+    orderSummary: {
+      background: string;
+      titleText: string;
+      productName: string;
+      priceText: string;
+      labelText: string;
+      borderColor: string;
+    };
+    footer: {
+      background: string;
+      primaryText: string;
+      secondaryText: string;
+    };
+    securePurchase: {
+      headerBackground: string;
+      headerText: string;
+      cardBackground: string;
+      primaryText: string;
+      secondaryText: string;
+      linkText: string;
+    };
   };
 }
 
@@ -96,6 +117,27 @@ export const THEME_PRESETS: Record<'light' | 'dark', ThemePreset> = {
         background: '#10B981',
         text: '#FFFFFF',
       },
+      orderSummary: {
+        background: '#F9FAFB',
+        titleText: '#000000',
+        productName: '#000000',
+        priceText: '#000000',
+        labelText: '#6B7280',
+        borderColor: '#D1D5DB',
+      },
+      footer: {
+        background: '#FFFFFF',
+        primaryText: '#000000',
+        secondaryText: '#6B7280',
+      },
+      securePurchase: {
+        headerBackground: '#10B981',
+        headerText: '#FFFFFF',
+        cardBackground: '#FFFFFF',
+        primaryText: '#000000',
+        secondaryText: '#6B7280',
+        linkText: '#3B82F6',
+      },
     },
   },
   dark: {
@@ -144,6 +186,27 @@ export const THEME_PRESETS: Record<'light' | 'dark', ThemePreset> = {
       button: {
         background: '#10B981',
         text: '#FFFFFF',
+      },
+      orderSummary: {
+        background: '#1A1A1A',
+        titleText: '#FFFFFF',
+        productName: '#FFFFFF',
+        priceText: '#FFFFFF',
+        labelText: '#CCCCCC',
+        borderColor: '#3A3A3A',
+      },
+      footer: {
+        background: '#0A0A0A',
+        primaryText: '#FFFFFF',
+        secondaryText: '#CCCCCC',
+      },
+      securePurchase: {
+        headerBackground: '#10B981',
+        headerText: '#FFFFFF',
+        cardBackground: '#1A1A1A',
+        primaryText: '#FFFFFF',
+        secondaryText: '#CCCCCC',
+        linkText: '#60A5FA',
       },
     },
   },

@@ -174,6 +174,117 @@ export const CheckoutColorSettings = ({ customization, onUpdate }: CheckoutColor
           description="Padrão verde"
         />
       </div>
+
+      <Separator />
+
+      {/* Resumo do Pedido */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Resumo do Pedido</h3>
+        <ColorPicker
+          label="Cor de Fundo"
+          value={customization.design?.colors?.orderSummary?.background || '#F9FAFB'}
+          onChange={(value) => onUpdate('design.colors.orderSummary.background', value)}
+          description="Fundo do bloco 'Resumo do pedido'"
+        />
+        <ColorPicker
+          label="Título"
+          value={customization.design?.colors?.orderSummary?.titleText || '#000000'}
+          onChange={(value) => onUpdate('design.colors.orderSummary.titleText', value)}
+          description="Texto 'Resumo do pedido'"
+        />
+        <ColorPicker
+          label="Nome do Produto"
+          value={customization.design?.colors?.orderSummary?.productName || '#000000'}
+          onChange={(value) => onUpdate('design.colors.orderSummary.productName', value)}
+        />
+        <ColorPicker
+          label="Preços"
+          value={customization.design?.colors?.orderSummary?.priceText || '#000000'}
+          onChange={(value) => onUpdate('design.colors.orderSummary.priceText', value)}
+          description="Valores em destaque"
+        />
+        <ColorPicker
+          label="Labels (Produto, Taxa, Total)"
+          value={customization.design?.colors?.orderSummary?.labelText || '#6B7280'}
+          onChange={(value) => onUpdate('design.colors.orderSummary.labelText', value)}
+        />
+        <ColorPicker
+          label="Cor das Bordas"
+          value={customization.design?.colors?.orderSummary?.borderColor || '#D1D5DB'}
+          onChange={(value) => onUpdate('design.colors.orderSummary.borderColor', value)}
+        />
+      </div>
+
+      <Separator />
+
+      {/* Rodapé */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Rodapé (Footer)</h3>
+        <ColorPicker
+          label="Cor de Fundo"
+          value={customization.design?.colors?.footer?.background || '#FFFFFF'}
+          onChange={(value) => onUpdate('design.colors.footer.background', value)}
+          description="Fundo do bloco do rodapé"
+        />
+        <ColorPicker
+          label="Texto Principal"
+          value={customization.design?.colors?.footer?.primaryText || '#000000'}
+          onChange={(value) => onUpdate('design.colors.footer.primaryText', value)}
+          description="'Rise Checkout' e nome do vendedor"
+        />
+        <ColorPicker
+          label="Texto Secundário"
+          value={customization.design?.colors?.footer?.secondaryText || '#6B7280'}
+          onChange={(value) => onUpdate('design.colors.footer.secondaryText', value)}
+          description="Textos explicativos"
+        />
+      </div>
+
+      <Separator />
+
+      {/* Bloco "Compra Segura" - Desktop */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Bloco "Compra Segura" (Desktop)</h3>
+        <p className="text-xs text-muted-foreground">
+          ⓘ Este bloco aparece apenas na versão desktop, no lado direito da tela
+        </p>
+        <ColorPicker
+          label="Fundo do Cabeçalho"
+          value={customization.design?.colors?.securePurchase?.headerBackground || '#10B981'}
+          onChange={(value) => onUpdate('design.colors.securePurchase.headerBackground', value)}
+          description="Fundo verde com ícone de cadeado"
+        />
+        <ColorPicker
+          label="Texto do Cabeçalho"
+          value={customization.design?.colors?.securePurchase?.headerText || '#FFFFFF'}
+          onChange={(value) => onUpdate('design.colors.securePurchase.headerText', value)}
+          description="Texto 'Compra segura'"
+        />
+        <ColorPicker
+          label="Fundo do Card"
+          value={customization.design?.colors?.securePurchase?.cardBackground || '#FFFFFF'}
+          onChange={(value) => onUpdate('design.colors.securePurchase.cardBackground', value)}
+          description="Fundo do bloco branco"
+        />
+        <ColorPicker
+          label="Texto Principal"
+          value={customization.design?.colors?.securePurchase?.primaryText || '#000000'}
+          onChange={(value) => onUpdate('design.colors.securePurchase.primaryText', value)}
+          description="Nome do produto e total"
+        />
+        <ColorPicker
+          label="Texto Secundário"
+          value={customization.design?.colors?.securePurchase?.secondaryText || '#6B7280'}
+          onChange={(value) => onUpdate('design.colors.securePurchase.secondaryText', value)}
+          description="Descrições e informações adicionais"
+        />
+        <ColorPicker
+          label="Links"
+          value={customization.design?.colors?.securePurchase?.linkText || '#3B82F6'}
+          onChange={(value) => onUpdate('design.colors.securePurchase.linkText', value)}
+          description="Link 'Veja o contato do vendedor'"
+        />
+      </div>
     </div>
   );
 };

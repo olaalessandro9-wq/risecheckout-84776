@@ -843,12 +843,15 @@ const CheckoutPreviewComponent = ({
 
               {/* Resumo do Pedido - PIX */}
               <div 
-                className="border border-gray-200 rounded-lg p-4"
-                style={{ backgroundColor: customization.design.colors.box?.bg || "#F9FAFB" }}
+                className="border rounded-lg p-4"
+                style={{ 
+                  backgroundColor: customization.design.colors.orderSummary?.background || "#F9FAFB",
+                  borderColor: customization.design.colors.orderSummary?.borderColor || "#D1D5DB",
+                }}
               >
                 <h4 
                   className="font-semibold mb-3 text-sm tracking-tight"
-                  style={{ color: customization.design.colors.box?.primaryText || "#000000" }}
+                  style={{ color: customization.design.colors.orderSummary?.titleText || "#000000" }}
                 >
                   Resumo do pedido
                 </h4>
@@ -868,47 +871,53 @@ const CheckoutPreviewComponent = ({
                   <div className="flex-1">
                     <h5 
                       className="text-sm font-medium leading-tight"
-                      style={{ color: customization.design.colors.box?.primaryText || "#000000" }}
+                      style={{ color: customization.design.colors.orderSummary?.productName || "#000000" }}
                     >
                       {productData?.name || "Nome do Produto"}
                     </h5>
                     <p 
                       className="text-base font-bold mt-0.5"
-                      style={{ color: customization.design.colors.box?.primaryText || "#000000" }}
+                      style={{ color: customization.design.colors.orderSummary?.priceText || "#000000" }}
                     >
                       {productData?.price ? formatCentsToBRL(productData.price) : 'R$ 0,00'}
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-1.5 text-sm border-t border-gray-300 pt-2.5">
+                <div 
+                  className="space-y-1.5 text-sm border-t pt-2.5"
+                  style={{ borderTopColor: customization.design.colors.orderSummary?.borderColor || "#D1D5DB" }}
+                >
                   <div className="flex justify-between">
-                    <span style={{ color: customization.design.colors.box?.secondaryText || "#6B7280" }}>
+                    <span style={{ color: customization.design.colors.orderSummary?.labelText || "#6B7280" }}>
                       Produto
                     </span>
                     <span 
                       className="font-medium"
-                      style={{ color: customization.design.colors.box?.primaryText || "#000000" }}
+                      style={{ color: customization.design.colors.orderSummary?.priceText || "#000000" }}
                     >
                       {productData?.price ? formatCentsToBRL(productData.price) : 'R$ 0,00'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span style={{ color: customization.design.colors.box?.secondaryText || "#6B7280" }}>
+                    <span style={{ color: customization.design.colors.orderSummary?.labelText || "#6B7280" }}>
                       Taxa de serviço
                     </span>
                     <span 
                       className="font-medium"
-                      style={{ color: customization.design.colors.box?.primaryText || "#000000" }}
+                      style={{ color: customization.design.colors.orderSummary?.priceText || "#000000" }}
                     >
                       R$ 0,99
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm font-bold pt-1.5 border-t border-gray-300">
-                    <span style={{ color: customization.design.colors.box?.primaryText || "#000000" }}>
+                  <div 
+                    className="flex justify-between text-sm font-bold pt-1.5 border-t"
+                    style={{ borderTopColor: customization.design.colors.orderSummary?.borderColor || "#D1D5DB" }}
+                  >
+                    <span style={{ color: customization.design.colors.orderSummary?.priceText || "#000000" }}>
                       Total
                     </span>
-                    <span style={{ color: customization.design.colors.box?.primaryText || "#000000" }}>
+                    <span style={{ color: customization.design.colors.orderSummary?.priceText || "#000000" }}>
                       {formatCentsToBRL(totalPrice)}
                     </span>
                   </div>
@@ -921,12 +930,15 @@ const CheckoutPreviewComponent = ({
             <>
               {/* Resumo do Pedido - Cartão de Crédito */}
               <div 
-                className="border border-gray-200 rounded-lg p-4"
-                style={{ backgroundColor: customization.design.colors.box?.bg || "#F9FAFB" }}
+                className="border rounded-lg p-4"
+                style={{ 
+                  backgroundColor: customization.design.colors.orderSummary?.background || "#F9FAFB",
+                  borderColor: customization.design.colors.orderSummary?.borderColor || "#D1D5DB",
+                }}
               >
                 <h4 
                   className="font-semibold mb-3 text-sm tracking-tight"
-                  style={{ color: customization.design.colors.box?.primaryText || "#000000" }}
+                  style={{ color: customization.design.colors.orderSummary?.titleText || "#000000" }}
                 >
                   Resumo do pedido
                 </h4>
@@ -946,47 +958,53 @@ const CheckoutPreviewComponent = ({
                   <div className="flex-1">
                     <h5 
                       className="text-sm font-medium leading-tight"
-                      style={{ color: customization.design.colors.box?.primaryText || "#000000" }}
+                      style={{ color: customization.design.colors.orderSummary?.productName || "#000000" }}
                     >
                       {productData?.name || "Nome do Produto"}
                     </h5>
                     <p 
                       className="text-base font-bold mt-0.5"
-                      style={{ color: customization.design.colors.box?.primaryText || "#000000" }}
+                      style={{ color: customization.design.colors.orderSummary?.priceText || "#000000" }}
                     >
                       {productData?.price ? formatCentsToBRL(productData.price) : 'R$ 0,00'}
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-1.5 text-sm border-t border-gray-300 pt-2.5">
+                <div 
+                  className="space-y-1.5 text-sm border-t pt-2.5"
+                  style={{ borderTopColor: customization.design.colors.orderSummary?.borderColor || "#D1D5DB" }}
+                >
                   <div className="flex justify-between">
-                    <span style={{ color: customization.design.colors.box?.secondaryText || "#6B7280" }}>
+                    <span style={{ color: customization.design.colors.orderSummary?.labelText || "#6B7280" }}>
                       Produto
                     </span>
                     <span 
                       className="font-medium"
-                      style={{ color: customization.design.colors.box?.primaryText || "#000000" }}
+                      style={{ color: customization.design.colors.orderSummary?.priceText || "#000000" }}
                     >
                       {productData?.price ? formatCentsToBRL(productData.price) : 'R$ 0,00'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span style={{ color: customization.design.colors.box?.secondaryText || "#6B7280" }}>
+                    <span style={{ color: customization.design.colors.orderSummary?.labelText || "#6B7280" }}>
                       Taxa de serviço
                     </span>
                     <span 
                       className="font-medium"
-                      style={{ color: customization.design.colors.box?.primaryText || "#000000" }}
+                      style={{ color: customization.design.colors.orderSummary?.priceText || "#000000" }}
                     >
                       R$ 0,99
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm font-bold pt-1.5 border-t border-gray-300">
-                    <span style={{ color: customization.design.colors.box?.primaryText || "#000000" }}>
+                  <div 
+                    className="flex justify-between text-sm font-bold pt-1.5 border-t"
+                    style={{ borderTopColor: customization.design.colors.orderSummary?.borderColor || "#D1D5DB" }}
+                  >
+                    <span style={{ color: customization.design.colors.orderSummary?.priceText || "#000000" }}>
                       Total
                     </span>
-                    <span style={{ color: customization.design.colors.box?.primaryText || "#000000" }}>
+                    <span style={{ color: customization.design.colors.orderSummary?.priceText || "#000000" }}>
                       {formatCentsToBRL(totalPrice)}
                     </span>
                   </div>
@@ -994,7 +1012,7 @@ const CheckoutPreviewComponent = ({
 
                 <p 
                   className="text-xs mt-2"
-                  style={{ color: customization.design.colors.box?.secondaryText || "#6B7280" }}
+                  style={{ color: customization.design.colors.orderSummary?.labelText || "#6B7280" }}
                 >
                   à vista no Cartão de Crédito
                 </p>
@@ -1136,23 +1154,23 @@ const CheckoutPreviewComponent = ({
         {/* Footer com Informações Legais */}
         <div 
           className="rounded-xl shadow-sm p-5 mt-5 text-center"
-          style={{ backgroundColor: customization.design.colors.formBackground || "#FFFFFF" }}
+          style={{ backgroundColor: customization.design.colors.footer?.background || "#FFFFFF" }}
         >
           <div className="space-y-3">
             {/* Logo/Nome + Processador */}
             <p 
               className="text-xs leading-relaxed"
-              style={{ color: customization.design.colors.secondaryText || "#374151" }}
+              style={{ color: customization.design.colors.footer?.secondaryText || "#6B7280" }}
             >
               <span 
                 className="font-bold"
-                style={{ color: customization.design.colors.primaryText || "#000000" }}
+                style={{ color: customization.design.colors.footer?.primaryText || "#000000" }}
               >
                 Rise Checkout
               </span> está processando este pagamento para o vendedor{' '}
               <span 
                 className="font-semibold"
-                style={{ color: customization.design.colors.primaryText || "#000000" }}
+                style={{ color: customization.design.colors.footer?.primaryText || "#000000" }}
               >
                 {productData?.seller_name || productData?.support_name || 'Vendedor'}
               </span>
@@ -1163,7 +1181,7 @@ const CheckoutPreviewComponent = ({
               <CheckCircleFilledIcon size={16} color="#10B981" />
               <span 
                 className="text-xs font-semibold"
-                style={{ color: customization.design.colors.primaryText || "#000000" }}
+                style={{ color: customization.design.colors.footer?.primaryText || "#000000" }}
               >
                 Compra 100% segura
               </span>
@@ -1172,7 +1190,7 @@ const CheckoutPreviewComponent = ({
             {/* reCAPTCHA */}
             <p 
               className="text-xs leading-relaxed"
-              style={{ color: customization.design.colors.secondaryText || "#6B7280" }}
+              style={{ color: customization.design.colors.footer?.secondaryText || "#6B7280" }}
             >
               Este site é protegido pelo reCAPTCHA do Google
             </p>
@@ -1231,12 +1249,23 @@ const CheckoutPreviewComponent = ({
                 {/* Card Principal */}
                 <div 
                   className="rounded-lg shadow-sm border border-gray-200 overflow-hidden"
-                  style={{ backgroundColor: customization.design.colors.formBackground || "#FFFFFF" }}
+                  style={{ backgroundColor: customization.design.colors.securePurchase?.cardBackground || "#FFFFFF" }}
                 >
-                  {/* Cabeçalho Verde */}
-                  <div className="bg-green-600 px-4 py-3 flex items-center gap-2">
-                    <LockIcon size={16} color="#FFFFFF" />
-                    <span className="text-sm font-semibold text-white">Compra segura</span>
+                  {/* Cabeçalho */}
+                  <div 
+                    className="px-4 py-3 flex items-center gap-2"
+                    style={{ backgroundColor: customization.design.colors.securePurchase?.headerBackground || "#10B981" }}
+                  >
+                    <LockIcon 
+                      size={16} 
+                      color={customization.design.colors.securePurchase?.headerText || "#FFFFFF"} 
+                    />
+                    <span 
+                      className="text-sm font-semibold"
+                      style={{ color: customization.design.colors.securePurchase?.headerText || "#FFFFFF" }}
+                    >
+                      Compra segura
+                    </span>
                   </div>
 
                   <div className="p-4 space-y-4">
@@ -1256,20 +1285,20 @@ const CheckoutPreviewComponent = ({
                       <div className="flex-1">
                         <h5 
                           className="text-sm font-medium leading-tight"
-                          style={{ color: customization.design.colors.primaryText || "#000000" }}
+                          style={{ color: customization.design.colors.securePurchase?.primaryText || "#000000" }}
                         >
                           {productData?.name || "Nome do Produto"}
                         </h5>
                         <p 
                           className="text-xs mt-1"
-                          style={{ color: customization.design.colors.secondaryText || "#6B7280" }}
+                          style={{ color: customization.design.colors.securePurchase?.secondaryText || "#6B7280" }}
                         >
                           Precisa de ajuda?
                         </p>
                         <a 
                           href="#" 
                           className="text-xs hover:underline"
-                          style={{ color: customization.design.colors.active || "#3B82F6" }}
+                          style={{ color: customization.design.colors.securePurchase?.linkText || "#3B82F6" }}
                         >
                           Veja o contato do vendedor
                         </a>
@@ -1284,26 +1313,26 @@ const CheckoutPreviewComponent = ({
                       <div className="flex justify-between items-baseline mb-1">
                         <span 
                           className="text-sm"
-                          style={{ color: customization.design.colors.secondaryText || "#6B7280" }}
+                          style={{ color: customization.design.colors.securePurchase?.secondaryText || "#6B7280" }}
                         >
                           Total
                         </span>
                         <span 
                           className="text-xl font-bold"
-                          style={{ color: customization.design.colors.primaryText || "#000000" }}
+                          style={{ color: customization.design.colors.securePurchase?.primaryText || "#000000" }}
                         >
                           {formatCentsToBRL(totalPrice)}
                         </span>
                       </div>
                       <p 
                         className="text-xs"
-                        style={{ color: customization.design.colors.secondaryText || "#6B7280" }}
+                        style={{ color: customization.design.colors.securePurchase?.secondaryText || "#6B7280" }}
                       >
                         à vista no {selectedPayment === 'pix' ? 'PIX' : 'Cartão'}
                       </p>
                       <p 
                         className="text-xs"
-                        style={{ color: customization.design.colors.secondaryText || "#6B7280" }}
+                        style={{ color: customization.design.colors.securePurchase?.secondaryText || "#6B7280" }}
                       >
                         Renovação atual
                       </p>
@@ -1315,18 +1344,18 @@ const CheckoutPreviewComponent = ({
                     {/* Informações Legais */}
                     <div 
                       className="space-y-2 text-xs"
-                      style={{ color: customization.design.colors.secondaryText || "#6B7280" }}
+                      style={{ color: customization.design.colors.securePurchase?.secondaryText || "#6B7280" }}
                     >
                       <p>
                         <span 
                           className="font-semibold"
-                          style={{ color: customization.design.colors.primaryText || "#000000" }}
+                          style={{ color: customization.design.colors.securePurchase?.primaryText || "#000000" }}
                         >
                           Rise Checkout
                         </span> está processando este pagamento para o vendedor{' '}
                         <span 
                           className="font-semibold"
-                          style={{ color: customization.design.colors.primaryText || "#000000" }}
+                          style={{ color: customization.design.colors.securePurchase?.primaryText || "#000000" }}
                         >
                           {productData?.support_name || 'Vendedor'}
                         </span>
