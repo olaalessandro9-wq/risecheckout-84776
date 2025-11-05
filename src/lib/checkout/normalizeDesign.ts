@@ -22,24 +22,27 @@ export function normalizeDesign(checkout: any): ThemePreset {
     deepMerge(normalized.colors, checkout.design.colors);
   }
   
-  // 4. Merge com colunas legadas (compatibilidade)
-  if (checkout.background_color) {
+  // 4. Merge com colunas legadas APENAS como fallback (não sobrescrever design salvo)
+  const hasDesignColors = checkout.design?.colors && Object.keys(checkout.design.colors).length > 0;
+  
+  // Só usar legado se não houver valor no design JSON
+  if (checkout.background_color && !hasDesignColors) {
     normalized.colors.background = checkout.background_color;
   }
-  if (checkout.text_color) {
+  if (checkout.text_color && !checkout.design?.colors?.primaryText) {
     normalized.colors.primaryText = checkout.text_color;
   }
-  if (checkout.primary_color) {
+  if (checkout.primary_color && !checkout.design?.colors?.active) {
     normalized.colors.active = checkout.primary_color;
     // Se não tiver cores de botões selecionados, usar a cor primária
     if (!checkout.design?.colors?.selectedButton?.background) {
       normalized.colors.selectedButton.background = checkout.primary_color;
     }
   }
-  if (checkout.button_color) {
+  if (checkout.button_color && !checkout.design?.colors?.button?.background) {
     normalized.colors.button.background = checkout.button_color;
   }
-  if (checkout.button_text_color) {
+  if (checkout.button_text_color && !checkout.design?.colors?.button?.text) {
     normalized.colors.button.text = checkout.button_text_color;
   }
   

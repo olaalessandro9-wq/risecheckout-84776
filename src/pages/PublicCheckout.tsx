@@ -876,8 +876,8 @@ const PublicCheckout = () => {
                     disabled={processingPayment}
                     className="w-full mt-5 py-3.5 rounded-lg font-bold text-base transition-all duration-200 shadow-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{
-                      backgroundColor: design.colors.button?.background || checkout.button_color || '#10B981',
-                      color: design.colors.button?.text || checkout.button_text_color || '#FFFFFF'
+                      backgroundColor: design.colors.button?.background || design.colors.active || '#10B981',
+                      color: design.colors.button?.text || '#FFFFFF'
                     }}
                   >
                     {processingPayment ? (
