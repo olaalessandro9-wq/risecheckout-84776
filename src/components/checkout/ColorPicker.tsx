@@ -17,13 +17,13 @@ export const ColorPicker = ({ label, value, onChange, description }: ColorPicker
     setLocalValue(value);
   }, [value]);
 
-  // Debounce the onChange callback (300ms)
+  // Debounce apenas para input de texto (100ms - bem mais rápido)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (localValue !== value) {
         onChange(localValue);
       }
-    }, 300);
+    }, 100);
 
     return () => clearTimeout(timer);
   }, [localValue, value, onChange]);
@@ -38,7 +38,12 @@ export const ColorPicker = ({ label, value, onChange, description }: ColorPicker
         <Input
           type="color"
           value={localValue}
-          onChange={(e) => setLocalValue(e.target.value)}
+          onChange={(e) => {
+            const newValue = e.target.value;
+            setLocalValue(newValue);
+            // Preview instantâneo no color picker visual
+            onChange(newValue);
+          }}
           className="w-16 h-10 p-1 cursor-pointer"
         />
         <Input
