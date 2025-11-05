@@ -36,8 +36,8 @@ const CheckoutComponentRenderer = ({ component, design }: CheckoutComponentRende
 
       return (
         <div className="w-full flex justify-center mb-2">
-          {/* largura maior no desktop para melhor aproveitamento */}
-          <div className="w-full max-w-5xl lg:max-w-7xl xl:max-w-[90rem] 2xl:max-w-[100rem] mx-auto px-4">
+          {/* largura quase total da tela para máximo aproveitamento horizontal */}
+          <div className="w-full max-w-[95vw] lg:max-w-[92vw] mx-auto px-2 lg:px-4">
             <div className={`w-full ${roundedImage ? 'rounded-sm' : 'rounded-none'} overflow-hidden`}>
               <img
                 key={component.id}
