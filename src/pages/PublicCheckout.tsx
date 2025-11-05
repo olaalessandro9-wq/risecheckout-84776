@@ -199,7 +199,7 @@ const PublicCheckout = () => {
       }
 
       // 2. Calcular valor total (produto + taxa)
-      const productPrice = checkout!.product.price; // em centavos
+      const productPrice = Math.round(checkout!.product.price * 100); // converter reais → centavos
       const serviceFee = 99; // R$ 0,99 em centavos
       const totalCents = productPrice + serviceFee;
 

@@ -95,7 +95,9 @@ export async function loadPublicCheckoutData(slug: string) {
         description,
         price,
         image_url,
-        support_name
+        support_name,
+        required_fields,
+        default_payment_method
       `)
       .eq('id', offerData.product_id)
       .maybeSingle();
@@ -114,11 +116,11 @@ export async function loadPublicCheckoutData(slug: string) {
       throw new Error('Este produto não está mais disponível');
     }
 
-    // TODO: Campo required_fields será implementado no futuro
-    // Por enquanto, usar valores padrão
-    const requirePhone = false;
-    const requireCpf = false;
-    const defaultMethod: 'pix' | 'credit_card' = 'pix';
+    // Carregar configurações do produto
+    const requiredFields = productData.required_fields as { phone?: boolean; cpf?: boolean } | null;
+    const requirePhone = requiredFields?.phone ?? false;
+    const requireCpf = requiredFields?.cpf ?? false;
+    const defaultMethod = (productData.default_payment_method as 'pix' | 'credit_card') ?? 'pix';
 
     return {
       checkout: {
@@ -146,6 +148,8 @@ export async function loadPublicCheckoutData(slug: string) {
         price: productData.price,
         image_url: productData.image_url,
         support_name: productData.support_name,
+        required_fields: productData.required_fields,
+        default_payment_method: productData.default_payment_method,
       },
       requirePhone,
       requireCpf,
@@ -203,7 +207,9 @@ export async function loadPublicCheckoutData(slug: string) {
       description,
       price,
       image_url,
-      support_name
+      support_name,
+      required_fields,
+      default_payment_method
     `)
     .eq('id', checkoutData.product_id)
     .maybeSingle();
@@ -222,11 +228,11 @@ export async function loadPublicCheckoutData(slug: string) {
     throw new Error('Este produto não está mais disponível');
   }
 
-  // TODO: Campo required_fields será implementado no futuro
-  // Por enquanto, usar valores padrão
-  const requirePhone = false;
-  const requireCpf = false;
-  const defaultMethod: 'pix' | 'credit_card' = 'pix';
+  // Carregar configurações do produto
+  const requiredFields = productData.required_fields as { phone?: boolean; cpf?: boolean } | null;
+  const requirePhone = requiredFields?.phone ?? false;
+  const requireCpf = requiredFields?.cpf ?? false;
+  const defaultMethod = (productData.default_payment_method as 'pix' | 'credit_card') ?? 'pix';
 
   return {
     checkout: {
@@ -254,6 +260,8 @@ export async function loadPublicCheckoutData(slug: string) {
       price: productData.price,
       image_url: productData.image_url,
       support_name: productData.support_name,
+      required_fields: productData.required_fields,
+      default_payment_method: productData.default_payment_method,
     },
     requirePhone,
     requireCpf,
