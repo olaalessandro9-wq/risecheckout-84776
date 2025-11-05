@@ -288,7 +288,7 @@ const PublicCheckout = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F9FAFB' }}>
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: checkout?.design?.colors?.accent || checkout?.primary_color || '#10B981' }} />
       </div>
     );
   }
@@ -341,12 +341,21 @@ const PublicCheckout = () => {
                     <img 
                       src={checkout.product.image_url} 
                       alt={checkout.product?.name || 'Produto'}
-                      // miniatura com arredondamento sutil
-                      className="w-16 h-16 object-cover rounded-sm border border-gray-200 dark:border-gray-700"
+                      className="w-16 h-16 object-cover rounded-sm border"
+                      style={{ borderColor: checkout.design?.colors?.border || 'rgba(0,0,0,0.1)' }}
                     />
                   ) : (
-                    <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-sm flex items-center justify-center border border-gray-200 dark:border-gray-700">
-                      <ImageIcon className="w-6 h-6 text-gray-400" />
+                    <div 
+                      className="w-16 h-16 rounded-sm flex items-center justify-center border"
+                      style={{ 
+                        backgroundColor: checkout.design?.colors?.placeholder || 'rgba(0,0,0,0.05)',
+                        borderColor: checkout.design?.colors?.border || 'rgba(0,0,0,0.1)'
+                      }}
+                    >
+                      <ImageIcon 
+                        className="w-6 h-6" 
+                        color={checkout.design?.colors?.secondaryText || '#9CA3AF'} 
+                      />
                     </div>
                   )}
                   <div>
@@ -397,7 +406,12 @@ const PublicCheckout = () => {
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
+                      className="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:border-transparent text-sm transition-all"
+                      style={{ 
+                        borderColor: checkout.design?.colors?.border || 'rgba(0,0,0,0.2)',
+                        backgroundColor: checkout.design?.colors?.inputBackground || '#FFFFFF',
+                        color: checkout.design?.colors?.primaryText || '#111827'
+                      }}
                       required
                     />
                   </div>
@@ -413,7 +427,12 @@ const PublicCheckout = () => {
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
+                      className="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:border-transparent text-sm transition-all"
+                      style={{ 
+                        borderColor: checkout.design?.colors?.border || 'rgba(0,0,0,0.2)',
+                        backgroundColor: checkout.design?.colors?.inputBackground || '#FFFFFF',
+                        color: checkout.design?.colors?.primaryText || '#111827'
+                      }}
                       required
                     />
                   </div>
@@ -426,13 +445,18 @@ const PublicCheckout = () => {
                       >
                         CPF/CNPJ
                       </label>
-                      <input
-                        type="text"
-                        value={formData.document}
-                        onChange={(e) => setFormData({...formData, document: e.target.value})}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
-                        required
-                      />
+                        <input
+                         type="text"
+                         value={formData.document}
+                         onChange={(e) => setFormData({...formData, document: e.target.value})}
+                         className="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:border-transparent text-sm transition-all"
+                         style={{ 
+                           borderColor: checkout.design?.colors?.border || 'rgba(0,0,0,0.2)',
+                           backgroundColor: checkout.design?.colors?.inputBackground || '#FFFFFF',
+                           color: checkout.design?.colors?.primaryText || '#111827'
+                         }}
+                         required
+                       />
                     </div>
                   )}
 
@@ -444,14 +468,19 @@ const PublicCheckout = () => {
                       >
                         Celular
                       </label>
-                      <input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
-                        placeholder="+55 (00) 00000-0000"
-                        required
-                      />
+                       <input
+                         type="tel"
+                         value={formData.phone}
+                         onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                         className="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:border-transparent text-sm transition-all"
+                         style={{ 
+                           borderColor: checkout.design?.colors?.border || 'rgba(0,0,0,0.2)',
+                           backgroundColor: checkout.design?.colors?.inputBackground || '#FFFFFF',
+                           color: checkout.design?.colors?.primaryText || '#111827'
+                         }}
+                         placeholder="+55 (00) 00000-0000"
+                         required
+                       />
                     </div>
                   )}
                 </form>
@@ -532,14 +561,38 @@ const PublicCheckout = () => {
 
                 {selectedPayment === 'pix' && (
                   <>
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 space-y-2 mb-4">
+                    <div 
+                      className="border rounded-lg p-3 space-y-2 mb-4"
+                      style={{ 
+                        backgroundColor: checkout.design?.colors?.infoBox?.background || 'rgba(16, 185, 129, 0.05)',
+                        borderColor: checkout.design?.colors?.infoBox?.border || 'rgba(16, 185, 129, 0.2)'
+                      }}
+                    >
                       <div className="flex items-start gap-2.5">
-                        <CheckCircleFilledIcon size={18} color="#10B981" className="flex-shrink-0 mt-0.5" />
-                        <span className="text-xs text-green-800 leading-relaxed font-medium">Liberação imediata</span>
+                        <CheckCircleFilledIcon 
+                          size={18} 
+                          color={checkout.design?.colors?.accent || checkout.primary_color || '#10B981'} 
+                          className="flex-shrink-0 mt-0.5" 
+                        />
+                        <span 
+                          className="text-xs leading-relaxed font-medium"
+                          style={{ color: checkout.design?.colors?.infoBox?.text || checkout.design?.colors?.primaryText || '#111827' }}
+                        >
+                          Liberação imediata
+                        </span>
                       </div>
                       <div className="flex items-start gap-2.5">
-                        <CheckCircleFilledIcon size={18} color="#10B981" className="flex-shrink-0 mt-0.5" />
-                        <span className="text-xs text-green-800 leading-relaxed font-medium">É simples, só usar o aplicativo de seu banco para pagar Pix</span>
+                        <CheckCircleFilledIcon 
+                          size={18} 
+                          color={checkout.design?.colors?.accent || checkout.primary_color || '#10B981'} 
+                          className="flex-shrink-0 mt-0.5" 
+                        />
+                        <span 
+                          className="text-xs leading-relaxed font-medium"
+                          style={{ color: checkout.design?.colors?.infoBox?.text || checkout.design?.colors?.primaryText || '#111827' }}
+                        >
+                          É simples, só usar o aplicativo de seu banco para pagar Pix
+                        </span>
                       </div>
                     </div>
 
@@ -568,8 +621,14 @@ const PublicCheckout = () => {
                             className="w-14 h-14 object-cover rounded-lg"
                           />
                         ) : (
-                          <div className="w-14 h-14 bg-gray-200 rounded-lg flex items-center justify-center">
-                            <ImageIcon className="w-5 h-5 text-gray-400" />
+                          <div 
+                            className="w-14 h-14 rounded-lg flex items-center justify-center"
+                            style={{ backgroundColor: checkout.design?.colors?.placeholder || 'rgba(0,0,0,0.05)' }}
+                          >
+                            <ImageIcon 
+                              className="w-5 h-5" 
+                              color={checkout.design?.colors?.secondaryText || '#9CA3AF'} 
+                            />
                           </div>
                         )}
                         <div className="flex-1">
@@ -665,8 +724,14 @@ const PublicCheckout = () => {
                             className="w-14 h-14 object-cover rounded-lg"
                           />
                         ) : (
-                          <div className="w-14 h-14 bg-gray-200 rounded-lg flex items-center justify-center">
-                            <ImageIcon className="w-5 h-5 text-gray-400" />
+                          <div 
+                            className="w-14 h-14 rounded-lg flex items-center justify-center"
+                            style={{ backgroundColor: checkout.design?.colors?.placeholder || 'rgba(0,0,0,0.05)' }}
+                          >
+                            <ImageIcon 
+                              className="w-5 h-5" 
+                              color={checkout.design?.colors?.secondaryText || '#9CA3AF'} 
+                            />
                           </div>
                         )}
                         <div className="flex-1">
@@ -810,7 +875,10 @@ const PublicCheckout = () => {
 
                     {/* Compra Segura com Check */}
                     <div className="flex items-center justify-center gap-2">
-                      <CheckCircleFilledIcon size={16} color="#10B981" />
+                      <CheckCircleFilledIcon 
+                        size={16} 
+                        color={checkout.design?.colors?.accent || checkout.primary_color || '#10B981'} 
+                      />
                       <span 
                         className="text-xs font-semibold"
                         style={{ color: checkout.design?.colors?.footer?.primaryText || '#000000' }}
@@ -868,8 +936,14 @@ const PublicCheckout = () => {
                           className="w-14 h-14 object-cover rounded-lg"
                         />
                       ) : (
-                        <div className="w-14 h-14 bg-gray-200 rounded-lg flex items-center justify-center">
-                          <ImageIcon className="w-5 h-5 text-gray-400" />
+                        <div 
+                          className="w-14 h-14 rounded-lg flex items-center justify-center"
+                          style={{ backgroundColor: checkout.design?.colors?.placeholder || 'rgba(0,0,0,0.05)' }}
+                        >
+                          <ImageIcon 
+                            className="w-5 h-5" 
+                            color={checkout.design?.colors?.secondaryText || '#9CA3AF'} 
+                          />
                         </div>
                       )}
                       <div className="flex-1">
@@ -887,7 +961,7 @@ const PublicCheckout = () => {
                         </p>
                         <button 
                           className="hover:underline text-xs font-medium transition-all"
-                          style={{ color: checkout.design?.colors?.securePurchase?.linkText || '#3B82F6' }}
+                          style={{ color: checkout.design?.colors?.accent || checkout.primary_color || '#10B981' }}
                         >
                           Veja o contato do vendedor
                         </button>
@@ -896,7 +970,10 @@ const PublicCheckout = () => {
                   </div>
 
                   {/* Divisória Pontilhada */}
-                  <div className="border-t border-dashed border-gray-300 mx-4"></div>
+                  <div 
+                    className="border-t border-dashed mx-4"
+                    style={{ borderColor: checkout.design?.colors?.border || 'rgba(0,0,0,0.1)' }}
+                  ></div>
 
                   {/* 3. Total */}
                   <div className="p-4">
@@ -929,7 +1006,10 @@ const PublicCheckout = () => {
                   </div>
 
                   {/* Divisória Pontilhada */}
-                  <div className="border-t border-dashed border-gray-300 mx-4"></div>
+                  <div 
+                    className="border-t border-dashed mx-4"
+                    style={{ borderColor: checkout.design?.colors?.border || 'rgba(0,0,0,0.1)' }}
+                  ></div>
 
                   {/* 4. Informações Legais */}
                   <div className="p-4 text-center">
