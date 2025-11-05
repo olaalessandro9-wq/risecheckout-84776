@@ -1317,7 +1317,7 @@ export type Database = {
         Args: { p_slug: string }
         Returns: {
           checkout_id: string
-          link_id: string
+          product_id: string
         }[]
       }
       has_role: {

@@ -122,6 +122,8 @@ const PublicCheckout = () => {
 
   const trackVisit = async () => {
     try {
+      console.log('[trackVisit] v3.0 - Usando RPC para mapear slug:', slug);
+      
       const utmParams = {
         utm_source: searchParams.get("utm_source"),
         utm_medium: searchParams.get("utm_medium"),
@@ -130,32 +132,55 @@ const PublicCheckout = () => {
         utm_term: searchParams.get("utm_term"),
       };
 
-      const { data: checkoutData } = await supabase
-        .from("checkouts")
-        .select("id")
-        .eq("slug", slug)
-        .maybeSingle();
+      // Usar RPC para mapear slug → checkout_id
+      const { data: mapData, error: mapError } = await supabase.rpc('get_checkout_by_payment_slug', { 
+        p_slug: slug 
+      });
 
-      if (!checkoutData) return;
+      let checkoutId: string | null = null;
 
-      const { error } = await supabase
+      if (!mapError && mapData && mapData.length > 0 && mapData[0]?.checkout_id) {
+        checkoutId = mapData[0].checkout_id;
+        console.log('[trackVisit] RPC sucesso - checkout_id:', checkoutId);
+      } else {
+        // Fallback: tentar buscar checkout diretamente por slug (compatibilidade)
+        console.warn('[trackVisit] RPC falhou, tentando fallback...');
+        const { data: checkoutData } = await supabase
+          .from("checkouts")
+          .select("id")
+          .eq("slug", slug)
+          .maybeSingle();
+        
+        checkoutId = checkoutData?.id || null;
+      }
+
+      if (!checkoutId) {
+        console.warn('[trackVisit] Não foi possível mapear slug para checkout_id');
+        return;
+      }
+
+      // Inserir visita
+      const { error: visitError } = await supabase
         .from("checkout_visits")
         .insert({
-          checkout_id: checkoutData.id,
+          checkout_id: checkoutId,
           referrer: document.referrer || null,
           user_agent: navigator.userAgent,
           ...utmParams,
         });
 
-      if (error) {
-        console.error("Error tracking visit:", error);
+      if (visitError) {
+        console.error("[trackVisit] Erro ao inserir visita:", visitError);
       }
 
+      // Incrementar contador
       await supabase.rpc("increment_checkout_visits", {
-        checkout_id: checkoutData.id,
+        checkout_id: checkoutId,
       });
+
+      console.log('[trackVisit] ✅ Visita registrada com sucesso');
     } catch (error) {
-      console.error("Error tracking visit:", error);
+      console.error("[trackVisit] Erro geral:", error);
     }
   };
 
@@ -199,7 +224,8 @@ const PublicCheckout = () => {
       }
 
       // 2. Calcular valor total (produto + taxa)
-      const productPrice = Math.round(checkout!.product.price * 100); // converter reais → centavos
+      // IMPORTANTE: checkout!.product.price já está em centavos!
+      const productPrice = checkout!.product.price; // já é em centavos
       const serviceFee = 99; // R$ 0,99 em centavos
       const totalCents = productPrice + serviceFee;
 
