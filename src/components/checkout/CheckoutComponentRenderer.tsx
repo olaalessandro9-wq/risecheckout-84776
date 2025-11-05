@@ -36,29 +36,31 @@ const CheckoutComponentRenderer = ({ component, design }: CheckoutComponentRende
 
       return (
         <div className="w-full flex justify-center mb-2">
-          {/* imagem expandida até as bordas da tela */}
-          <div className="relative w-[95vw] max-w-none mx-auto" style={{ marginLeft: 'calc(-47.5vw + 50%)', marginRight: 'calc(-47.5vw + 50%)' }}>
-            <div className={`w-full ${roundedImage ? 'rounded-sm' : 'rounded-none'} overflow-hidden`}>
-              <img
-                key={component.id}
-                src={src}
-                alt={component.content?.alt || 'Imagem'}
-                className={`w-full h-auto object-contain ${roundedImage ? 'rounded-sm' : 'rounded-none'}`}
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-                style={{ 
-                  width: '100%',
-                  height: 'auto',
-                  maxHeight: '700px'
-                }}
-                onError={(e) => {
-                  const imgEl = e.currentTarget as HTMLImageElement;
-                  imgEl.onerror = null;
-                  imgEl.src = '/images/placeholder-top.png';
-                  console.error('Erro ao carregar imagem:', src);
-                }}
-              />
+          {/* imagem alinhada com a largura do cronômetro */}
+          <div className="w-full max-w-[1400px] px-4 lg:px-6">
+            <div className="w-full max-w-5xl mx-auto">
+              <div className={`w-full ${roundedImage ? 'rounded-sm' : 'rounded-none'} overflow-hidden`}>
+                <img
+                  key={component.id}
+                  src={src}
+                  alt={component.content?.alt || 'Imagem'}
+                  className={`w-full h-auto object-contain ${roundedImage ? 'rounded-sm' : 'rounded-none'}`}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  style={{ 
+                    width: '100%',
+                    height: 'auto',
+                    maxHeight: '700px'
+                  }}
+                  onError={(e) => {
+                    const imgEl = e.currentTarget as HTMLImageElement;
+                    imgEl.onerror = null;
+                    imgEl.src = '/images/placeholder-top.png';
+                    console.error('Erro ao carregar imagem:', src);
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
