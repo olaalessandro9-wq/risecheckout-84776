@@ -40,6 +40,17 @@ function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/c/:slug" element={<PaymentLinkRedirect />} />
               <Route path="/pay/:slug" element={<PublicCheckout />} />
+              
+              {/* Checkout Builder - Full screen without sidebar (Protected) */}
+              <Route 
+                path="/produtos/checkout/personalizar" 
+                element={
+                  <ProtectedRoute>
+                    <CheckoutCustomizer />
+                  </ProtectedRoute>
+                } 
+              />
+              
               <Route path="*" element={<NotFound />} />
               
               {/* Protected routes with AppShell (sidebar) */}
@@ -54,7 +65,6 @@ function App() {
                 <Route index element={<Index />} />
                 <Route path="produtos" element={<Produtos />} />
                 <Route path="produtos/editar" element={<ProductEdit />} />
-                <Route path="produtos/checkout/personalizar" element={<CheckoutCustomizer />} />
                 <Route path="afiliados" element={<Afiliados />} />
                 <Route path="financeiro" element={<Financeiro />} />
                 <Route path="integracoes" element={<Integracoes />} />

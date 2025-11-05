@@ -918,39 +918,6 @@ const CheckoutCustomizer = () => {
           {!isPreviewMode && (
             <div className="w-[400px] border-l bg-card overflow-auto">
               <div className="p-6 space-y-6">
-                {/* Offer Selection Section */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm font-medium">Oferta do Checkout</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CheckoutOfferSelector
-                      checkoutId={checkoutId!}
-                      offers={productOffers}
-                      onLinked={(result) => {
-                        console.log('[CheckoutCustomizer] Link associado:', result);
-                        // Reload links
-                        loadCheckoutData(checkoutId!);
-                      }}
-                    />
-                    
-                    {/* Current Links Display */}
-                    {currentLinks.length > 0 && (
-                      <div className="mt-4 p-3 bg-muted rounded-lg">
-                        <p className="text-xs font-medium text-muted-foreground mb-2">
-                          Links Associados:
-                        </p>
-                        {currentLinks.map((cl: any) => (
-                          <div key={cl.id} className="text-xs text-foreground">
-                            • {cl.payment_links?.offers?.name} - /{cl.payment_links?.slug}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Original Customization Panel */}
                 <CheckoutCustomizationPanel
                   customization={customization}
                   selectedComponent={getSelectedComponentData()}
