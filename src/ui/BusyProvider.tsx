@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import React, { createContext, useContext, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 type BusyState = { visible: boolean; message?: string };
