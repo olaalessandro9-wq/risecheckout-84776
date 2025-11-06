@@ -68,6 +68,13 @@ const PublicCheckout = () => {
     document: "",
   });
 
+  const [formErrors, setFormErrors] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    document: "",
+  });
+
   useEffect(() => {
     if (slug) {
       console.log("[PublicCheckout] v2.7 montado - slug:", slug);
@@ -241,19 +248,56 @@ const PublicCheckout = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validações
-    if (!formData.name || !formData.email) {
+    // Validar campos obrigatórios
+    const errors = {
+      name: "",
+      email: "",
+      phone: "",
+      document: "",
+    };
+
+    let hasError = false;
+    let firstErrorField = "";
+
+    if (!formData.name.trim()) {
+      errors.name = "Nome é obrigatório";
+      hasError = true;
+      if (!firstErrorField) firstErrorField = "name";
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = "E-mail é obrigatório";
+      hasError = true;
+      if (!firstErrorField) firstErrorField = "email";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "E-mail inválido";
+      hasError = true;
+      if (!firstErrorField) firstErrorField = "email";
+    }
+
+    if (checkout?.product.required_fields?.phone && !formData.phone.trim()) {
+      errors.phone = "Telefone é obrigatório";
+      hasError = true;
+      if (!firstErrorField) firstErrorField = "phone";
+    }
+
+    if (checkout?.product.required_fields?.cpf && !formData.document.trim()) {
+      errors.document = "CPF é obrigatório";
+      hasError = true;
+      if (!firstErrorField) firstErrorField = "document";
+    }
+
+    setFormErrors(errors);
+
+    if (hasError) {
       toast.error("Por favor, preencha todos os campos obrigatórios");
-      return;
-    }
-
-    if (checkout?.product.required_fields?.phone && !formData.phone) {
-      toast.error("Telefone é obrigatório");
-      return;
-    }
-
-    if (checkout?.product.required_fields?.cpf && !formData.document) {
-      toast.error("CPF/CNPJ é obrigatório");
+      // Scroll até o primeiro campo com erro
+      setTimeout(() => {
+        const firstErrorElement = document.getElementById(`field-${firstErrorField}`);
+        if (firstErrorElement) {
+          firstErrorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
       return;
     }
 
@@ -434,7 +478,7 @@ const PublicCheckout = () => {
                   Dados necessários para envio do seu acesso:
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-3">
-                  <div>
+                  <div id="field-name">
                     <label 
                       className="block text-sm mb-1"
                       style={{ color: design.colors.secondaryText }}
@@ -449,20 +493,26 @@ const PublicCheckout = () => {
                       <input
                         type="text"
                         value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        onChange={(e) => {
+                          setFormData({...formData, name: e.target.value});
+                          if (formErrors.name) setFormErrors({...formErrors, name: ""});
+                        }}
                         placeholder="Digite seu nome completo"
                         className="w-full pl-10 pr-3 py-2 border rounded-lg text-sm transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                         style={{ 
-                          borderColor: design.colors.border,
+                          borderColor: formErrors.name ? '#ef4444' : design.colors.border,
                           backgroundColor: design.colors.inputBackground || design.colors.formBackground,
                           color: design.colors.primaryText
                         }}
                         required
                       />
                     </div>
+                    {formErrors.name && (
+                      <p className="mt-1 text-sm text-red-500">{formErrors.name}</p>
+                    )}
                   </div>
 
-                  <div>
+                  <div id="field-email">
                     <label 
                       className="block text-sm mb-1"
                       style={{ color: design.colors.secondaryText }}
@@ -477,21 +527,27 @@ const PublicCheckout = () => {
                       <input
                         type="email"
                         value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        onChange={(e) => {
+                          setFormData({...formData, email: e.target.value});
+                          if (formErrors.email) setFormErrors({...formErrors, email: ""});
+                        }}
                         placeholder="Digite seu e-mail"
                         className="w-full pl-10 pr-3 py-2 border rounded-lg text-sm transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                         style={{ 
-                          borderColor: design.colors.border,
+                          borderColor: formErrors.email ? '#ef4444' : design.colors.border,
                           backgroundColor: design.colors.inputBackground || design.colors.formBackground,
                           color: design.colors.primaryText
                         }}
                         required
                       />
                     </div>
+                    {formErrors.email && (
+                      <p className="mt-1 text-sm text-red-500">{formErrors.email}</p>
+                    )}
                   </div>
 
                   {checkout?.product.required_fields?.cpf && (
-                    <div>
+                    <div id="field-document">
                       <label 
                         className="block text-sm mb-1"
                         style={{ color: design.colors.secondaryText }}
@@ -506,22 +562,28 @@ const PublicCheckout = () => {
                         <input
                           type="text"
                           value={formData.document}
-                          onChange={(e) => setFormData({...formData, document: e.target.value})}
+                          onChange={(e) => {
+                            setFormData({...formData, document: e.target.value});
+                            if (formErrors.document) setFormErrors({...formErrors, document: ""});
+                          }}
                           placeholder="Digite seu CPF"
                           className="w-full pl-10 pr-3 py-2 border rounded-lg text-sm transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                           style={{ 
-                            borderColor: design.colors.border,
+                            borderColor: formErrors.document ? '#ef4444' : design.colors.border,
                             backgroundColor: design.colors.inputBackground || design.colors.formBackground,
                             color: design.colors.primaryText
                           }}
                           required
                         />
                       </div>
+                      {formErrors.document && (
+                        <p className="mt-1 text-sm text-red-500">{formErrors.document}</p>
+                      )}
                     </div>
                   )}
 
                   {checkout?.product.required_fields?.phone && (
-                    <div>
+                    <div id="field-phone">
                       <label 
                         className="block text-sm mb-1"
                         style={{ color: design.colors.secondaryText }}
@@ -536,17 +598,23 @@ const PublicCheckout = () => {
                         <input
                           type="tel"
                           value={formData.phone}
-                          onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                          onChange={(e) => {
+                            setFormData({...formData, phone: e.target.value});
+                            if (formErrors.phone) setFormErrors({...formErrors, phone: ""});
+                          }}
                           placeholder="Digite seu telefone"
                           className="w-full pl-10 pr-3 py-2 border rounded-lg text-sm transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                           style={{ 
-                            borderColor: design.colors.border,
+                            borderColor: formErrors.phone ? '#ef4444' : design.colors.border,
                             backgroundColor: design.colors.inputBackground || design.colors.formBackground,
                             color: design.colors.primaryText
                           }}
                           required
                         />
                       </div>
+                      {formErrors.phone && (
+                        <p className="mt-1 text-sm text-red-500">{formErrors.phone}</p>
+                      )}
                     </div>
                   )}
                 </form>
