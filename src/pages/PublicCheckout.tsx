@@ -974,10 +974,10 @@ const PublicCheckout = () => {
                   </button>
                 )}
 
-                {/* Mini Footer - Security and Copyright */}
-                <div className="mt-8 space-y-4">
+                {/* Security Badge Compacto */}
+                <div className="mt-5 space-y-1">
                   {/* Security badge */}
-                  <div className="flex items-center justify-center gap-2 py-3">
+                  <div className="flex items-center justify-center gap-2">
                     <Lock className="w-4 h-4" style={{ color: design.colors.active || '#10b981' }} />
                     <span className="text-sm font-medium" style={{ color: design.colors.secondaryText }}>
                       Transação Segura e Criptografada
@@ -985,25 +985,76 @@ const PublicCheckout = () => {
                   </div>
                   
                   {/* Description */}
-                  <p className="text-xs text-center leading-relaxed" style={{ color: design.colors.secondaryText }}>
+                  <p className="text-xs text-center" style={{ color: design.colors.secondaryText, opacity: 0.8 }}>
                     Pagamento processado com segurança pela plataforma RiseCheckout
                   </p>
-                  
-                  {/* Copyright */}
-                  <div className="border-t pt-4" style={{ borderColor: design.colors.border }}>
-                    <p className="text-xs text-center" style={{ color: design.colors.secondaryText, opacity: 0.7 }}>
-                      © 2025 RiseCheckout LTDA. Todos os direitos reservados.
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-      </div>
+              </div>
 
-      {checkout.bottom_components && Array.isArray(checkout.bottom_components) && checkout.bottom_components.length > 0 && (
+              {/* Rodapé Separado - Fora do container principal */}
+              <footer 
+                className="w-full mt-16 py-8 border-t"
+                style={{ 
+                  backgroundColor: design.colors.footer?.background || '#0A0A0A',
+                  borderTopColor: 'rgba(255,255,255,0.1)'
+                }}
+              >
+                <div className="max-w-4xl mx-auto px-4 space-y-6">
+                  {/* Badges de Segurança */}
+                  <div className="flex flex-wrap items-center justify-center gap-6 text-xs">
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4" style={{ color: design.colors.active || '#10B981' }} fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span style={{ color: design.colors.footer?.secondaryText || '#9CA3AF' }}>
+                        Pagamento 100% seguro
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4" style={{ color: design.colors.active || '#10B981' }} />
+                      <span style={{ color: design.colors.footer?.secondaryText || '#9CA3AF' }}>
+                        Site protegido
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4" style={{ color: design.colors.active || '#10B981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                      <span style={{ color: design.colors.footer?.secondaryText || '#9CA3AF' }}>
+                        Diversas formas de pagamento
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Descrição */}
+                  <p 
+                    className="text-xs text-center leading-relaxed max-w-2xl mx-auto"
+                    style={{ color: design.colors.footer?.secondaryText || '#9CA3AF' }}
+                  >
+                    Você está em uma página de checkout segura, criada com a tecnologia RiseCheckout. 
+                    A responsabilidade pela oferta é do vendedor.
+                  </p>
+
+                  {/* Copyright */}
+                  <div className="border-t pt-4" style={{ borderTopColor: 'rgba(255,255,255,0.1)' }}>
+                    <p 
+                      className="text-xs text-center"
+                      style={{ color: design.colors.footer?.secondaryText || '#9CA3AF', opacity: 0.7 }}
+                    >
+                      © 2025 RiseCheckout LTDA. Todos os direitos reservados.
+                    </p>
+                  </div>
+                </div>
+              </footer>
+
+              {checkout.bottom_components && Array.isArray(checkout.bottom_components) && checkout.bottom_components.length > 0 && (
         <div className="w-full" style={{ fontFamily: 'Inter, system-ui, sans-serif', backgroundColor: design.colors.background }}>
           {checkout.bottom_components.map((component: any, index: number) => (
             <CheckoutComponentRenderer key={index} component={component} design={design} />
