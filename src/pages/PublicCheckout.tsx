@@ -997,13 +997,13 @@ const PublicCheckout = () => {
               </div>
 
               {/* Rodapé Separado - Fora do container principal */}
-              <footer 
-                className="w-full mt-16 py-8 border-t"
-                style={{ 
-                  backgroundColor: design.colors.footer?.background || '#0A0A0A',
-                  borderTopColor: 'rgba(255,255,255,0.1)'
-                }}
-              >
+      <footer 
+        className="w-full mt-16 py-8 border-t-2"
+        style={{ 
+          backgroundColor: design.colors.footer?.background || '#F9FAFB',
+          borderTopColor: design.colors.footer?.border || '#E5E7EB'
+        }}
+      >
                 <div className="max-w-4xl mx-auto px-4 space-y-6">
                   {/* Badges de Segurança */}
                   <div className="flex flex-wrap items-center justify-center gap-6 text-xs">
@@ -1043,7 +1043,7 @@ const PublicCheckout = () => {
                   </p>
 
                   {/* Copyright */}
-                  <div className="border-t pt-4" style={{ borderTopColor: 'rgba(255,255,255,0.1)' }}>
+                  <div className="border-t pt-4" style={{ borderTopColor: design.colors.footer?.border || '#E5E7EB' }}>
                     <p 
                       className="text-xs text-center"
                       style={{ color: design.colors.footer?.secondaryText || '#9CA3AF', opacity: 0.7 }}

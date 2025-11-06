@@ -62,6 +62,7 @@ export interface ThemePreset {
       background: string;
       primaryText: string;
       secondaryText: string;
+      border: string;
     };
     securePurchase: {
       headerBackground: string;
@@ -136,9 +137,10 @@ export const THEME_PRESETS: Record<'light' | 'dark', ThemePreset> = {
         borderColor: '#D1D5DB',
       },
       footer: {
-        background: '#FFFFFF',
+        background: '#F9FAFB',
         primaryText: '#000000',
         secondaryText: '#6B7280',
+        border: '#E5E7EB',
       },
       securePurchase: {
         headerBackground: '#10B981',
@@ -206,9 +208,10 @@ export const THEME_PRESETS: Record<'light' | 'dark', ThemePreset> = {
         borderColor: '#3A3A3A',
       },
       footer: {
-        background: '#0A0A0A',
+        background: '#1A1A1A',
         primaryText: '#FFFFFF',
         secondaryText: '#CCCCCC',
+        border: '#2A2A2A',
       },
       securePurchase: {
         headerBackground: '#10B981',

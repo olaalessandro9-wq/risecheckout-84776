@@ -1166,13 +1166,13 @@ const CheckoutPreviewComponent = ({
       </div>
 
       {/* Rodapé Separado - Preview */}
-      <footer 
-        className="w-full mt-16 py-8 border-t"
-        style={{ 
-          backgroundColor: customization.design.colors.footer?.background || '#0A0A0A',
-          borderTopColor: 'rgba(255,255,255,0.1)'
-        }}
-      >
+        <footer 
+          className="w-full mt-16 py-8 border-t-2"
+          style={{ 
+            backgroundColor: customization.design.colors.footer?.background || '#F9FAFB',
+            borderTopColor: customization.design.colors.footer?.border || '#E5E7EB'
+          }}
+        >
         <div className="max-w-4xl mx-auto px-4 space-y-6">
           {/* Badges de Segurança */}
           <div className="flex flex-wrap items-center justify-center gap-6 text-xs">
@@ -1212,7 +1212,7 @@ const CheckoutPreviewComponent = ({
           </p>
 
           {/* Copyright */}
-          <div className="border-t pt-4" style={{ borderTopColor: 'rgba(255,255,255,0.1)' }}>
+          <div className="border-t pt-4" style={{ borderTopColor: customization.design.colors.footer?.border || '#E5E7EB' }}>
             <p 
               className="text-xs text-center"
               style={{ color: customization.design.colors.footer?.secondaryText || '#9CA3AF', opacity: 0.7 }}
