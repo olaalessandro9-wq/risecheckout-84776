@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, User, Wallet, Mail, Phone, FileText } from "lucide-react";
+import { Loader2, User, Wallet, Mail, Phone, FileText, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { parseJsonSafely } from "@/lib/utils";
 import { loadPublicCheckoutData } from "@/hooks/usePublicCheckoutConfig";
@@ -974,51 +974,20 @@ const PublicCheckout = () => {
                   </button>
                 )}
 
-                {/* Card de Informações Legais - Unificado sem divisórias */}
-                <div 
-                  className="rounded-xl shadow-sm p-5 mt-5 text-center"
-                  style={{ backgroundColor: design.colors.footer?.background || '#FFFFFF' }}
-                >
-                  <div className="space-y-3">
-                    {/* Logo/Nome + Processador */}
-                    <p 
-                      className="text-xs leading-relaxed"
-                      style={{ color: design.colors.footer?.secondaryText || '#6B7280' }}
-                    >
-                      <span 
-                        className="font-bold"
-                        style={{ color: design.colors.footer?.primaryText || '#000000' }}
-                      >
-                        Rise Checkout
-                      </span> está processando este pagamento para o vendedor{' '}
-                      <span 
-                        className="font-semibold"
-                        style={{ color: design.colors.footer?.primaryText || '#000000' }}
-                      >
-                        {checkout.seller_name || checkout.product?.support_name || 'Vendedor'}
-                      </span>
-                    </p>
-
-                    {/* Compra Segura com Check */}
-                    <div className="flex items-center justify-center gap-2">
-                      <CheckCircleFilledIcon 
-                        size={16} 
-                        color={design.colors.active || checkout.primary_color || '#10B981'} 
-                      />
-                      <span 
-                        className="text-xs font-semibold"
-                        style={{ color: design.colors.footer?.primaryText || '#000000' }}
-                      >
-                        Compra 100% segura
-                      </span>
-                    </div>
-
-                    {/* reCAPTCHA */}
-                    <p 
-                      className="text-xs leading-relaxed"
-                      style={{ color: design.colors.footer?.secondaryText || '#6B7280' }}
-                    >
-                      Este site é protegido pelo reCAPTCHA do Google
+                {/* Mini Footer - Security and Copyright */}
+                <div className="mt-8 space-y-4">
+                  {/* Security badge */}
+                  <div className="flex items-center justify-center gap-2 py-3">
+                    <Lock className="w-4 h-4" style={{ color: design.colors.active || '#10b981' }} />
+                    <span className="text-sm font-medium" style={{ color: design.colors.secondaryText }}>
+                      Transação Segura e Criptografada
+                    </span>
+                  </div>
+                  
+                  {/* Copyright */}
+                  <div className="border-t pt-4" style={{ borderColor: design.colors.border }}>
+                    <p className="text-xs text-center" style={{ color: design.colors.secondaryText, opacity: 0.7 }}>
+                      © 2025 ggCheckout LTDA. Todos os direitos reservados.
                     </p>
                   </div>
                 </div>
