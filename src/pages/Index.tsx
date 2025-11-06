@@ -31,8 +31,8 @@ const Index = () => {
     <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-1" style={{ color: 'var(--text)' }}>Dashboard</h1>
-          <p className="text-sm" style={{ color: 'var(--subtext)' }}>Visão geral das suas vendas e métricas</p>
+          <h1 className="text-3xl font-bold text-foreground mb-1">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Visão geral das suas vendas e métricas</p>
         </div>
         <DateRangeFilter
           selectedPreset={selectedPreset}
