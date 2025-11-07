@@ -563,13 +563,13 @@ const PublicCheckout = () => {
                       className="text-lg font-semibold mt-1"
                       style={{ color: design.colors.primaryText }}
                     >
-                      R$ {(checkout.product?.price / 100)?.toFixed(2).replace('.', ',')} 
-                      <span 
-                        className="text-sm font-normal"
-                        style={{ color: design.colors.secondaryText }}
-                      >
-                        à vista
-                      </span>
+                      R$ {(checkout.product?.price / 100)?.toFixed(2).replace('.', ',')}
+                    </p>
+                    <p 
+                      className="text-xs mt-0.5"
+                      style={{ color: design.colors.secondaryText }}
+                    >
+                      à vista
                     </p>
                   </div>
                 </div>
@@ -945,7 +945,7 @@ const PublicCheckout = () => {
                   <>
                     {/* Resumo do Pedido - PIX - DINÂMICO */}
                     <div 
-                      className="rounded-lg p-4"
+                      className="rounded-lg p-4 mt-8"
                       style={{
                         backgroundColor: design.colors.orderSummary?.background || '#F9FAFB',
                         borderColor: design.colors.orderSummary?.borderColor || '#D1D5DB',
@@ -1067,7 +1067,7 @@ const PublicCheckout = () => {
                   <>
                     {/* Resumo do Pedido - Cartão - DINÂMICO */}
                     <div 
-                      className="rounded-lg p-4"
+                      className="rounded-lg p-4 mt-8"
                       style={{
                         backgroundColor: design.colors.orderSummary?.background || '#F9FAFB',
                         borderColor: design.colors.orderSummary?.borderColor || '#D1D5DB',

@@ -833,15 +833,10 @@ const CheckoutPreviewComponent = ({
                 className="text-lg font-bold mb-4 flex items-center gap-2"
                 style={{ color: customization.design.colors.primaryText }}
               >
-                <span 
-                  className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
-                  style={{
-                    backgroundColor: customization.design.colors.active,
-                    color: '#fff'
-                  }}
-                >
-                  🔥
-                </span>
+                <Zap 
+                  className="w-5 h-5"
+                  style={{ color: customization.design.colors.active }}
+                />
                 Ofertas limitadas
               </h3>
               
@@ -970,7 +965,7 @@ const CheckoutPreviewComponent = ({
 
               {/* Resumo do Pedido - PIX - DINÂMICO */}
               <div 
-                className="border rounded-lg p-4"
+                className="border rounded-lg p-4 mt-8"
                 style={{ 
                   backgroundColor: customization.design.colors.orderSummary?.background || "#F9FAFB",
                   borderColor: customization.design.colors.orderSummary?.borderColor || "#D1D5DB",
@@ -1081,7 +1076,7 @@ const CheckoutPreviewComponent = ({
             <>
               {/* Resumo do Pedido - Cartão - DINÂMICO */}
               <div 
-                className="border rounded-lg p-4"
+                className="border rounded-lg p-4 mt-8"
                 style={{ 
                   backgroundColor: customization.design.colors.orderSummary?.background || "#F9FAFB",
                   borderColor: customization.design.colors.orderSummary?.borderColor || "#D1D5DB",
