@@ -899,7 +899,7 @@ const CheckoutPreviewComponent = ({
                           toggleBump(bump.id);
                         }}
                         onClick={(e) => e.stopPropagation()}
-                        className="mt-1 w-5 h-5 rounded border-2 cursor-pointer"
+                        className="mt-1 w-5 h-5 rounded border-2 cursor-pointer flex-shrink-0"
                         style={{ 
                           accentColor: customization.design.colors.active,
                           borderColor: "#E5E7EB"
@@ -915,44 +915,47 @@ const CheckoutPreviewComponent = ({
                       )}
                       
                       <div className="flex-1 min-w-0">
+                        {/* Título */}
                         <h5
-                          className="font-bold text-base mb-1"
+                          className="font-bold text-sm md:text-base mb-1"
                           style={{ color: customization.design.colors.primaryText }}
                         >
                           {bump.name}
                         </h5>
                         
+                        {/* Descrição - sempre visível */}
                         {bump.description && (
                           <p
-                            className="text-sm mb-2 line-clamp-2"
+                            className="text-xs md:text-sm mb-2 leading-relaxed"
                             style={{ color: customization.design.colors.secondaryText }}
                           >
                             {bump.description}
                           </p>
                         )}
                         
-                        <div className="flex items-center gap-2 flex-wrap">
+                        {/* Preço - sempre embaixo no mobile */}
+                        <div className="flex items-center gap-2 flex-wrap mt-2">
                           {bump.original_price ? (
                             <>
                               <span 
-                                className="text-sm line-through" 
+                                className="text-xs md:text-sm line-through" 
                                 style={{ color: customization.design.colors.secondaryText }}
                               >
                                 {formatCentsToBRL(Number(bump.original_price))}
                               </span>
                               <span 
-                                className="text-lg font-bold" 
+                                className="text-base md:text-lg font-bold" 
                                 style={{ color: customization.design.colors.active }}
                               >
-                                + {formatCentsToBRL(Number(bump.price))}
+                                {formatCentsToBRL(Number(bump.price))}
                               </span>
                             </>
                           ) : (
                             <span 
-                              className="text-lg font-bold" 
+                              className="text-base md:text-lg font-bold" 
                               style={{ color: customization.design.colors.active }}
                             >
-                              + {formatCentsToBRL(Number(bump.price))}
+                              {formatCentsToBRL(Number(bump.price))}
                             </span>
                           )}
                         </div>
