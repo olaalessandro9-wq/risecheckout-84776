@@ -1247,23 +1247,23 @@ const CheckoutPreviewComponent = ({
           >
             {selectedPayment === 'pix' ? 'Pagar com PIX' : 'Pagar com Cartão de Crédito'}
           </button>
-        </div>
 
-        {/* Security Badge Compacto */}
-        <div className="mt-5 space-y-1">
-          {/* Security badge */}
-          <div className="flex items-center justify-center gap-2">
-            <LockIconLucide className="w-4 h-4" style={{ color: customization.design.colors.active || '#10b981' }} />
-            <span className="text-sm font-medium" style={{ color: customization.design.colors.secondaryText }}>
-              Transação Segura e Criptografada
-            </span>
+          {/* Security Badge Compacto */}
+          <div className="mt-5 space-y-1">
+            {/* Security badge */}
+            <div className="flex items-center justify-center gap-2">
+              <LockIconLucide className="w-4 h-4" style={{ color: customization.design.colors.active || '#10b981' }} />
+              <span className="text-sm font-medium" style={{ color: customization.design.colors.secondaryText }}>
+                Transação Segura e Criptografada
+              </span>
+            </div>
+            
+            {/* Description */}
+            <p className="text-xs text-center" style={{ color: customization.design.colors.secondaryText, opacity: 0.8 }}>
+              Pagamento processado com segurança pela plataforma RiseCheckout
+            </p>
           </div>
-          
-          {/* Description */}
-          <p className="text-xs text-center" style={{ color: customization.design.colors.secondaryText, opacity: 0.8 }}>
-            Pagamento processado com segurança pela plataforma RiseCheckout
-          </p>
-      </div>
+        </div>
 
       {/* Rodapé Separado - Preview */}
         <footer 
