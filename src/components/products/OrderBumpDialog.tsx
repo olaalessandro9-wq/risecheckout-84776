@@ -203,8 +203,9 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess }: Or
   };
 
   const parseCurrency = (value: string): number => {
-    // Converte "9,90" para 9.90 (centavos decimais)
-    return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
+    // Converte "9,90" para 990 (centavos inteiros, igual ao resto do checkout)
+    const decimal = parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
+    return Math.round(decimal * 100);
   };
 
   const handleSave = async () => {
@@ -544,15 +545,15 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess }: Or
                           {discountEnabled && discountPercentage > 0 ? (
                             <>
                               <span className="text-xs text-muted-foreground line-through">
-                                R$ {originalPrice.toFixed(2).replace('.', ',')}
+                                R$ {(originalPrice / 100).toFixed(2).replace('.', ',')}
                               </span>
                               <span className="text-base font-bold text-primary">
-                                R$ {finalPrice.toFixed(2).replace('.', ',')}
+                                R$ {(finalPrice / 100).toFixed(2).replace('.', ',')}
                               </span>
                             </>
                           ) : (
                             <span className="text-base font-bold text-primary">
-                              R$ {finalPrice.toFixed(2).replace('.', ',')}
+                              R$ {(finalPrice / 100).toFixed(2).replace('.', ',')}
                             </span>
                           )}
                         </div>
