@@ -80,7 +80,10 @@ export function Sidebar() {
             isCollapsed ? "px-2 py-6" : "px-3 py-4"
           )}
         >
-          <ul className={clsx(isCollapsed ? "space-y-3" : "space-y-1")}>
+          <ul className={clsx(
+            "flex flex-col",
+            isCollapsed ? "space-y-3" : "space-y-1"
+          )}>
             {navItems.map((it) => {
               const Icon = it.icon;
               const content = it.external ? (
