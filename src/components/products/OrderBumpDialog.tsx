@@ -532,12 +532,12 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess }: Or
                       <div className="flex-1 min-w-0">
                         {/* Título */}
                         <h3 className="text-sm font-semibold text-foreground leading-tight">
-                          {customTitle !== "" ? customTitle : selectedProduct.name}
+                          {customTitle}
                         </h3>
                         
                         {/* Descrição */}
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          {customDescription !== "" ? customDescription : (selectedProduct.description || "")}
+                          {customDescription}
                         </p>
                         
                         {/* Preço */}

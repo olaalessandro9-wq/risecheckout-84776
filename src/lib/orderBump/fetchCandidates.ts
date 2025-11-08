@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 export type OrderBumpCandidate = {
   id: string;
   name: string;
-  price: number; // Preço normalizado da view
+  price: number; // Preço em centavos (990 = R$ 9,90)
   status?: string | null;
   image_url?: string | null;
   description?: string | null;
@@ -45,6 +45,11 @@ export async function fetchOrderBumpCandidates(opts?: {
     throw error;
   }
 
-  // Retorna produtos filtrados e validados
-  return (data ?? []).filter((p: any) => p && p.id && p.name) as unknown as OrderBumpCandidate[];
+  // Retorna produtos filtrados e validados, convertendo preço para centavos
+  return (data ?? [])
+    .filter((p: any) => p && p.id && p.name)
+    .map((p: any) => ({
+      ...p,
+      price: Math.round(Number(p.price) * 100) // Converter decimal para centavos (990.00 → 99000)
+    })) as unknown as OrderBumpCandidate[];
 }
