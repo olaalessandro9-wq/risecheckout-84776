@@ -981,7 +981,7 @@ const PublicCheckout = () => {
                   <>
                     {/* Resumo do Pedido - PIX - DINÂMICO */}
                     <h4 
-                      className="font-semibold mb-3 text-sm tracking-tight mt-8"
+                      className="font-semibold mb-3 text-sm tracking-tight mt-16"
                       style={{ color: design.colors.orderSummary?.titleText || '#000000' }}
                     >
                       Resumo do pedido
@@ -1103,7 +1103,7 @@ const PublicCheckout = () => {
                   <>
                     {/* Resumo do Pedido - Cartão - DINÂMICO */}
                     <h4 
-                      className="font-semibold mb-3 text-sm tracking-tight mt-8"
+                      className="font-semibold mb-3 text-sm tracking-tight mt-16"
                       style={{ color: design.colors.orderSummary?.titleText || '#000000' }}
                     >
                       Resumo do pedido
