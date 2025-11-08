@@ -62,12 +62,12 @@ export const PixPaymentPage = () => {
     try {
       console.log("[PixPaymentPage] Criando cobrança PIX:", { 
         orderId, 
-        valueInCents: orderData.total_amount,
+        valueInCents: orderData.amount_cents,
         orderData 
       });
 
       const { data, error } = await supabase.functions.invoke("pushinpay-create-pix", {
-        body: { orderId, valueInCents: orderData.total_amount },
+        body: { orderId, valueInCents: orderData.amount_cents },
       });
 
       console.log("[PixPaymentPage] Resposta da Edge Function:", { data, error });
