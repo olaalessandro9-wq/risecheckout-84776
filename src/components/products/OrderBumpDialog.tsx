@@ -58,6 +58,7 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess }: Or
   const [customTitle, setCustomTitle] = useState("");
   const [customDescription, setCustomDescription] = useState("");
   const [showImage, setShowImage] = useState(true);
+  const [productInitialized, setProductInitialized] = useState<string | null>(null);
 
   const STORAGE_KEY = `orderBumpForm_${productId}`;
 
@@ -110,20 +111,16 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess }: Or
     }
   }, [selectedProductId]);
 
-  // Update custom title and description when product changes (only if empty)
+  // Update custom title and description when product changes (only on first selection)
   useEffect(() => {
     const selectedProduct = products.find(p => p.id === selectedProductId);
-    if (selectedProduct) {
-      // Only set if custom title is empty
-      if (!customTitle) {
-        setCustomTitle(selectedProduct.name);
-      }
-      // Only set if custom description is empty
-      if (!customDescription) {
-        setCustomDescription(selectedProduct.description || "");
-      }
+    if (selectedProduct && productInitialized !== selectedProductId) {
+      // Set title and description only when product is selected for the first time
+      setCustomTitle(selectedProduct.name);
+      setCustomDescription(selectedProduct.description || "");
+      setProductInitialized(selectedProductId);
     }
-  }, [selectedProductId, products]);
+  }, [selectedProductId, products, productInitialized]);
 
   const resetForm = () => {
     setSelectedProductId("");
@@ -134,6 +131,7 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess }: Or
     setCustomTitle("");
     setCustomDescription("");
     setShowImage(true);
+    setProductInitialized(null);
     
     // Clear localStorage
     localStorage.removeItem(STORAGE_KEY);
@@ -205,7 +203,9 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess }: Or
   };
 
   const parseCurrency = (value: string): number => {
-    return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
+    // Converte "9,90" para 990 centavos (seguindo o padrão do site)
+    const decimal = parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
+    return Math.round(decimal * 100);
   };
 
   const handleSave = async () => {
@@ -532,12 +532,12 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess }: Or
                       <div className="flex-1 min-w-0">
                         {/* Título */}
                         <h3 className="text-sm font-semibold text-foreground leading-tight">
-                          {customTitle || selectedProduct.name}
+                          {customTitle !== "" ? customTitle : selectedProduct.name}
                         </h3>
                         
                         {/* Descrição */}
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          {customDescription || selectedProduct.description || ""}
+                          {customDescription !== "" ? customDescription : (selectedProduct.description || "")}
                         </p>
                         
                         {/* Preço */}
