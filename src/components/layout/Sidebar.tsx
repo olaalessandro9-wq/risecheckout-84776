@@ -81,8 +81,8 @@ export function Sidebar() {
           )}
         >
           <ul className={clsx(
-            "flex flex-col",
-            isCollapsed ? "space-y-3" : "space-y-1"
+            "flex flex-col h-full",
+            isCollapsed ? "space-y-3 justify-start" : "space-y-1"
           )}>
             {navItems.map((it) => {
               const Icon = it.icon;
