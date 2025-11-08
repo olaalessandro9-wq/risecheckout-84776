@@ -13,6 +13,8 @@ export type OrderBumpCandidate = {
   name: string;
   price: number; // Preço normalizado da view
   status?: string | null;
+  image_url?: string | null;
+  description?: string | null;
 };
 
 /**
@@ -27,7 +29,7 @@ export async function fetchOrderBumpCandidates(opts?: {
   // Busca diretamente da tabela products (RLS já filtra por user_id)
   let query = supabase
     .from("products")
-    .select("id,name,price")
+    .select("id,name,price,image_url,description")
     .eq("status", "active")
     .order("created_at", { ascending: false });
 

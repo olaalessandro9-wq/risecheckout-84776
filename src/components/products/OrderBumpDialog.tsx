@@ -118,6 +118,10 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess }: Or
       if (!customTitle) {
         setCustomTitle(selectedProduct.name);
       }
+      // Only set if custom description is empty
+      if (!customDescription) {
+        setCustomDescription(selectedProduct.description || "");
+      }
     }
   }, [selectedProductId, products]);
 
@@ -146,14 +150,8 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess }: Or
       .then((rows) => {
         if (!active) return;
         
-        // O helper agora retorna apenas id, name e status.
-        // O preço será buscado da oferta (offer)
-        const mappedProducts: OrderBumpProduct[] = rows.map(row => ({
-          ...row,
-          image_url: undefined, // O helper não busca image_url, mas o componente espera. Deixamos undefined.
-        }));
-        
-        setProducts(mappedProducts);
+        // O helper agora retorna id, name, price, image_url e description
+        setProducts(rows as OrderBumpProduct[]);
       })
       .catch((err) => {
         if (!active) return;
@@ -539,7 +537,7 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess }: Or
                         
                         {/* Descrição */}
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          {customDescription || "Adicione a compra"}
+                          {customDescription || selectedProduct.description || ""}
                         </p>
                         
                         {/* Preço */}

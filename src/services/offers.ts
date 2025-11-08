@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 export type NormalizedOffer = {
   id: string;
   product_id: string;
-  price: number;        // já normalizado pela view
+  price: number;        // em centavos (convertido de decimal)
   product_name?: string | null;
   updated_at?: string | null;
 };
@@ -23,7 +23,7 @@ export async function fetchOffersByProduct(productId: string): Promise<Normalize
   return (data ?? []).map(offer => ({
     id: offer.id,
     product_id: offer.product_id,
-    price: offer.price,
+    price: Math.round(Number(offer.price) * 100), // Converter de decimal para centavos
     product_name: offer.name,
     updated_at: offer.updated_at
   })) as NormalizedOffer[];
