@@ -240,6 +240,61 @@ export const CheckoutColorSettings = ({ customization, onUpdate }: CheckoutColor
         />
       </div>
 
+      <Separator />
+
+      {/* Order Bumps */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Order Bumps</h3>
+        <ColorPicker
+          label="Cor do Bloco Superior"
+          value={customization.design?.colors?.orderBump?.headerBackground || 'rgba(255,255,255,0.15)'}
+          onChange={(value) => onUpdate('design.colors.orderBump.headerBackground', value)}
+          description="Fundo do cabeçalho (call to action)"
+        />
+        <ColorPicker
+          label="Cor do Texto do Bloco Superior"
+          value={customization.design?.colors?.orderBump?.headerText || '#10B981'}
+          onChange={(value) => onUpdate('design.colors.orderBump.headerText', value)}
+          description="Texto do call to action"
+        />
+        <ColorPicker
+          label="Cor do Bloco Inferior"
+          value={customization.design?.colors?.orderBump?.footerBackground || 'rgba(255,255,255,0.15)'}
+          onChange={(value) => onUpdate('design.colors.orderBump.footerBackground', value)}
+          description="Fundo do rodapé (adicionar produto)"
+        />
+        <ColorPicker
+          label="Cor do Texto do Bloco Inferior"
+          value={customization.design?.colors?.orderBump?.footerText || '#000000'}
+          onChange={(value) => onUpdate('design.colors.orderBump.footerText', value)}
+          description="Texto 'Adicionar Produto'"
+        />
+        <ColorPicker
+          label="Cor do Fundo do Meio"
+          value={customization.design?.colors?.orderBump?.contentBackground || '#F9FAFB'}
+          onChange={(value) => onUpdate('design.colors.orderBump.contentBackground', value)}
+          description="Fundo do conteúdo principal"
+        />
+        <ColorPicker
+          label="Cor do Título"
+          value={customization.design?.colors?.orderBump?.titleText || '#000000'}
+          onChange={(value) => onUpdate('design.colors.orderBump.titleText', value)}
+          description="Nome do produto"
+        />
+        <ColorPicker
+          label="Cor da Descrição"
+          value={customization.design?.colors?.orderBump?.descriptionText || '#6B7280'}
+          onChange={(value) => onUpdate('design.colors.orderBump.descriptionText', value)}
+          description="Texto descritivo"
+        />
+        <ColorPicker
+          label="Cor do Preço"
+          value={customization.design?.colors?.orderBump?.priceText || '#10B981'}
+          onChange={(value) => onUpdate('design.colors.orderBump.priceText', value)}
+          description="Valor do produto"
+        />
+      </div>
+
     </div>
   );
 };

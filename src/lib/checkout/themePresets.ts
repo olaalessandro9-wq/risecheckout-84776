@@ -77,6 +77,16 @@ export interface ThemePreset {
       border: string;
       text: string;
     };
+    orderBump: {
+      headerBackground: string;
+      headerText: string;
+      footerBackground: string;
+      footerText: string;
+      contentBackground: string;
+      titleText: string;
+      descriptionText: string;
+      priceText: string;
+    };
   };
 }
 
@@ -150,6 +160,16 @@ export const THEME_PRESETS: Record<'light' | 'dark', ThemePreset> = {
         secondaryText: '#6B7280',
         linkText: '#3B82F6',
       },
+      orderBump: {
+        headerBackground: 'rgba(255,255,255,0.15)',
+        headerText: '#10B981',
+        footerBackground: 'rgba(255,255,255,0.15)',
+        footerText: '#000000',
+        contentBackground: '#F9FAFB',
+        titleText: '#000000',
+        descriptionText: '#6B7280',
+        priceText: '#10B981',
+      },
     },
   },
   dark: {
@@ -220,6 +240,16 @@ export const THEME_PRESETS: Record<'light' | 'dark', ThemePreset> = {
         primaryText: '#FFFFFF',
         secondaryText: '#CCCCCC',
         linkText: '#60A5FA',
+      },
+      orderBump: {
+        headerBackground: 'rgba(255,255,255,0.15)',
+        headerText: '#10B981',
+        footerBackground: 'rgba(255,255,255,0.15)',
+        footerText: '#FFFFFF',
+        contentBackground: '#1A1A1A',
+        titleText: '#FFFFFF',
+        descriptionText: '#CCCCCC',
+        priceText: '#10B981',
       },
     },
   },
