@@ -82,8 +82,8 @@ export function Sidebar() {
               ) : (
                 <NavLink to={item.to!}>
                   {({ isActive }) => (
-                    <div className={isActive ? "group/item flex items-center gap-3 rounded-md px-2 py-2.5 text-sm bg-muted text-foreground font-semibold shadow-sm" : ""}>
-                      {isActive ? (
+                    <div className={isActive && isHovered ? "group/item flex items-center gap-3 rounded-md px-2 py-2.5 text-sm bg-muted text-foreground font-semibold shadow-sm" : ""}>
+                      {isActive && isHovered ? (
                         <>
                           <Icon className="h-5 w-5 shrink-0 transition-transform group-hover/item:scale-110" />
                           {isHovered && (
