@@ -75,9 +75,8 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess, edit
         setDiscountEnabled(!!editOrderBump.discount_price);
         setDiscountPrice(editOrderBump.discount_price ? (editOrderBump.discount_price / 100).toFixed(2).replace('.', ',') : "0,00");
         setCallToAction(editOrderBump.call_to_action || "SIM, EU ACEITO ESSA OFERTA ESPECIAL!");
-        setCustomTitle(editOrderBump.custom_title || "");
-        setCustomDescription(editOrderBump.custom_description || "");
         setShowImage(editOrderBump.show_image !== false);
+        // Título e descrição serão carregados no próximo useEffect após products estar disponível
         return; // Não carregar do localStorage se estiver editando
       }
       
@@ -100,6 +99,18 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess, edit
       }
     }
   }, [open, productId, editOrderBump]);
+
+  // Carregar título e descrição com fallback quando editando
+  useEffect(() => {
+    if (editOrderBump && products.length > 0 && selectedProductId) {
+      const product = products.find(p => p.id === selectedProductId);
+      if (product) {
+        // Usar custom_title/custom_description do banco, ou fallback para dados do produto
+        setCustomTitle(editOrderBump.custom_title || product.name);
+        setCustomDescription(editOrderBump.custom_description || product.description || "");
+      }
+    }
+  }, [editOrderBump, products, selectedProductId]);
 
   // Save form data to localStorage whenever it changes (mas não quando estiver editando)
   useEffect(() => {
@@ -529,7 +540,7 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess, edit
               {selectedProduct ? (
                 <>
                   {/* Cabeçalho - Call to Action */}
-                  <div className={previewSelected ? "bg-primary/25 px-3 py-2 flex items-center justify-between" : "bg-black/40 px-3 py-2 flex items-center justify-between"}>
+                  <div className={previewSelected ? "bg-primary/20 px-3 py-2 flex items-center justify-between" : "bg-muted/50 px-3 py-2 flex items-center justify-between"}>
                     <span className="text-xs font-semibold text-primary uppercase">
                       {callToAction}
                     </span>
@@ -587,7 +598,7 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess, edit
                   </div>
 
                   {/* Rodapé - Checkbox Adicionar */}
-                  <div className={previewSelected ? "bg-primary/25 px-3 py-2" : "bg-black/40 px-3 py-2"}>
+                  <div className={previewSelected ? "bg-primary/20 px-3 py-2" : "bg-muted/50 px-3 py-2"}>
                     <div className="flex items-center gap-2">
                       <div className={previewSelected ? "w-4 h-4 border-2 border-primary rounded bg-primary flex items-center justify-center" : "w-4 h-4 border-2 border-border rounded bg-background"}>
                         {previewSelected && (
