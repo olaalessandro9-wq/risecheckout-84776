@@ -42,26 +42,48 @@ export const PixPaymentPage = () => {
 
   // Criar cobrança PIX
   const createPixCharge = useCallback(async () => {
-    if (!orderId || !orderData) return;
+    if (!orderId || !orderData) {
+      console.log("[PixPaymentPage] Aguardando dados:", { orderId, orderData: !!orderData });
+      return;
+    }
 
     setLoading(true);
     setPaymentStatus("waiting");
     hasShownExpiredToast.current = false;
 
     try {
-      console.log("[PixPaymentPage] Criando cobrança PIX:", { orderId, valueInCents: orderData.total_amount });
+      console.log("[PixPaymentPage] Criando cobrança PIX:", { 
+        orderId, 
+        valueInCents: orderData.total_amount,
+        orderData 
+      });
 
       const { data, error } = await supabase.functions.invoke("pushinpay-create-pix", {
         body: { orderId, valueInCents: orderData.total_amount },
       });
 
-      if (error || !data?.ok || !data?.pix) {
-        throw new Error("Erro ao criar cobrança PIX");
+      console.log("[PixPaymentPage] Resposta da Edge Function:", { data, error });
+
+      if (error) {
+        console.error("[PixPaymentPage] Erro da Edge Function:", error);
+        throw new Error(error.message || "Erro ao criar cobrança PIX");
+      }
+
+      if (!data?.ok) {
+        console.error("[PixPaymentPage] Resposta não OK:", data);
+        throw new Error(data?.error || "Erro ao criar cobrança PIX");
+      }
+
+      if (!data?.pix) {
+        console.error("[PixPaymentPage] Sem dados do PIX:", data);
+        throw new Error("Dados do PIX não retornados");
       }
 
       const { pix } = data;
-      setPixId(pix.id || pix.pix_id);
-      setQrCode(pix.qr_code || "");
+      console.log("[PixPaymentPage] PIX criado com sucesso:", pix);
+      
+      setPixId(pix.id || pix.pix_id || "");
+      setQrCode(pix.qr_code || pix.qrcode || pix.emv || "");
       
       // Definir expiração em 15 minutos
       expiresAt.current = Date.now() + 15 * 60 * 1000;
@@ -69,9 +91,9 @@ export const PixPaymentPage = () => {
       
       setLoading(false);
       toast.success("QR Code gerado com sucesso!");
-    } catch (err) {
-      console.error("[PixPaymentPage] Erro:", err);
-      toast.error("Erro ao gerar QR Code");
+    } catch (err: any) {
+      console.error("[PixPaymentPage] Erro ao criar PIX:", err);
+      toast.error(err.message || "Erro ao gerar QR Code");
       setLoading(false);
     }
   }, [orderId, orderData]);
@@ -180,17 +202,6 @@ export const PixPaymentPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* Banner vermelho no topo */}
-      {paymentStatus === "waiting" && timeRemaining > 0 && (
-        <div className="bg-red-600 text-white py-4 px-6 text-center">
-          <div className="flex items-center justify-center gap-3">
-            <Clock className="w-5 h-5" />
-            <span className="text-2xl font-bold tabular-nums">{formatTime(timeRemaining)}</span>
-            <span className="text-sm">⏰ Oferta por tempo limitado</span>
-          </div>
-        </div>
-      )}
-
       <div className="container max-w-4xl mx-auto px-4 py-8">
         {/* Botão Voltar */}
         <button
@@ -315,11 +326,7 @@ export const PixPaymentPage = () => {
           )}
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-8 text-gray-400 text-sm">
-          <p>🔒 Transação Segura e Criptografada</p>
-          <p className="mt-2">Pagamento processado com segurança pela plataforma RiseCheckout</p>
-        </div>
+
       </div>
     </div>
   );
