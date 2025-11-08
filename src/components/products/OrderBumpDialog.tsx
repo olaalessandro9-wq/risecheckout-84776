@@ -110,7 +110,7 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess, edit
         setCustomDescription(editOrderBump.custom_description || product.description || "");
       }
     }
-  }, [editOrderBump, products, selectedProductId]);
+  }, [editOrderBump, products, selectedProductId, open]);  // Adicionar 'open' para recarregar ao abrir
 
   // Save form data to localStorage whenever it changes (mas não quando estiver editando)
   useEffect(() => {
