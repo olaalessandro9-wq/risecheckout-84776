@@ -68,14 +68,15 @@ export function OrderBumpDialog({ open, onOpenChange, productId, onSuccess, edit
     if (open) {
       // Se estiver editando, carregar dados do order bump
       if (editOrderBump) {
-        setSelectedProductId(editOrderBump.bump_product_id || "");
+        console.log('Carregando editOrderBump:', editOrderBump);
+        setSelectedProductId(editOrderBump.product_id || "");
         setSelectedOfferId(editOrderBump.offer_id || "");
-        setDiscountEnabled(!!editOrderBump.original_price);
-        setDiscountPrice(editOrderBump.original_price ? (editOrderBump.original_price / 100).toFixed(2).replace('.', ',') : "0,00");
+        setDiscountEnabled(!!editOrderBump.discount_price);
+        setDiscountPrice(editOrderBump.discount_price ? (editOrderBump.discount_price / 100).toFixed(2).replace('.', ',') : "0,00");
         setCallToAction(editOrderBump.call_to_action || "SIM, EU ACEITO ESSA OFERTA ESPECIAL!");
-        setCustomTitle(editOrderBump.name || "");
-        setCustomDescription(editOrderBump.description || "");
-        setShowImage(editOrderBump.image_url !== null);
+        setCustomTitle(editOrderBump.custom_title || "");
+        setCustomDescription(editOrderBump.custom_description || "");
+        setShowImage(editOrderBump.show_image !== false);
         return; // Não carregar do localStorage se estiver editando
       }
       
