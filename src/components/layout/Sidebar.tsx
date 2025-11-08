@@ -19,59 +19,21 @@ import { AnimatedSidebar, AnimatedSidebarBody, useAnimatedSidebar } from "@/comp
 import { motion } from "framer-motion";
 
 type Item = { label: string; icon: React.ElementType; to?: string; external?: string };
-type Section = { title: string; items: Item[] };
 
 // Ajuste de altura do brand no topo do sidebar
-const BRAND_H = 88; // px (maior que antes; menor que o Rise Insights)
+const BRAND_H = 88; // px
 
-// Função que retorna estrutura dinâmica baseada no estado do sidebar
-const getNavSections = (isCollapsed: boolean): Section[] => {
-  if (isCollapsed) {
-    // Quando MINIMIZADO: todos os itens sem separação de seções
-    return [
-      {
-        title: "",
-        items: [
-          { label: "Dashboard", icon: LayoutDashboard, to: "/" },
-          { label: "Produtos", icon: Package, to: "/produtos" },
-          { label: "Afiliados", icon: Users, to: "/afiliados" },
-          { label: "Financeiro", icon: Banknote, to: "/financeiro" },
-          { label: "Integrações", icon: Plug, to: "/integracoes" },
-          { label: "Configurações", icon: Cog, to: "/config" },
-          { label: "Suporte pelo WhatsApp", icon: LifeBuoy, external: SUPPORT_WHATSAPP_URL },
-          { label: "Ajuda", icon: HelpCircle, external: HELP_CENTER_URL },
-        ],
-      },
-    ];
-  } else {
-    // Quando EXPANDIDO: Configurações em OPERAÇÕES, SISTEMA vira SUPORTE
-    return [
-      {
-        title: "NAVEGAÇÃO",
-        items: [
-          { label: "Dashboard", icon: LayoutDashboard, to: "/" },
-          { label: "Produtos", icon: Package, to: "/produtos" },
-          { label: "Afiliados", icon: Users, to: "/afiliados" },
-        ],
-      },
-      {
-        title: "OPERAÇÕES",
-        items: [
-          { label: "Financeiro", icon: Banknote, to: "/financeiro" },
-          { label: "Integrações", icon: Plug, to: "/integracoes" },
-          { label: "Configurações", icon: Cog, to: "/config" },
-        ],
-      },
-      {
-        title: "SUPORTE",
-        items: [
-          { label: "Suporte pelo WhatsApp", icon: LifeBuoy, external: SUPPORT_WHATSAPP_URL },
-          { label: "Ajuda", icon: HelpCircle, external: HELP_CENTER_URL },
-        ],
-      },
-    ];
-  }
-};
+// Lista única de itens de navegação (sem seções)
+const navItems: Item[] = [
+  { label: "Dashboard", icon: LayoutDashboard, to: "/" },
+  { label: "Produtos", icon: Package, to: "/produtos" },
+  { label: "Afiliados", icon: Users, to: "/afiliados" },
+  { label: "Financeiro", icon: Banknote, to: "/financeiro" },
+  { label: "Integrações", icon: Plug, to: "/integracoes" },
+  { label: "Configurações", icon: Cog, to: "/config" },
+  { label: "Suporte pelo WhatsApp", icon: LifeBuoy, external: SUPPORT_WHATSAPP_URL },
+  { label: "Ajuda", icon: HelpCircle, external: HELP_CENTER_URL },
+];
 
 function SidebarContent() {
   const { open: isOpen } = useAnimatedSidebar();
@@ -101,69 +63,50 @@ function SidebarContent() {
       {/* Navegação */}
       <TooltipProvider delayDuration={300}>
         <nav className={clsx(
-          "scrollbar-none flex-1 overflow-y-auto py-4 transition-all duration-300 ease-in-out",
-          isCollapsed ? "px-2.5" : "px-2"
+          "scrollbar-none flex-1 overflow-y-auto py-6 transition-all duration-300 ease-in-out",
+          isCollapsed ? "px-2.5" : "px-3"
         )}>
-          {getNavSections(isCollapsed).map((section, sectionIdx) => (
-            <div 
-              key={section.title || sectionIdx} 
-              className={clsx(
-                "mb-4"
-              )}
-            >
-              {/* Título da seção - só aparece quando expandido */}
-              {!isCollapsed && section.title && (
-                <div className={clsx(
-                  "px-2 font-medium uppercase tracking-widest transition-all duration-300 ease-in-out",
-                  "pb-2 text-[11px] text-foreground/70 font-semibold"
-                )}>
-                  {section.title}
-                </div>
-              )}
-              
-              <ul className={clsx(isCollapsed ? "space-y-4" : "space-y-1.5")}>
-                {section.items.map((it) => {
-                  const Icon = it.icon;
-                  const content = it.external ? (
-                    <a
-                      href={it.external}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={rowClass(undefined, isCollapsed)}
-                    >
-                      <Icon className={isCollapsed ? "h-6 w-6 shrink-0 mx-auto transition-transform" : "h-5 w-5 shrink-0 transition-transform group-hover:scale-110"} />
-                      {!isCollapsed && <span className="font-medium text-sm">{it.label}</span>}
-                    </a>
-                  ) : (
-                    <NavLink 
-                      to={it.to!} 
-                      className={({ isActive }) => rowClass(isActive, isCollapsed)}
-                    >
-                      <Icon className={isCollapsed ? "h-6 w-6 shrink-0 mx-auto transition-transform" : "h-5 w-5 shrink-0 transition-transform group-hover:scale-110"} />
-                      {!isCollapsed && <span className="font-medium text-sm">{it.label}</span>}
-                    </NavLink>
-                  );
+          <ul className={clsx(isCollapsed ? "space-y-4" : "space-y-1")}>
+            {navItems.map((it) => {
+              const Icon = it.icon;
+              const content = it.external ? (
+                <a
+                  href={it.external}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={rowClass(undefined, isCollapsed)}
+                >
+                  <Icon className={isCollapsed ? "h-6 w-6 shrink-0 mx-auto transition-transform" : "h-5 w-5 shrink-0 transition-transform group-hover:scale-110"} />
+                  {!isCollapsed && <span className="font-medium text-sm">{it.label}</span>}
+                </a>
+              ) : (
+                <NavLink 
+                  to={it.to!} 
+                  className={({ isActive }) => rowClass(isActive, isCollapsed)}
+                >
+                  <Icon className={isCollapsed ? "h-6 w-6 shrink-0 mx-auto transition-transform" : "h-5 w-5 shrink-0 transition-transform group-hover:scale-110"} />
+                  {!isCollapsed && <span className="font-medium text-sm">{it.label}</span>}
+                </NavLink>
+              );
 
-                  if (isCollapsed) {
-                    return (
-                      <li key={it.label} className="flex">
-                        <Tooltip>
-                          <TooltipTrigger asChild className="flex-1">
-                            {content}
-                          </TooltipTrigger>
-                          <TooltipContent side="right">
-                            {it.label}
-                          </TooltipContent>
-                        </Tooltip>
-                      </li>
-                    );
-                  }
+              if (isCollapsed) {
+                return (
+                  <li key={it.label} className="flex">
+                    <Tooltip>
+                      <TooltipTrigger asChild className="flex-1">
+                        {content}
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        {it.label}
+                      </TooltipContent>
+                    </Tooltip>
+                  </li>
+                );
+              }
 
-                  return <li key={it.label}>{content}</li>;
-                })}
-              </ul>
-            </div>
-          ))}
+              return <li key={it.label}>{content}</li>;
+            })}
+          </ul>
         </nav>
       </TooltipProvider>
 
