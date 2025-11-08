@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, User, Wallet, Mail, Phone, FileText, Lock, Zap, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -52,6 +52,7 @@ interface CheckoutData {
 const PublicCheckout = () => {
   const { slug } = useParams<{ slug: string }>();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [checkout, setCheckout] = useState<CheckoutData | null>(null);
   const [design, setDesign] = useState<ThemePreset | null>(null);
   const [loading, setLoading] = useState(true);
@@ -459,10 +460,14 @@ const PublicCheckout = () => {
         );
       }
 
-      // 4. Exibir componente PixPayment
+      // 4. Redirecionar para página dedicada do PIX
       setOrderId(orderResponse.order_id);
-      setShowPixPayment(true);
       toast.success("Gerando PIX...");
+      
+      // Redirecionar para página dedicada após 500ms
+      setTimeout(() => {
+        navigate(`/pay/pix/${orderResponse.order_id}`);
+      }, 500);
 
     } catch (error: any) {
       console.error("Erro ao processar pagamento:", error);

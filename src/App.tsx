@@ -16,6 +16,7 @@ import CheckoutCustomizer from "./pages/CheckoutCustomizer";
 import Auth from "./pages/Auth";
 import PublicCheckout from "./pages/PublicCheckout";
 import PaymentLinkRedirect from "./pages/PaymentLinkRedirect";
+import PixPaymentPage from "./pages/PixPaymentPage";
 import NotFound from "./pages/NotFound";
 import EmBreve from "./pages/EmBreve";
 import Integracoes from "./pages/Integracoes";
@@ -40,6 +41,7 @@ function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/c/:slug" element={<PaymentLinkRedirect />} />
               <Route path="/pay/:slug" element={<PublicCheckout />} />
+              <Route path="/pay/pix/:orderId" element={<PixPaymentPage />} />
               
               {/* Checkout Builder - Full screen without sidebar (Protected) */}
               <Route 
