@@ -980,8 +980,14 @@ const PublicCheckout = () => {
                 {selectedPayment === 'pix' && (
                   <>
                     {/* Resumo do Pedido - PIX - DINÂMICO */}
+                    <h4 
+                      className="font-semibold mb-3 text-sm tracking-tight mt-8"
+                      style={{ color: design.colors.orderSummary?.titleText || '#000000' }}
+                    >
+                      Resumo do pedido
+                    </h4>
                     <div 
-                      className="rounded-lg p-4 mt-6 md:mt-10"
+                      className="rounded-lg p-4"
                       style={{
                         backgroundColor: design.colors.orderSummary?.background || '#F9FAFB',
                         borderColor: design.colors.orderSummary?.borderColor || '#D1D5DB',
@@ -989,12 +995,6 @@ const PublicCheckout = () => {
                         borderStyle: 'solid'
                       }}
                     >
-                      <h4 
-                        className="font-semibold mb-3 text-sm tracking-tight"
-                        style={{ color: design.colors.orderSummary?.titleText || '#000000' }}
-                      >
-                        Resumo do pedido
-                      </h4>
                       
                       {/* Produto Principal */}
                       <div className="flex items-start gap-3 mb-3 pb-3 border-b" style={{ borderColor: design.colors.orderSummary?.borderColor || '#D1D5DB' }}>
@@ -1102,8 +1102,14 @@ const PublicCheckout = () => {
                 {selectedPayment === 'credit_card' && (
                   <>
                     {/* Resumo do Pedido - Cartão - DINÂMICO */}
+                    <h4 
+                      className="font-semibold mb-3 text-sm tracking-tight mt-8"
+                      style={{ color: design.colors.orderSummary?.titleText || '#000000' }}
+                    >
+                      Resumo do pedido
+                    </h4>
                     <div 
-                      className="rounded-lg p-4 mt-6 md:mt-10"
+                      className="rounded-lg p-4"
                       style={{
                         backgroundColor: design.colors.orderSummary?.background || '#F9FAFB',
                         borderColor: design.colors.orderSummary?.borderColor || '#D1D5DB',
@@ -1111,12 +1117,6 @@ const PublicCheckout = () => {
                         borderStyle: 'solid'
                       }}
                     >
-                      <h4 
-                        className="font-semibold mb-3 text-sm tracking-tight"
-                        style={{ color: design.colors.orderSummary?.titleText || '#000000' }}
-                      >
-                        Resumo do pedido
-                      </h4>
                       
                       {/* Produto Principal */}
                       <div className="flex items-start gap-3 mb-3 pb-3 border-b" style={{ borderColor: design.colors.orderSummary?.borderColor || '#D1D5DB' }}>
