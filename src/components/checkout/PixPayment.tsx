@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Copy, CheckCircle2, Clock, XCircle, RefreshCw, Timer } from "lucide-react";
+import { Copy, CheckCircle2, XCircle, RefreshCw, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { PushinPayLegal } from "../pix/PushinPayLegal";
 import { QRCanvas } from "../pix/QRCanvas";
 
 interface PixPaymentProps {
@@ -24,12 +23,16 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
+  
+  // Flag para controlar toast de expiração (aparecer só uma vez)
+  const hasShownExpiredToast = useRef(false);
 
   // Criar cobrança PIX
   const createPixCharge = useCallback(async () => {
     setLoading(true);
     setPaymentStatus("waiting");
     setIsExpired(false);
+    hasShownExpiredToast.current = false; // Resetar flag ao criar novo QR
 
     try {
       console.log("[PixPayment] Criando cobrança PIX:", { orderId, valueInCents });
@@ -70,7 +73,7 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
       // Inicializar countdown imediatamente
       const remaining = Math.floor((expirationTime - Date.now()) / 1000);
       setTimeRemaining(remaining);
-      console.log("[PixPayment] v2.7 - QR criado, expira em 15:00");
+      console.log("[PixPayment] v2.8 - QR criado, expira em 15:00");
 
       setLoading(false);
       toast.success("QR Code gerado com sucesso!");
@@ -90,7 +93,7 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
 
   // Log de versão ao montar componente
   useEffect(() => {
-    console.log("[PixPayment] v2.7 montado");
+    console.log("[PixPayment] v2.8 montado - Melhorias: toast único, sem aviso legal, cronômetro melhorado");
   }, []);
 
   // Polling do status do pagamento (a cada 5s, conforme recomendação PushinPay)
@@ -200,7 +203,12 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
           clearInterval(pollingInterval);
           setPollingInterval(null);
         }
-        toast.error("QR Code expirado após 15 minutos");
+        
+        // Toast de expiração: aparecer SOMENTE UMA VEZ
+        if (!hasShownExpiredToast.current) {
+          toast.error("QR Code expirado após 15 minutos");
+          hasShownExpiredToast.current = true;
+        }
       } else {
         setTimeRemaining(remaining);
         console.log(`[PixPayment] ⏱️ Tempo restante: ${Math.floor(remaining / 60)}:${(remaining % 60).toString().padStart(2, '0')}`);
@@ -226,6 +234,13 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
     }
   };
 
+  // Formatar tempo no estilo MM:SS
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center p-8 space-y-4">
@@ -237,29 +252,36 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
 
   return (
     <div className="w-full space-y-6">
-      {/* Status do Pagamento com Countdown Inline */}
-      <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-muted">
-        {paymentStatus === "waiting" && !isExpired && (
-          <>
-            <Timer className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-pulse" />
-            <span className="text-sm font-medium">
-              Aguardando pagamento — expira em {Math.floor(timeRemaining / 60).toString().padStart(2, '0')}:{(timeRemaining % 60).toString().padStart(2, '0')}
-            </span>
-          </>
-        )}
-        {paymentStatus === "paid" && (
-          <>
-            <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
-            <span className="text-sm font-medium">Pagamento confirmado!</span>
-          </>
-        )}
-        {(paymentStatus === "expired" || isExpired) && (
-          <>
-            <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-            <span className="text-sm font-medium">Cobrança expirada</span>
-          </>
-        )}
-      </div>
+      {/* Status do Pagamento com Countdown Melhorado */}
+      {paymentStatus === "waiting" && !isExpired && (
+        <div className="flex flex-col items-center justify-center gap-3 p-6 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-2 border-blue-200 dark:border-blue-800">
+          <div className="flex items-center gap-3">
+            <Timer className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-pulse" />
+            <div className="text-center">
+              <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                Tempo restante para pagamento
+              </p>
+              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 tabular-nums">
+                {formatTime(timeRemaining)}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {paymentStatus === "paid" && (
+        <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-green-50 dark:bg-green-950 border-2 border-green-200 dark:border-green-800">
+          <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+          <span className="text-sm font-medium text-green-900 dark:text-green-100">Pagamento confirmado!</span>
+        </div>
+      )}
+
+      {(paymentStatus === "expired" || isExpired) && (
+        <div className="flex items-center justify-center gap-2 p-4 rounded-lg bg-red-50 dark:bg-red-950 border-2 border-red-200 dark:border-red-800">
+          <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+          <span className="text-sm font-medium text-red-900 dark:text-red-100">O QR Code expirou após 15 minutos</span>
+        </div>
+      )}
 
       {/* QR Code via Canvas */}
       {qrCode && paymentStatus === "waiting" && !isExpired && (
@@ -267,7 +289,7 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
           <div className="p-4 bg-white rounded-lg shadow-lg">
             <QRCanvas value={qrCode} size={256} />
           </div>
-          <p className="text-sm text-center text-muted-foreground">
+          <p className="text-sm text-center text-gray-700 dark:text-gray-300 font-medium">
             Escaneie o QR Code com o app do seu banco
           </p>
         </div>
@@ -276,12 +298,10 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
       {/* Botão Gerar Novo QR (quando expirado) */}
       {isExpired && paymentStatus === "expired" && (
         <div className="flex flex-col items-center space-y-4">
-          <p className="text-sm text-center text-muted-foreground">
-            O QR Code expirou após 15 minutos.
-          </p>
           <Button 
             onClick={createPixCharge}
             className="gap-2"
+            size="lg"
           >
             <RefreshCw className="w-4 h-4" />
             Gerar novo QR Code
@@ -292,13 +312,13 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
       {/* Código PIX - Copiar e Colar */}
       {qrCode && paymentStatus === "waiting" && !isExpired && (
         <div className="flex flex-col items-center space-y-2">
-          <p className="text-xs text-muted-foreground">Ou copie o código PIX:</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">Ou copie o código PIX:</p>
           <div className="w-full max-w-md flex gap-2">
             <input
               type="text"
               value={qrCode}
               readOnly
-              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-xs font-mono"
+              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-xs font-mono text-gray-900 dark:text-gray-100"
             />
             <Button
               onClick={copyToClipboard}
@@ -320,21 +340,6 @@ export const PixPayment = ({ orderId, valueInCents, onSuccess, onError }: PixPay
           </div>
         </div>
       )}
-
-      {/* Aviso Legal PushinPay */}
-      <PushinPayLegal />
-
-      {/* Informações adicionais */}
-      <div className="text-center space-y-2">
-        <p className="text-sm text-muted-foreground">
-          Valor: <strong>R$ {(valueInCents / 100).toFixed(2)}</strong>
-        </p>
-        {pixId && (
-          <p className="text-xs text-muted-foreground font-mono">
-            ID: {pixId}
-          </p>
-        )}
-      </div>
     </div>
   );
 };
