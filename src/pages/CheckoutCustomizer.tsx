@@ -68,6 +68,7 @@ export interface CheckoutDesign {
     active: string;
     icon: string;
     formBackground: string;
+    border: string;
     
     unselectedButton: {
       text: string;
@@ -137,6 +138,17 @@ export interface CheckoutDesign {
       secondaryText: string;
       linkText: string;
     };
+    
+    orderBump: {
+      headerBackground: string;
+      headerText: string;
+      footerBackground: string;
+      footerText: string;
+      contentBackground: string;
+      titleText: string;
+      descriptionText: string;
+      priceText: string;
+    };
   };
   backgroundImage?: {
     url?: string;
@@ -183,6 +195,7 @@ const CheckoutCustomizer = () => {
         active: "#10B981",
         icon: "#000000",
         formBackground: "#F9FAFB",
+        border: "#E5E7EB",
         unselectedButton: {
           text: "#000000",
           background: "#FFFFFF",
@@ -220,6 +233,16 @@ const CheckoutCustomizer = () => {
         button: {
           background: "#10B981",
           text: "#FFFFFF",
+        },
+        orderBump: {
+          headerBackground: 'rgba(0,0,0,0.15)',
+          headerText: '#10B981',
+          footerBackground: 'rgba(0,0,0,0.15)',
+          footerText: '#000000',
+          contentBackground: '#F9FAFB',
+          titleText: '#000000',
+          descriptionText: '#6B7280',
+          priceText: '#10B981',
         },
       },
     },
@@ -319,6 +342,7 @@ const CheckoutCustomizer = () => {
               active: savedDesign.colors?.active || checkout.active_text_color || '#10B981',
               icon: savedDesign.colors?.icon || checkout.icon_color || '#000000',
               formBackground: savedDesign.colors?.formBackground || checkout.form_background_color || '#F9FAFB',
+              border: savedDesign.colors?.border || ((savedDesign.theme || checkout.theme) === 'dark' ? '#3A3A3A' : '#E5E7EB'),
               
               unselectedButton: {
                 text: savedDesign.colors?.unselectedButton?.text || checkout.unselected_button_text_color || '#000000',

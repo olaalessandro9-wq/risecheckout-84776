@@ -73,7 +73,7 @@ export const AnimatedSidebarBody = (props: React.ComponentProps<typeof motion.di
   return (
     <>
       <DesktopAnimatedSidebar {...props} />
-      <MobileAnimatedSidebar {...(props as React.ComponentProps<"div">)} />
+      <MobileAnimatedSidebar />
     </>
   );
 };
@@ -106,7 +106,10 @@ export const MobileAnimatedSidebar = ({
   className,
   children,
   ...props
-}: React.ComponentProps<"div">) => {
+}: {
+  className?: string;
+  children?: React.ReactNode;
+} & React.HTMLAttributes<HTMLDivElement>) => {
   const { open, setOpen } = useAnimatedSidebar();
   return (
     <>

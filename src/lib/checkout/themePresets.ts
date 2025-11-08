@@ -7,7 +7,7 @@ export interface ThemePreset {
     active: string;
     icon: string;
     formBackground: string;
-    border?: string;
+    border: string;
     placeholder?: string;
     inputBackground?: string;
     unselectedButton: {
@@ -100,6 +100,7 @@ export const THEME_PRESETS: Record<'light' | 'dark', ThemePreset> = {
       active: '#10B981',
       icon: '#000000',
       formBackground: '#F9FAFB',
+      border: '#E5E7EB',
       unselectedButton: {
         text: '#000000',
         background: '#FFFFFF',
@@ -181,6 +182,7 @@ export const THEME_PRESETS: Record<'light' | 'dark', ThemePreset> = {
       active: '#10B981',
       icon: '#FFFFFF',
       formBackground: '#1A1A1A',
+      border: '#3A3A3A',
       unselectedButton: {
         text: '#FFFFFF',
         background: '#2A2A2A',
