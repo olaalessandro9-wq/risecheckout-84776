@@ -73,34 +73,30 @@ function SidebarContent() {
                   rel="noopener noreferrer"
                   className={rowClass(undefined, isCollapsed)}
                 >
-                  <Icon className="h-5 w-5 shrink-0 transition-transform group-hover:scale-110" />
-                  {!isCollapsed && (
-                    <motion.span 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.2 }}
-                      className="font-medium text-sm whitespace-nowrap"
-                    >
+                  <div className="flex items-center min-w-0 overflow-hidden">
+                    <Icon className="h-5 w-5 shrink-0 transition-transform group-hover:scale-110" />
+                    <span className={clsx(
+                      "font-medium text-sm whitespace-nowrap transition-all duration-200 overflow-hidden",
+                      isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100 ml-3"
+                    )}>
                       {it.label}
-                    </motion.span>
-                  )}
+                    </span>
+                  </div>
                 </a>
               ) : (
                 <NavLink 
                   to={it.to!} 
                   className={({ isActive }) => rowClass(isActive, isCollapsed)}
                 >
-                  <Icon className="h-5 w-5 shrink-0 transition-transform group-hover:scale-110" />
-                  {!isCollapsed && (
-                    <motion.span 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.2 }}
-                      className="font-medium text-sm whitespace-nowrap"
-                    >
+                  <div className="flex items-center min-w-0 overflow-hidden">
+                    <Icon className="h-5 w-5 shrink-0 transition-transform group-hover:scale-110" />
+                    <span className={clsx(
+                      "font-medium text-sm whitespace-nowrap transition-all duration-200 overflow-hidden",
+                      isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100 ml-3"
+                    )}>
                       {it.label}
-                    </motion.span>
-                  )}
+                    </span>
+                  </div>
                 </NavLink>
               );
 
@@ -145,7 +141,7 @@ export function Sidebar() {
 
 function rowClass(active?: boolean, collapsed?: boolean) {
   return clsx(
-    "group flex items-center rounded-md text-sm transition-all duration-200 gap-3 px-3 py-2.5",
+    "group flex items-center rounded-md text-sm transition-all duration-200 px-3 py-2.5",
     active
       ? "bg-muted text-foreground font-semibold shadow-sm"
       : "text-foreground/80 hover:bg-muted/50 hover:text-foreground hover:scale-[1.02]"
