@@ -766,32 +766,18 @@ const CheckoutPreviewComponent = ({
               onClick={() => setSelectedPayment('pix')}
               className="w-full px-4 py-3 rounded-lg border-2 transition-all duration-200 text-left"
               style={{
-                backgroundColor: selectedPayment === 'pix' 
-                  ? (customization.design.colors.selectedButton?.background || "#10B981") + "20"
-                  : customization.design.colors.unselectedButton?.background || "#FFFFFF",
+                backgroundColor: customization.design.colors.formBackground,
                 borderColor: selectedPayment === 'pix'
-                  ? customization.design.colors.selectedButton?.background || "#10B981"
-                  : customization.design.colors.unselectedButton?.background || "#E5E7EB",
+                  ? customization.design.colors.active
+                  : customization.design.colors.border,
               }}
             >
               <div className="flex items-center gap-3">
                 <PixIcon 
                   className="w-5 h-5" 
-                  color={selectedPayment === 'pix' 
-                    ? (customization.design.colors.selectedButton?.icon || "#00A868")
-                    : (customization.design.colors.unselectedButton?.icon || "#00A868")
-                  } 
+                  color={customization.design.colors.primaryText}
                 />
-                <span 
-                  className="font-semibold text-sm"
-                  style={{
-                    color: selectedPayment === 'pix'
-                      ? customization.design.colors.selectedButton?.text || "#000000"
-                      : customization.design.colors.unselectedButton?.text || "#000000"
-                  }}
-                >
-                  PIX
-                </span>
+                <span className="font-semibold text-sm">PIX</span>
               </div>
             </button>
 
@@ -800,32 +786,18 @@ const CheckoutPreviewComponent = ({
               onClick={() => setSelectedPayment('credit_card')}
               className="w-full px-4 py-3 rounded-lg border-2 transition-all duration-200 text-left"
               style={{
-                backgroundColor: selectedPayment === 'credit_card' 
-                  ? (customization.design.colors.selectedButton?.background || "#3B82F6") + "20"
-                  : customization.design.colors.unselectedButton?.background || "#FFFFFF",
+                backgroundColor: customization.design.colors.formBackground,
                 borderColor: selectedPayment === 'credit_card'
-                  ? customization.design.colors.selectedButton?.background || "#3B82F6"
-                  : customization.design.colors.unselectedButton?.background || "#E5E7EB",
+                  ? customization.design.colors.active
+                  : customization.design.colors.border,
               }}
             >
               <div className="flex items-center gap-3">
                 <CreditCardIcon 
                   className="w-5 h-5" 
-                  color={selectedPayment === 'credit_card' 
-                    ? (customization.design.colors.selectedButton?.icon || "#3B82F6")
-                    : (customization.design.colors.unselectedButton?.icon || "#3B82F6")
-                  } 
+                  color={customization.design.colors.primaryText}
                 />
-                <span 
-                  className="font-semibold text-sm"
-                  style={{
-                    color: selectedPayment === 'credit_card'
-                      ? customization.design.colors.selectedButton?.text || "#000000"
-                      : customization.design.colors.unselectedButton?.text || "#000000"
-                  }}
-                >
-                  Cartão de Crédito
-                </span>
+                <span className="font-semibold text-sm">Cartão de Crédito</span>
               </div>
             </button>
           </div>
