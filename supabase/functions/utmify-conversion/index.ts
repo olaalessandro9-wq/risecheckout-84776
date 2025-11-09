@@ -60,7 +60,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { vendorId, orderData } = await req.json()
+    const { vendorId, orderData, eventType, productId } = await req.json()
 
     console.log('[UTMify] Processando conversão para vendor:', vendorId)
 
@@ -87,11 +87,31 @@ serve(async (req) => {
     }
 
     const apiToken = integration.config?.api_token
+    const selectedProducts = integration.config?.selected_products || []
+    const selectedEvents = integration.config?.selected_events || []
 
     if (!apiToken) {
       console.error('[UTMify] Token não configurado')
       return new Response(
         JSON.stringify({ success: false, message: 'Token da UTMify não configurado' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      )
+    }
+
+    // Verificar se o produto está na lista de produtos selecionados
+    if (productId && selectedProducts.length > 0 && !selectedProducts.includes(productId)) {
+      console.log('[UTMify] Produto não está na lista de produtos selecionados:', productId)
+      return new Response(
+        JSON.stringify({ success: false, message: 'Produto não configurado para envio' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      )
+    }
+
+    // Verificar se o evento está na lista de eventos selecionados
+    if (eventType && selectedEvents.length > 0 && !selectedEvents.includes(eventType)) {
+      console.log('[UTMify] Evento não está na lista de eventos selecionados:', eventType)
+      return new Response(
+        JSON.stringify({ success: false, message: 'Evento não configurado para envio' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       )
     }

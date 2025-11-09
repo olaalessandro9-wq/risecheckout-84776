@@ -524,49 +524,54 @@ const PublicCheckout = () => {
       const utmParams = extractUTMParameters();
       const clientIp = "0.0.0.0"; // Em produção, capturar IP real se possível
       
-      sendUTMifyConversion(productData.user_id, {
-        orderId: orderResponse.order_id,
-        paymentMethod: "pix",
-        status: "waiting_payment",
-        createdAt: formatDateForUTMify(new Date()),
-        approvedDate: null,
-        refundedAt: null,
-        customer: {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone || null,
-          document: formData.document || null,
-          country: "BR",
-          ip: clientIp
-        },
-        products: [
-          {
-            id: checkout!.product.id,
-            name: checkout!.product.name,
-            planId: null,
-            planName: null,
-            quantity: 1,
-            priceInCents: convertToCents(checkout!.product.price)
+      sendUTMifyConversion(
+        productData.user_id,
+        {
+          orderId: orderResponse.order_id,
+          paymentMethod: "pix",
+          status: "waiting_payment",
+          createdAt: formatDateForUTMify(new Date()),
+          approvedDate: null,
+          refundedAt: null,
+          customer: {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone || null,
+            document: formData.document || null,
+            country: "BR",
+            ip: clientIp
           },
-          ...selectedBumps.map(bump => ({
-            id: bump.id,
-            name: bump.title,
-            planId: null,
-            planName: null,
-            quantity: 1,
-            priceInCents: convertToCents(bump.price)
-          }))
-        ],
-        trackingParameters: utmParams,
-        totalPriceInCents: totalCents,
-        commission: {
+          products: [
+            {
+              id: checkout!.product.id,
+              name: checkout!.product.name,
+              planId: null,
+              planName: null,
+              quantity: 1,
+              priceInCents: convertToCents(checkout!.product.price)
+            },
+            ...selectedBumps.map(bump => ({
+              id: bump.id,
+              name: bump.title,
+              planId: null,
+              planName: null,
+              quantity: 1,
+              priceInCents: convertToCents(bump.price)
+            }))
+          ],
+          trackingParameters: utmParams,
           totalPriceInCents: totalCents,
-          gatewayFeeInCents: 0,
-          userCommissionInCents: totalCents,
-          currency: "BRL"
+          commission: {
+            totalPriceInCents: totalCents,
+            gatewayFeeInCents: 0,
+            userCommissionInCents: totalCents,
+            currency: "BRL"
+          },
+          isTest: false
         },
-        isTest: false
-      }).catch(err => {
+        "pix_generated",
+        checkout!.product.id
+      ).catch(err => {
         console.error("[UTMify] Não foi possível enviar conversão:", err);
       });
 

@@ -47,15 +47,19 @@ interface UTMifyOrderData {
  */
 export async function sendUTMifyConversion(
   vendorId: string,
-  orderData: UTMifyOrderData
+  orderData: UTMifyOrderData,
+  eventType?: string,
+  productId?: string
 ): Promise<void> {
   try {
-    console.log("[UTMify Helper] Enviando conversão para vendor:", vendorId);
+    console.log("[UTMify Helper] Enviando conversão para vendor:", vendorId, "Evento:", eventType, "Produto:", productId);
 
     const { data, error } = await supabase.functions.invoke("utmify-conversion", {
       body: {
         vendorId,
         orderData,
+        eventType,
+        productId,
       },
     });
 

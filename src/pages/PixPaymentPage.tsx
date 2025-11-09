@@ -137,32 +137,38 @@ export const PixPaymentPage = () => {
           
           // Atualizar status na UTMify para "paid"
           if (orderData) {
-            sendUTMifyConversion(orderData.vendor_id, {
-              orderId: orderId!,
-              paymentMethod: "pix",
-              status: "paid",
-              createdAt: formatDateForUTMify(orderData.created_at || new Date()),
-              approvedDate: formatDateForUTMify(new Date()),
-              refundedAt: null,
-              customer: {
-                name: orderData.customer_name || "",
-                email: orderData.customer_email || "",
-                phone: orderData.customer_phone || null,
-                document: orderData.customer_document || null,
-                country: "BR",
-                ip: "0.0.0.0"
-              },
-              products: orderData.products || [],
-              trackingParameters: orderData.tracking_parameters || {},
-              totalPriceInCents: orderData.amount_cents || 0,
-              commission: {
+            const productId = orderData.products?.[0]?.id || null;
+            sendUTMifyConversion(
+              orderData.vendor_id,
+              {
+                orderId: orderId!,
+                paymentMethod: "pix",
+                status: "paid",
+                createdAt: formatDateForUTMify(orderData.created_at || new Date()),
+                approvedDate: formatDateForUTMify(new Date()),
+                refundedAt: null,
+                customer: {
+                  name: orderData.customer_name || "",
+                  email: orderData.customer_email || "",
+                  phone: orderData.customer_phone || null,
+                  document: orderData.customer_document || null,
+                  country: "BR",
+                  ip: "0.0.0.0"
+                },
+                products: orderData.products || [],
+                trackingParameters: orderData.tracking_parameters || {},
                 totalPriceInCents: orderData.amount_cents || 0,
-                gatewayFeeInCents: 0,
-                userCommissionInCents: orderData.amount_cents || 0,
-                currency: "BRL"
+                commission: {
+                  totalPriceInCents: orderData.amount_cents || 0,
+                  gatewayFeeInCents: 0,
+                  userCommissionInCents: orderData.amount_cents || 0,
+                  currency: "BRL"
+                },
+                isTest: false
               },
-              isTest: false
-            }).catch(err => {
+              "purchase_approved",
+              productId
+            ).catch(err => {
               console.error("[UTMify] Não foi possível atualizar status:", err);
             });
           }

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { UTMifyConfig } from "@/components/integrations/UTMifyConfig";
 
 const Integracoes = () => {
   const { user } = useAuth();
@@ -219,61 +220,7 @@ const Integracoes = () => {
 
       <div className="grid gap-6">
         {/* UTMify Integration */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle style={{ color: 'var(--text)' }}>UTMify</CardTitle>
-                <CardDescription style={{ color: 'var(--subtext)' }}>
-                  Rastreamento e atribuição de conversões
-                </CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="utmify-active" style={{ color: 'var(--text)' }}>Ativo</Label>
-                <Switch
-                  id="utmify-active"
-                  checked={utmifyActive}
-                  onCheckedChange={setUtmifyActive}
-                />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="utmify-token" style={{ color: 'var(--text)' }}>API Token</Label>
-              <Input
-                id="utmify-token"
-                type="password"
-                placeholder="Cole seu token da UTMify aqui"
-                value={utmifyToken}
-                onChange={(e) => setUtmifyToken(e.target.value)}
-                className="font-mono"
-              />
-              <p className="text-xs" style={{ color: 'var(--subtext)' }}>
-                Obtenha seu token em{" "}
-                <a 
-                  href="https://utmify.com.br" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="underline hover:text-primary"
-                >
-                  utmify.com.br
-                </a>
-              </p>
-            </div>
-
-            <div className="flex gap-2">
-              <Button onClick={handleSaveUtmify} disabled={savingUtmify}>
-                {savingUtmify && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Salvar Configuração
-              </Button>
-              <Button variant="outline" onClick={handleTestUtmify} disabled={testingUtmify || !utmifyToken}>
-                {testingUtmify && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Testar Conexão
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <UTMifyConfig />
 
         {/* Facebook Pixel Integration */}
         <Card>
