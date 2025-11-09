@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export async function loadPublicCheckoutData(slug: string) {
-  console.log('[loadPublicCheckoutData] v3.0 - Usando RPC para mapear slug:', slug);
+  console.log('[loadPublicCheckoutData] v3.1 - Usando RPC para mapear slug:', slug);
   
   // Estratégia 1: Usar RPC para mapear slug → checkout_id (evita RLS problemático)
   const { data: mapData, error: mapError } = await supabase.rpc('get_checkout_by_payment_slug', { 
@@ -65,7 +65,8 @@ export async function loadPublicCheckoutData(slug: string) {
         support_name,
         required_fields,
         default_payment_method,
-        status
+        status,
+        user_id
       `)
       .eq("id", productId)
       .maybeSingle();
@@ -117,6 +118,7 @@ export async function loadPublicCheckoutData(slug: string) {
         required_fields: productData.required_fields,
         default_payment_method: productData.default_payment_method,
       },
+      vendorId: productData.user_id, // Adicionar vendor_id para carregar integrações
       requirePhone,
       requireCpf,
       defaultMethod,
@@ -173,7 +175,8 @@ export async function loadPublicCheckoutData(slug: string) {
       support_name,
       required_fields,
       default_payment_method,
-      status
+      status,
+      user_id
     `)
     .eq("id", fallbackCheckout.product_id)
     .maybeSingle();
@@ -225,6 +228,7 @@ export async function loadPublicCheckoutData(slug: string) {
       required_fields: fallbackProduct.required_fields,
       default_payment_method: fallbackProduct.default_payment_method,
     },
+    vendorId: fallbackProduct.user_id, // Adicionar vendor_id para carregar integrações
     requirePhone,
     requireCpf,
     defaultMethod,
