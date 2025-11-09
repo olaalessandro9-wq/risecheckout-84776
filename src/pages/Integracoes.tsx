@@ -49,8 +49,10 @@ const Integracoes = () => {
           setFacebookPixelId(integration.config?.pixel_id || "");
           setFacebookAccessToken(integration.config?.access_token || "");
           setFacebookActive(integration.active || false);
+        } else if (integration.integration_type === "UTMIFY") {
+          setUtmifyToken(integration.config?.api_token || "");
+          setUtmifyActive(integration.active || false);
         }
-        // Adicionar outros tipos de integração aqui no futuro
       });
     } catch (error) {
       console.error("Error loading integrations:", error);
@@ -69,8 +71,45 @@ const Integracoes = () => {
         return;
       }
 
-      // Simulação - em produção, fazer chamada real ao Supabase
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Verificar se já existe uma integração da UTMify para este usuário
+      const { data: existingData, error: checkError } = await supabase
+        .from("vendor_integrations")
+        .select("id")
+        .eq("vendor_id", user?.id)
+        .eq("integration_type", "UTMIFY")
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      const config = {
+        api_token: utmifyToken.trim()
+      };
+
+      if (existingData) {
+        // Atualizar integração existente
+        const { error: updateError } = await supabase
+          .from("vendor_integrations")
+          .update({
+            config,
+            active: utmifyActive,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", existingData.id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Criar nova integração
+        const { error: insertError } = await supabase
+          .from("vendor_integrations")
+          .insert({
+            vendor_id: user?.id,
+            integration_type: "UTMIFY",
+            config,
+            active: utmifyActive
+          });
+
+        if (insertError) throw insertError;
+      }
       
       toast.success("Integração UTMify salva com sucesso!");
     } catch (error) {

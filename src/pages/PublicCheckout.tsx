@@ -18,6 +18,7 @@ import { FacebookPixel, FacebookPixelEvents } from "@/components/FacebookPixel";
 import { useFacebookPixelIntegration } from "@/hooks/useVendorIntegrations";
 import { trackViewContent, trackInitiateCheckout, trackAddToCart, trackPurchase } from "@/lib/facebook-pixel-helpers";
 import { sendPurchaseToFacebookConversionsAPI } from "@/lib/facebook-conversions-api";
+import { sendUTMifyConversion, extractUTMParameters, formatDateForUTMify, convertToCents } from "@/lib/utmify-helper";
 
 interface CheckoutData {
   id: string;
@@ -517,6 +518,56 @@ const PublicCheckout = () => {
         product_name: checkout!.product.name,
       }).catch(err => {
         console.error("[Conversions API] Não foi possível enviar evento:", err);
+      });
+
+      // 5.1. Enviar conversão para UTMify
+      const utmParams = extractUTMParameters();
+      const clientIp = "0.0.0.0"; // Em produção, capturar IP real se possível
+      
+      sendUTMifyConversion(productData.user_id, {
+        orderId: orderResponse.order_id,
+        paymentMethod: "pix",
+        status: "waiting_payment",
+        createdAt: formatDateForUTMify(new Date()),
+        approvedDate: null,
+        refundedAt: null,
+        customer: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || null,
+          document: formData.document || null,
+          country: "BR",
+          ip: clientIp
+        },
+        products: [
+          {
+            id: checkout!.product.id,
+            name: checkout!.product.name,
+            planId: null,
+            planName: null,
+            quantity: 1,
+            priceInCents: convertToCents(checkout!.product.price)
+          },
+          ...selectedBumps.map(bump => ({
+            id: bump.id,
+            name: bump.title,
+            planId: null,
+            planName: null,
+            quantity: 1,
+            priceInCents: convertToCents(bump.price)
+          }))
+        ],
+        trackingParameters: utmParams,
+        totalPriceInCents: totalCents,
+        commission: {
+          totalPriceInCents: totalCents,
+          gatewayFeeInCents: 0,
+          userCommissionInCents: totalCents,
+          currency: "BRL"
+        },
+        isTest: false
+      }).catch(err => {
+        console.error("[UTMify] Não foi possível enviar conversão:", err);
       });
 
       // 6. Redirecionar para página dedicada do PIX
