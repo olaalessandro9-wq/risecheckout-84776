@@ -867,6 +867,7 @@ const CheckoutPreviewComponent = ({
                       border: selectedBumps.has(bump.id)
                         ? `2px solid ${customization.design.colors.active}`
                         : 'none',
+                      transition: 'none',
                     }}
                   >
                     {/* Cabeçalho - Call to Action */}
@@ -876,7 +877,8 @@ const CheckoutPreviewComponent = ({
                         style={{ 
                           backgroundColor: selectedBumps.has(bump.id) 
                             ? customization.design.colors.active + "25" 
-                            : customization.design.colors.orderBump?.headerBackground || 'rgba(255,255,255,0.15)'
+                            : customization.design.colors.orderBump?.headerBackground || 'rgba(255,255,255,0.15)',
+                          transition: 'none'
                         }}
                       >
                         <h5 
@@ -978,7 +980,8 @@ const CheckoutPreviewComponent = ({
                       style={{ 
                         backgroundColor: selectedBumps.has(bump.id) 
                           ? customization.design.colors.active + "25" 
-                          : customization.design.colors.orderBump?.footerBackground || 'rgba(255,255,255,0.15)'
+                          : customization.design.colors.orderBump?.footerBackground || 'rgba(255,255,255,0.15)',
+                        transition: 'none'
                       }}
                       onClick={() => toggleBump(bump.id)}
                     >

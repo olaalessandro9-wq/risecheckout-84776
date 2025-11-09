@@ -842,6 +842,7 @@ const PublicCheckout = () => {
                             border: selectedBumps.has(bump.id)
                               ? `2px solid ${design.colors.active}`
                               : 'none',
+                            transition: 'none',
                           }}
                         >
                           {/* Cabeçalho - Call to Action */}
@@ -851,7 +852,8 @@ const PublicCheckout = () => {
                               style={{ 
                                 backgroundColor: selectedBumps.has(bump.id) 
                                   ? design.colors.active + "25" 
-                                  : design.colors.orderBump?.headerBackground || 'rgba(255,255,255,0.15)'
+                                  : design.colors.orderBump?.headerBackground || 'rgba(255,255,255,0.15)',
+                                transition: 'none'
                               }}
                             >
                               <h5 
@@ -953,7 +955,8 @@ const PublicCheckout = () => {
                             style={{ 
                               backgroundColor: selectedBumps.has(bump.id) 
                                 ? design.colors.active + "25" 
-                                : design.colors.orderBump?.footerBackground || 'rgba(255,255,255,0.15)'
+                                : design.colors.orderBump?.footerBackground || 'rgba(255,255,255,0.15)',
+                              transition: 'none'
                             }}
                             onClick={() => toggleBump(bump.id)}
                           >
