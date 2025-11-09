@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -86,6 +87,12 @@ const Integracoes = () => {
     }
   };
 
+  // Validar Pixel ID do Facebook (deve ter exatamente 15 dígitos)
+  const validatePixelId = (pixelId: string): boolean => {
+    const pixelIdRegex = /^\d{15}$/;
+    return pixelIdRegex.test(pixelId.trim());
+  };
+
   const handleSaveFacebook = async () => {
     try {
       setSavingFacebook(true);
@@ -95,23 +102,32 @@ const Integracoes = () => {
         return;
       }
 
+      // Validar formato do Pixel ID
+      if (!validatePixelId(facebookPixelId)) {
+        toast.error("Pixel ID inválido. Deve ter exatamente 15 dígitos numéricos.");
+        return;
+      }
+
+      // Ativar automaticamente ao salvar
+      setFacebookActive(true);
+
       const { error } = await supabase
         .from('vendor_integrations')
         .upsert({
           vendor_id: user!.id,
           integration_type: 'FACEBOOK_PIXEL',
           config: {
-            pixel_id: facebookPixelId,
-            access_token: facebookAccessToken || null,
+            pixel_id: facebookPixelId.trim(),
+            access_token: facebookAccessToken.trim() || null,
           },
-          active: facebookActive,
+          active: true, // Sempre ativo ao salvar
         }, {
           onConflict: 'vendor_id,integration_type'
         });
 
       if (error) throw error;
       
-      toast.success("Integração Facebook Pixel salva com sucesso!");
+      toast.success("✅ Integração Facebook Pixel conectada com sucesso!");
     } catch (error) {
       console.error("Error saving Facebook integration:", error);
       toast.error("Erro ao salvar integração");
@@ -212,8 +228,15 @@ const Integracoes = () => {
         <Card>
           <CardHeader>
             <div className="flex items-start justify-between">
-              <div>
-                <CardTitle style={{ color: 'var(--text)' }}>Facebook Pixel</CardTitle>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <CardTitle style={{ color: 'var(--text)' }}>Facebook Pixel</CardTitle>
+                  {facebookPixelId && validatePixelId(facebookPixelId) && (
+                    <Badge variant={facebookActive ? "default" : "secondary"} className="text-xs">
+                      {facebookActive ? "✅ Conectado" : "⚪ Desconectado"}
+                    </Badge>
+                  )}
+                </div>
                 <CardDescription style={{ color: 'var(--subtext)' }}>
                   Rastreamento de conversões do Facebook Ads
                 </CardDescription>
@@ -270,10 +293,18 @@ const Integracoes = () => {
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={handleSaveFacebook} disabled={savingFacebook}>
+              <Button 
+                onClick={handleSaveFacebook} 
+                disabled={savingFacebook || !facebookPixelId.trim() || !validatePixelId(facebookPixelId)}
+              >
                 {savingFacebook && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Salvar Configuração
               </Button>
+              {facebookPixelId && !validatePixelId(facebookPixelId) && (
+                <p className="text-xs text-red-500 flex items-center">
+                  ⚠️ Pixel ID deve ter exatamente 15 dígitos
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
