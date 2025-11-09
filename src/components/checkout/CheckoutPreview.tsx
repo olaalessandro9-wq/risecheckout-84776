@@ -835,12 +835,12 @@ const CheckoutPreviewComponent = ({
             <div 
               className="rounded-lg p-4 space-y-2 mt-4"
               style={{
-                backgroundColor: 'rgba(240, 253, 244, 0.1)',
+                backgroundColor: customization.design.colors.active + '15',
                 borderLeft: `4px solid ${customization.design.colors.active}`
               }}
             >
               <div className="flex items-center gap-2">
-                <CheckCircleFilledIcon size={20} color={customization.design.colors.active} />
+                <CheckCircle className="w-5 h-5" style={{ color: customization.design.colors.active }} />
                 <span className="font-semibold" style={{ color: customization.design.colors.primaryText }}>
                   Liberação imediata
                 </span>
