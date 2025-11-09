@@ -5,6 +5,7 @@ import { Copy, CheckCircle2, ArrowLeft, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { QRCanvas } from "@/components/pix/QRCanvas";
+import { sendUTMifyConversion, formatDateForUTMify } from "@/lib/utmify-helper";
 
 export const PixPaymentPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -133,6 +134,38 @@ export const PixPaymentPage = () => {
         if (data?.status?.status === "paid") {
           setPaymentStatus("paid");
           toast.success("Pagamento confirmado!");
+          
+          // Atualizar status na UTMify para "paid"
+          if (orderData) {
+            sendUTMifyConversion(orderData.vendor_id, {
+              orderId: orderId!,
+              paymentMethod: "pix",
+              status: "paid",
+              createdAt: formatDateForUTMify(orderData.created_at || new Date()),
+              approvedDate: formatDateForUTMify(new Date()),
+              refundedAt: null,
+              customer: {
+                name: orderData.customer_name || "",
+                email: orderData.customer_email || "",
+                phone: orderData.customer_phone || null,
+                document: orderData.customer_document || null,
+                country: "BR",
+                ip: "0.0.0.0"
+              },
+              products: orderData.products || [],
+              trackingParameters: orderData.tracking_parameters || {},
+              totalPriceInCents: orderData.amount_cents || 0,
+              commission: {
+                totalPriceInCents: orderData.amount_cents || 0,
+                gatewayFeeInCents: 0,
+                userCommissionInCents: orderData.amount_cents || 0,
+                currency: "BRL"
+              },
+              isTest: false
+            }).catch(err => {
+              console.error("[UTMify] Não foi possível atualizar status:", err);
+            });
+          }
           
           // Redirecionar para página de sucesso após 2 segundos
           setTimeout(() => {
