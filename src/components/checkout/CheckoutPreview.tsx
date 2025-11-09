@@ -862,7 +862,7 @@ const CheckoutPreviewComponent = ({
                 {orderBumps.map((bump) => (
                   <div
                     key={bump.id}
-                    className="rounded-xl overflow-hidden transition-all duration-200"
+                    className="rounded-xl overflow-hidden"
                     style={{
                       border: selectedBumps.has(bump.id)
                         ? `2px solid ${customization.design.colors.active}`
