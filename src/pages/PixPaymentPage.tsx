@@ -18,6 +18,7 @@ export const PixPaymentPage = () => {
   const [copied, setCopied] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number>(900); // 15 minutos = 900 segundos
   const [orderData, setOrderData] = useState<any>(null);
+  const [checkingPayment, setCheckingPayment] = useState(false);
   
   const hasShownExpiredToast = useRef(false);
   const expiresAt = useRef<number>(0);
@@ -119,76 +120,90 @@ export const PixPaymentPage = () => {
     }
   }, [orderData, qrCode, createPixCharge]);
 
-  // Polling do status do pagamento
+  // Função para verificar status do pagamento
+  const checkPaymentStatus = useCallback(async () => {
+    if (!pixId || !orderId) return { paid: false };
+
+    try {
+      const { data, error } = await supabase.functions.invoke("pushinpay-get-status", {
+        body: { orderId },
+      });
+
+      if (error || !data?.ok) return { paid: false };
+
+      if (data?.status?.status === "paid") {
+        setPaymentStatus("paid");
+        toast.success("Pagamento confirmado!");
+        
+        // Atualizar status na UTMify para "paid"
+        if (orderData) {
+          const productId = orderData.products?.[0]?.id || null;
+          sendUTMifyConversion(
+            orderData.vendor_id,
+            {
+              orderId: orderId!,
+              paymentMethod: "pix",
+              status: "paid",
+              createdAt: formatDateForUTMify(orderData.created_at || new Date()),
+              approvedDate: formatDateForUTMify(new Date()),
+              refundedAt: null,
+              customer: {
+                name: orderData.customer_name || "",
+                email: orderData.customer_email || "",
+                phone: orderData.customer_phone || null,
+                document: orderData.customer_document || null,
+                country: "BR",
+                ip: "0.0.0.0"
+              },
+              products: orderData.products || [],
+              trackingParameters: orderData.tracking_parameters || {},
+              totalPriceInCents: orderData.amount_cents || 0,
+              commission: {
+                totalPriceInCents: orderData.amount_cents || 0,
+                gatewayFeeInCents: 0,
+                userCommissionInCents: orderData.amount_cents || 0,
+                currency: "BRL"
+              },
+              isTest: false
+            },
+            "purchase_approved",
+            productId
+          ).catch(err => {
+            console.error("[UTMify] Não foi possível atualizar status:", err);
+          });
+        }
+        
+        // Redirecionar para página de sucesso após 2 segundos
+        setTimeout(() => {
+          navigate(`/success/${orderId}`);
+        }, 2000);
+        
+        return { paid: true };
+      } else if (data?.status?.status === "expired" || data?.status?.status === "canceled") {
+        setPaymentStatus("expired");
+        setTimeRemaining(0);
+        return { paid: false };
+      }
+      
+      return { paid: false };
+    } catch (err) {
+      console.error("[PixPaymentPage] Erro ao verificar status:", err);
+      return { paid: false };
+    }
+  }, [pixId, orderId, orderData, navigate]);
+
+  // Polling automático do status do pagamento a cada 10 segundos
   useEffect(() => {
     if (!pixId || paymentStatus !== "waiting" || timeRemaining <= 0) return;
 
     const poll = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke("pushinpay-get-status", {
-          body: { orderId },
-        });
-
-        if (error || !data?.ok) return;
-
-        if (data?.status?.status === "paid") {
-          setPaymentStatus("paid");
-          toast.success("Pagamento confirmado!");
-          
-          // Atualizar status na UTMify para "paid"
-          if (orderData) {
-            const productId = orderData.products?.[0]?.id || null;
-            sendUTMifyConversion(
-              orderData.vendor_id,
-              {
-                orderId: orderId!,
-                paymentMethod: "pix",
-                status: "paid",
-                createdAt: formatDateForUTMify(orderData.created_at || new Date()),
-                approvedDate: formatDateForUTMify(new Date()),
-                refundedAt: null,
-                customer: {
-                  name: orderData.customer_name || "",
-                  email: orderData.customer_email || "",
-                  phone: orderData.customer_phone || null,
-                  document: orderData.customer_document || null,
-                  country: "BR",
-                  ip: "0.0.0.0"
-                },
-                products: orderData.products || [],
-                trackingParameters: orderData.tracking_parameters || {},
-                totalPriceInCents: orderData.amount_cents || 0,
-                commission: {
-                  totalPriceInCents: orderData.amount_cents || 0,
-                  gatewayFeeInCents: 0,
-                  userCommissionInCents: orderData.amount_cents || 0,
-                  currency: "BRL"
-                },
-                isTest: false
-              },
-              "purchase_approved",
-              productId
-            ).catch(err => {
-              console.error("[UTMify] Não foi possível atualizar status:", err);
-            });
-          }
-          
-          // Redirecionar para página de sucesso após 2 segundos
-          setTimeout(() => {
-            navigate(`/success/${orderId}`);
-          }, 2000);
-        } else if (data?.status?.status === "expired" || data?.status?.status === "canceled") {
-          setPaymentStatus("expired");
-          setTimeRemaining(0);
-        }
-      } catch (err) {
-        console.error("[PixPaymentPage] Erro no polling:", err);
-      }
+      await checkPaymentStatus();
     };
 
-    const interval = setInterval(poll, 5000);
+    // Verificação automática a cada 10 segundos
+    const interval = setInterval(poll, 10000);
     return () => clearInterval(interval);
-  }, [pixId, paymentStatus, timeRemaining, orderId, navigate]);
+  }, [pixId, paymentStatus, timeRemaining, checkPaymentStatus]);
 
   // Countdown de 15 minutos
   useEffect(() => {
@@ -316,11 +331,33 @@ export const PixPaymentPage = () => {
 
               {/* Botão Confirmar pagamento */}
               <Button
-                className="w-full bg-gray-900 hover:bg-gray-800 text-white mb-6"
+                onClick={async () => {
+                  setCheckingPayment(true);
+                  const result = await checkPaymentStatus();
+                  setCheckingPayment(false);
+                  
+                  if (!result.paid) {
+                    toast.error(
+                      "Pagamento ainda não confirmado. Se você já pagou, aguarde até 30 segundos e clique novamente.",
+                      { duration: 5000 }
+                    );
+                  }
+                }}
+                disabled={checkingPayment}
+                className="w-full bg-gray-900 hover:bg-gray-800 text-white mb-6 disabled:opacity-50"
                 size="lg"
               >
-                <CheckCircle2 className="w-5 h-5 mr-2" />
-                Confirmar pagamento
+                {checkingPayment ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Verificando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-5 h-5 mr-2" />
+                    Confirmar pagamento
+                  </>
+                )}
               </Button>
 
               {/* Barra de progresso com texto */}
