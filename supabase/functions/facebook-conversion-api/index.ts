@@ -33,6 +33,7 @@ interface ConversionEvent {
 
 /**
  * Hash a string using SHA-256
+ * Updated: 2025-11-09 - Fixed loop implementation for better compatibility
  */
 async function sha256(message: string): Promise<string> {
   const msgBuffer = new TextEncoder().encode(message.toLowerCase().trim());
