@@ -117,6 +117,9 @@ serve(async (req) => {
     }
 
     // Preparar dados para envio à UTMify
+    // Validar e garantir que products seja um array
+    const productsArray = Array.isArray(orderData.products) ? orderData.products : [];
+    
     const utmifyPayload: UTMifyOrder = {
       orderId: orderData.orderId,
       platform: "RiseCheckout",
@@ -133,7 +136,7 @@ serve(async (req) => {
         country: orderData.customer.country || "BR",
         ip: orderData.customer.ip || "0.0.0.0"
       },
-      products: orderData.products.map((product: any) => ({
+      products: productsArray.map((product: any) => ({
         id: product.id,
         name: product.name,
         planId: product.planId || null,
