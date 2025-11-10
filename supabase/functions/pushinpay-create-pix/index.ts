@@ -80,7 +80,7 @@ serve(async (req) => {
     const pushinpayResponse = await fetch(`${apiUrl}/pix/cashIn`, {
       method: "POST",
       headers: {
-        "Authorization": vendorData.pushinpay_token,
+        "Authorization": `Bearer ${vendorData.pushinpay_token}`,
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
