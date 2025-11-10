@@ -194,11 +194,7 @@ serve(async (req) => {
       }
     });
 
-    const chartData = Array.from(chartDataMap.values()).sort((a, b) => {
-      const dateA = new Date(a.date.split('/').reverse().join('-'));
-      const dateB = new Date(b.date.split('/').reverse().join('-'));
-      return dateA.getTime() - dateB.getTime();
-    });
+    const chartData = Array.from(chartDataMap.values());
 
     // Formatar clientes recentes
     const recentCustomers: RecentCustomer[] = (orders || []).slice(0, 50).map(order => {
