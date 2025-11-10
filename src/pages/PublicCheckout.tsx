@@ -493,7 +493,7 @@ const PublicCheckout = () => {
             currency: "BRL",
             payment_method: selectedPayment,
             gateway: "pushinpay",
-            status: "PENDING",
+            status: "pending",
             order_bumps: Array.from(selectedBumps).map(bumpId => {
               const bump = orderBumps.find(b => b.id === bumpId);
               return {
