@@ -6,42 +6,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface DashboardMetrics {
-  totalRevenue: string;
-  paidRevenue: string;
-  pendingRevenue: string;
-  totalFees: string;
-  checkoutsStarted: number;
-  totalPaidOrders: number;
-  totalPendingOrders: number;
-  conversionRate: string;
-}
-
-interface ChartDataPoint {
-  date: string;
-  revenue: number;
-  fees: number;
-  emails: number;
-}
-
-interface RecentCustomer {
-  id: string;
-  orderId: string;
-  offer: string;
-  client: string;
-  phone: string;
-  email: string;
-  createdAt: string;
-  value: string;
-  status: "Pago" | "Pendente" | "Reembolso" | "Chargeback";
-  productName: string;
-  productImageUrl: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  fullCreatedAt: string;
-}
-
 function formatCurrency(cents: number): string {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -67,7 +31,7 @@ function translateStatus(status: string): "Pago" | "Pendente" | "Reembolso" | "C
     'refunded': 'Reembolso',
     'chargeback': 'Chargeback'
   };
-  return statusMap[status.toLowerCase()] || 'Pendente';
+  return statusMap[status?.toLowerCase()] || 'Pendente';
 }
 
 serve(async (req) => {
@@ -81,13 +45,13 @@ serve(async (req) => {
 
     console.log("[dashboard-analytics] Buscando dados:", { startDate, endDate });
 
-    // Criar cliente Supabase
+    // Criar cliente Supabase com service role
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Obter usuário autenticado
+    // Obter usuário do header de autorização
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(
@@ -96,18 +60,20 @@ serve(async (req) => {
       );
     }
 
+    // Extrair token e validar usuário
     const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
 
     if (userError || !user) {
       console.error("[dashboard-analytics] Erro ao obter usuário:", userError);
       return new Response(
-        JSON.stringify({ error: "Usuário não autenticado" }),
+        JSON.stringify({ error: "Usuário não autenticado", details: userError?.message }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
       );
     }
 
     const vendorId = user.id;
+    console.log("[dashboard-analytics] Vendor ID:", vendorId);
 
     // Buscar pedidos do período
     const { data: orders, error: ordersError } = await supabaseClient
@@ -134,7 +100,10 @@ serve(async (req) => {
 
     if (ordersError) {
       console.error("[dashboard-analytics] Erro ao buscar pedidos:", ordersError);
-      throw ordersError;
+      return new Response(
+        JSON.stringify({ error: "Erro ao buscar pedidos", details: ordersError.message }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+      );
     }
 
     console.log("[dashboard-analytics] Pedidos encontrados:", orders?.length || 0);
@@ -143,17 +112,17 @@ serve(async (req) => {
     const paidOrders = orders?.filter(o => o.status === "paid") || [];
     const pendingOrders = orders?.filter(o => o.status === "pending") || [];
 
-    const totalRevenue = (paidOrders.reduce((sum, o) => sum + (o.amount_cents || 0), 0));
-    const pendingRevenue = (pendingOrders.reduce((sum, o) => sum + (o.amount_cents || 0), 0));
+    const totalRevenue = paidOrders.reduce((sum, o) => sum + (o.amount_cents || 0), 0);
+    const pendingRevenue = pendingOrders.reduce((sum, o) => sum + (o.amount_cents || 0), 0);
     
     // Calcular taxas (assumindo 3.99% + R$ 0,39 por transação)
     const totalFees = paidOrders.reduce((sum, o) => {
       const amount = o.amount_cents || 0;
-      const fee = Math.round(amount * 0.0399) + 39; // 3.99% + R$ 0,39
+      const fee = Math.round(amount * 0.0399) + 39;
       return sum + fee;
     }, 0);
 
-    const metrics: DashboardMetrics = {
+    const metrics = {
       totalRevenue: formatCurrency(totalRevenue),
       paidRevenue: formatCurrency(totalRevenue),
       pendingRevenue: formatCurrency(pendingRevenue),
@@ -167,10 +136,10 @@ serve(async (req) => {
     };
 
     // Agrupar dados por dia para o gráfico
-    const chartDataMap = new Map<string, ChartDataPoint>();
+    const chartDataMap = new Map();
     
     orders?.forEach(order => {
-      const date = new Date(order.created_at).toLocaleDateString('pt-BR');
+      const date = new Date(order.created_at).toISOString().split('T')[0];
       
       if (!chartDataMap.has(date)) {
         chartDataMap.set(date, {
@@ -181,7 +150,7 @@ serve(async (req) => {
         });
       }
 
-      const dataPoint = chartDataMap.get(date)!;
+      const dataPoint = chartDataMap.get(date);
       
       if (order.status === "paid") {
         dataPoint.revenue += (order.amount_cents || 0) / 100;
@@ -197,7 +166,7 @@ serve(async (req) => {
     const chartData = Array.from(chartDataMap.values());
 
     // Formatar clientes recentes
-    const recentCustomers: RecentCustomer[] = (orders || []).slice(0, 50).map(order => {
+    const recentCustomers = (orders || []).slice(0, 50).map(order => {
       const product = Array.isArray(order.product) ? order.product[0] : order.product;
       
       return {
@@ -238,7 +207,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("[dashboard-analytics] Erro inesperado:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Erro interno", message: error.message, stack: error.stack }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
