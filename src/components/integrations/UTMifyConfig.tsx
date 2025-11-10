@@ -72,10 +72,9 @@ export const UTMifyConfig = () => {
       setLoadingProducts(true);
       const { data, error } = await supabase
         .from("products")
-        .select("id, name, active, status")
+        .select("id, name")
         .eq("user_id", user?.id)
         .eq("active", true)
-        .neq("status", "deleted")
         .order("name");
 
       if (error) throw error;
