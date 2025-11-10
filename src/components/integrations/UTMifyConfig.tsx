@@ -70,18 +70,24 @@ export const UTMifyConfig = () => {
   const loadProducts = async () => {
     try {
       setLoadingProducts(true);
+      console.log("[UTMify] Carregando produtos para user:", user?.id);
+      
       const { data, error } = await supabase
         .from("products")
         .select("id, name")
         .eq("user_id", user?.id)
-        .eq("active", true)
         .order("name");
 
-      if (error) throw error;
+      if (error) {
+        console.error("[UTMify] Erro ao carregar produtos:", error);
+        throw error;
+      }
+      
+      console.log("[UTMify] Produtos carregados:", data);
       setProducts(data || []);
-    } catch (error) {
-      console.error("Error loading products:", error);
-      toast.error("Erro ao carregar produtos");
+    } catch (error: any) {
+      console.error("[UTMify] Erro ao carregar produtos:", error);
+      toast.error("Erro ao carregar produtos: " + (error.message || "Erro desconhecido"));
     } finally {
       setLoadingProducts(false);
     }
