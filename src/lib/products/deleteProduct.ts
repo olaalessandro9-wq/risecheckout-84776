@@ -37,7 +37,7 @@ export async function deleteProductCascade(supabase: any, rawProductId: string |
     // 2.1. Soft delete do produto
     const { error: productError } = await supabase
       .from('products')
-      .update({ status: 'deleted' })
+      .update({ status: 'deleted', active: false })
       .eq('id', productId);
     
     if (productError) {
