@@ -116,9 +116,9 @@ export function useDashboardAnalytics(startDate: Date, endDate: Date) {
 
       console.log("[useDashboardAnalytics] Pedidos encontrados:", orders?.length || 0);
 
-      // Calcular métricas
-      const paidOrders = orders?.filter(o => o.status === "paid") || [];
-      const pendingOrders = orders?.filter(o => o.status === "pending") || [];
+      // Calcular métricas (case-insensitive)
+      const paidOrders = orders?.filter(o => o.status?.toLowerCase() === "paid") || [];
+      const pendingOrders = orders?.filter(o => o.status?.toLowerCase() === "pending") || [];
 
       const totalRevenue = paidOrders.reduce((sum, o) => sum + (o.amount_cents || 0), 0);
       const pendingRevenue = pendingOrders.reduce((sum, o) => sum + (o.amount_cents || 0), 0);
@@ -160,7 +160,7 @@ export function useDashboardAnalytics(startDate: Date, endDate: Date) {
 
         const dataPoint = chartDataMap.get(date)!;
         
-        if (order.status === "paid") {
+        if (order.status?.toLowerCase() === "paid") {
           dataPoint.revenue += (order.amount_cents || 0) / 100;
           const fee = Math.round((order.amount_cents || 0) * 0.0399) + 39;
           dataPoint.fees += fee / 100;
