@@ -45,6 +45,7 @@ export function RecentCustomersTable({ customers, isLoading = false, onRefresh }
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Filtrar clientes por termo de busca
   const filteredCustomers = useMemo(() => {
@@ -178,9 +179,16 @@ export function RecentCustomersTable({ customers, isLoading = false, onRefresh }
   };
 
   // Função para atualizar lista
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     if (onRefresh) {
-      onRefresh();
+      setIsRefreshing(true);
+      try {
+        await onRefresh();
+        // Aguardar um pouco para garantir que a animação seja visível
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } finally {
+        setIsRefreshing(false);
+      }
     }
   };
 
@@ -222,10 +230,10 @@ export function RecentCustomersTable({ customers, isLoading = false, onRefresh }
               size="sm" 
               className="gap-2"
               onClick={handleRefresh}
-              disabled={isLoading}
+              disabled={isLoading || isRefreshing}
             >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Atualizar lista
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              {isRefreshing ? 'Atualizando...' : 'Atualizar lista'}
             </Button>
             <Button 
               variant="outline" 
