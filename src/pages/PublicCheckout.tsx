@@ -916,11 +916,15 @@ const PublicCheckout = () => {
                     onBlur={(e) => e.currentTarget.style.outline = 'none'}
                     className="w-full px-4 py-3 rounded-lg border-2 transition-all duration-200 text-left"
                     style={{
-                      backgroundColor: design.colors.formBackground,
+                      backgroundColor: selectedPayment === 'pix'
+                        ? design.colors.selectedButton?.background || design.colors.active
+                        : design.colors.unselectedButton?.background || design.colors.formBackground,
                       borderColor: selectedPayment === 'pix'
-                        ? design.colors.active
+                        ? design.colors.selectedButton?.background || design.colors.active
                         : design.colors.border,
-                      color: design.colors.primaryText,
+                      color: selectedPayment === 'pix'
+                        ? design.colors.selectedButton?.text || '#FFFFFF'
+                        : design.colors.unselectedButton?.text || design.colors.primaryText,
                       outline: 'none',
                       boxShadow: 'none'
                     }}
@@ -928,7 +932,9 @@ const PublicCheckout = () => {
                     <div className="flex items-center gap-3">
                       <PixIcon 
                         className="w-5 h-5" 
-                        color={design.colors.primaryText}
+                        color={selectedPayment === 'pix'
+                          ? design.colors.selectedButton?.icon || '#FFFFFF'
+                          : design.colors.unselectedButton?.icon || design.colors.primaryText}
                       />
                       <span className="font-semibold text-sm">PIX</span>
                     </div>
@@ -941,11 +947,15 @@ const PublicCheckout = () => {
                     onBlur={(e) => e.currentTarget.style.outline = 'none'}
                     className="w-full px-4 py-3 rounded-lg border-2 transition-all duration-200 text-left"
                     style={{
-                      backgroundColor: design.colors.formBackground,
+                      backgroundColor: selectedPayment === 'credit_card'
+                        ? design.colors.selectedButton?.background || design.colors.active
+                        : design.colors.unselectedButton?.background || design.colors.formBackground,
                       borderColor: selectedPayment === 'credit_card'
-                        ? design.colors.active
+                        ? design.colors.selectedButton?.background || design.colors.active
                         : design.colors.border,
-                      color: design.colors.primaryText,
+                      color: selectedPayment === 'credit_card'
+                        ? design.colors.selectedButton?.text || '#FFFFFF'
+                        : design.colors.unselectedButton?.text || design.colors.primaryText,
                       outline: 'none',
                       boxShadow: 'none'
                     }}
@@ -953,7 +963,9 @@ const PublicCheckout = () => {
                     <div className="flex items-center gap-3">
                       <CreditCardIcon 
                         className="w-5 h-5" 
-                        color={design.colors.primaryText}
+                        color={selectedPayment === 'credit_card'
+                          ? design.colors.selectedButton?.icon || '#FFFFFF'
+                          : design.colors.unselectedButton?.icon || design.colors.primaryText}
                       />
                       <span className="font-semibold text-sm">Cartão de Crédito</span>
                     </div>
