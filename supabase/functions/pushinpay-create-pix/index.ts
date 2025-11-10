@@ -55,9 +55,9 @@ serve(async (req) => {
 
     // Buscar token da PushinPay do vendor
     const { data: vendorData, error: vendorError } = await supabaseClient
-      .from("vendors")
+      .from("payment_gateway_settings")
       .select("pushinpay_token, environment")
-      .eq("id", order.vendor_id)
+      .eq("user_id", order.vendor_id)
       .single();
 
     if (vendorError || !vendorData?.pushinpay_token) {
