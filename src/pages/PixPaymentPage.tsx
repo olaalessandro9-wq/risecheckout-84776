@@ -137,7 +137,18 @@ export const PixPaymentPage = () => {
         
         // Atualizar status na UTMify para "paid"
         if (orderData) {
-          const productId = orderData.products?.[0]?.id || null;
+          // Transformar product (singular) em products (array)
+          const productsArray = orderData.product ? [{
+            id: orderData.product.id,
+            name: orderData.product.name,
+            priceInCents: orderData.amount_cents || 0,
+            quantity: 1
+          }] : [];
+          
+          const productId = orderData.product?.id || orderData.product_id || null;
+          
+          console.log("[UTMify] Enviando conversão com productId:", productId, "products:", productsArray);
+          
           sendUTMifyConversion(
             orderData.vendor_id,
             {
@@ -155,7 +166,7 @@ export const PixPaymentPage = () => {
                 country: "BR",
                 ip: "0.0.0.0"
               },
-              products: orderData.products || [],
+              products: productsArray,
               trackingParameters: orderData.tracking_parameters || {},
               totalPriceInCents: orderData.amount_cents || 0,
               commission: {
