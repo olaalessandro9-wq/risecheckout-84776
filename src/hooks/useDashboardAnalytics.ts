@@ -94,7 +94,6 @@ export function useDashboardAnalytics(startDate: Date, endDate: Date) {
           id,
           customer_name,
           customer_email,
-          customer_phone,
           amount_cents,
           status,
           created_at,
@@ -183,7 +182,7 @@ export function useDashboardAnalytics(startDate: Date, endDate: Date) {
           orderId: order.id,
           offer: product?.name || "Produto não encontrado",
           client: order.customer_name || "N/A",
-          phone: order.customer_phone || "N/A",
+          phone: "N/A",
           email: order.customer_email || "N/A",
           createdAt: formatDate(order.created_at),
           value: formatCurrency(order.amount_cents || 0),
@@ -192,7 +191,7 @@ export function useDashboardAnalytics(startDate: Date, endDate: Date) {
           productImageUrl: product?.image_url || "",
           customerName: order.customer_name || "N/A",
           customerEmail: order.customer_email || "N/A",
-          customerPhone: order.customer_phone || "N/A",
+          customerPhone: "N/A",
           fullCreatedAt: order.created_at
         };
       });
