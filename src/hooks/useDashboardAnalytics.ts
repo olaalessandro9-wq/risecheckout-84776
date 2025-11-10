@@ -173,8 +173,8 @@ export function useDashboardAnalytics(startDate: Date, endDate: Date) {
 
       const chartData = Array.from(chartDataMap.values());
 
-      // Formatar clientes recentes
-      const recentCustomers: RecentCustomer[] = (orders || []).slice(0, 50).map(order => {
+      // Formatar clientes recentes (sem limite, paginação é feita no componente)
+      const recentCustomers: RecentCustomer[] = (orders || []).map(order => {
         const product = Array.isArray(order.product) ? order.product[0] : order.product;
         
         return {
