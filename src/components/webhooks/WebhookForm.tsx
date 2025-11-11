@@ -57,17 +57,19 @@ export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
     loadProducts();
   }, [user]);
 
+  // Carregar produtos do webhook DEPOIS que a lista de produtos estiver carregada
   useEffect(() => {
-    if (webhook?.id) {
+    if (products.length > 0 && webhook?.id) {
+      console.log("📦 Produtos carregados, agora carregando seleção do webhook");
       loadWebhookProducts(webhook.id);
     } else if (webhook?.product_id) {
       // Fallback para webhooks antigos
       setSelectedProductIds([webhook.product_id]);
-    } else {
+    } else if (!webhook?.id) {
       // Reset ao criar novo webhook
       setSelectedProductIds([]);
     }
-  }, [webhook?.id, webhook?.product_id]);
+  }, [products, webhook?.id, webhook?.product_id]);
 
   const loadProducts = async () => {
     if (!user?.id) {
@@ -113,7 +115,17 @@ export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
       }
 
       if (data && data.length > 0) {
-        setSelectedProductIds(data.map((wp) => wp.product_id));
+        const productIds = data.map((wp) => wp.product_id);
+        console.log("🔍 Produtos carregados do webhook:", productIds);
+        console.log("🔍 Produtos disponíveis na lista:", products.map(p => p.id));
+        
+        // Filtrar apenas produtos que existem na lista atual
+        const validIds = productIds.filter((id) => 
+          products.some((p) => p.id === id)
+        );
+        console.log("✅ Produtos válidos (filtrados):", validIds);
+        
+        setSelectedProductIds(validIds);
       } else {
         setSelectedProductIds([]);
       }
@@ -249,7 +261,10 @@ export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
                 <Checkbox
                   id={`product-${product.id}`}
                   checked={Array.isArray(selectedProductIds) && selectedProductIds.includes(product.id)}
-                  onCheckedChange={() => handleProductToggle(product.id)}
+                  onCheckedChange={() => {
+                    console.log("🔘 Toggle produto:", product.id, "Selecionados:", selectedProductIds);
+                    handleProductToggle(product.id);
+                  }}
                 />
                 <label
                   htmlFor={`product-${product.id}`}
