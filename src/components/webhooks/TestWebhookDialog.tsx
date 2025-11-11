@@ -55,46 +55,51 @@ export function TestWebhookDialog({
     try {
       // Criar payload de teste
       const testPayload = {
-        event_id: `test_${Date.now()}`,
-        event_type: selectedEvent,
-        created_at: new Date().toISOString(),
+        event: selectedEvent,
         test_mode: true,
-        data: {
-          order: {
-            id: "test_order_123",
-            status: selectedEvent === "purchase_approved" ? "paid" : "pending",
-            amount_cents: 5000,
-            currency: "BRL",
-            paid_at: selectedEvent === "purchase_approved" ? new Date().toISOString() : null,
-          },
-          customer: {
-            name: "Cliente Teste",
-            email: "teste@example.com",
-          },
-          product: {
-            id: "test_product_123",
-            name: "Produto de Teste",
-            price: 5000,
-          },
+        order: {
+          id: "test_order_123",
+          status: selectedEvent === "purchase_approved" ? "paid" : "pending",
+          total_amount: 50.00,
+          payment_method: "pix",
+          paid_at: selectedEvent === "purchase_approved" ? new Date().toISOString() : null,
+          created_at: new Date().toISOString(),
         },
+        customer: {
+          name: "Cliente Teste",
+          email: "teste@example.com",
+        },
+        product: {
+          id: "test_product_123",
+          name: "Produto de Teste",
+          description: "Descrição do produto de teste",
+          price: 50.00,
+        },
+        timestamp: new Date().toISOString(),
       };
 
-      // Enviar para o webhook
-      const response = await fetch(webhookUrl, {
+      // Enviar através de uma Edge Function auxiliar que faz o POST
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const response = await fetch(`${supabaseUrl}/functions/v1/send-webhook-test`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Rise-Event": selectedEvent,
-          "X-Rise-Test": "true",
         },
-        body: JSON.stringify(testPayload),
+        body: JSON.stringify({
+          webhook_id: webhookId,
+          webhook_url: webhookUrl,
+          event_type: selectedEvent,
+          payload: testPayload,
+        }),
       });
 
-      if (response.ok) {
-        toast.success(`Evento de teste enviado com sucesso! Status: ${response.status}`);
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        toast.success(`Evento de teste enviado! Status: ${result.status_code}`);
         onOpenChange(false);
       } else {
-        toast.error(`Erro ao enviar evento: ${response.status} ${response.statusText}`);
+        toast.error(`Erro ao enviar: ${result.error || 'Erro desconhecido'}`);
       }
     } catch (error) {
       console.error("Error sending test event:", error);
