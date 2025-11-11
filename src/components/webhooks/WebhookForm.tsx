@@ -32,9 +32,12 @@ interface WebhookFormProps {
 }
 
 const AVAILABLE_EVENTS = [
+  { value: "pix_generated", label: "PIX Gerado" },
   { value: "purchase_approved", label: "Compra aprovada" },
+  { value: "purchase_refused", label: "Compra recusada" },
   { value: "refund", label: "Reembolso" },
   { value: "chargeback", label: "Chargeback" },
+  { value: "checkout_abandoned", label: "Abandono de checkout" },
 ];
 
 interface Product {

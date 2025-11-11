@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Send, Edit, FileText, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -17,7 +18,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
+import { TestWebhookDialog } from "./TestWebhookDialog";
+import { WebhookLogsDialog } from "./WebhookLogsDialog";
 
 interface Webhook {
   id: string;
@@ -37,16 +39,16 @@ interface WebhooksListProps {
   selectedProduct: string;
 }
 
-const EVENT_LABELS: Record<string, string> = {
-  purchase_approved: "Compra aprovada",
-  refund: "Reembolso",
-  chargeback: "Chargeback",
-};
-
 export function WebhooksList({ webhooks, onEdit, onDelete, selectedProduct }: WebhooksListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [webhookToDelete, setWebhookToDelete] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  
+  const [testDialogOpen, setTestDialogOpen] = useState(false);
+  const [testWebhook, setTestWebhook] = useState<Webhook | null>(null);
+  
+  const [logsDialogOpen, setLogsDialogOpen] = useState(false);
+  const [logsWebhook, setLogsWebhook] = useState<Webhook | null>(null);
 
   const handleDeleteClick = (webhookId: string) => {
     setWebhookToDelete(webhookId);
@@ -64,6 +66,16 @@ export function WebhooksList({ webhooks, onEdit, onDelete, selectedProduct }: We
     } finally {
       setDeleting(false);
     }
+  };
+
+  const handleTestClick = (webhook: Webhook) => {
+    setTestWebhook(webhook);
+    setTestDialogOpen(true);
+  };
+
+  const handleLogsClick = (webhook: Webhook) => {
+    setLogsWebhook(webhook);
+    setLogsDialogOpen(true);
   };
 
   // Filtrar webhooks por produto selecionado
@@ -113,13 +125,24 @@ export function WebhooksList({ webhooks, onEdit, onDelete, selectedProduct }: We
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleTestClick(webhook)}>
+                  <Send className="mr-2 h-4 w-4" />
+                  Enviar evento de teste
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onEdit(webhook)}>
+                  <Edit className="mr-2 h-4 w-4" />
                   Editar
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleLogsClick(webhook)}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Logs
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => handleDeleteClick(webhook.id)}
                   className="text-red-600"
                 >
+                  <Trash2 className="mr-2 h-4 w-4" />
                   Excluir
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -128,6 +151,7 @@ export function WebhooksList({ webhooks, onEdit, onDelete, selectedProduct }: We
         ))}
       </div>
 
+      {/* Dialog de exclusão */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -149,6 +173,27 @@ export function WebhooksList({ webhooks, onEdit, onDelete, selectedProduct }: We
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Dialog de teste */}
+      {testWebhook && (
+        <TestWebhookDialog
+          open={testDialogOpen}
+          onOpenChange={setTestDialogOpen}
+          webhookId={testWebhook.id}
+          webhookName={testWebhook.name}
+          webhookUrl={testWebhook.url}
+        />
+      )}
+
+      {/* Dialog de logs */}
+      {logsWebhook && (
+        <WebhookLogsDialog
+          open={logsDialogOpen}
+          onOpenChange={setLogsDialogOpen}
+          webhookId={logsWebhook.id}
+          webhookName={logsWebhook.name}
+        />
+      )}
     </>
   );
 }
