@@ -97,7 +97,6 @@ export function useDashboardAnalytics(startDate: Date, endDate: Date) {
           amount_cents,
           status,
           created_at,
-          paid_at,
           product:product_id (
             id,
             name,

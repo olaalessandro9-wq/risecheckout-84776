@@ -13,13 +13,13 @@ export default function AppShell() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden">
+    <div className="flex h-screen w-full bg-background text-foreground">
       <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
         <Topbar scrolled={scrolled} onNotificationsClick={handleNotificationsClick} />
         {/* Sentinel invisível para ativar a sombra ao rolar */}
         <div ref={sentinelRef} className="h-1 w-full" />
-        <main className="relative mx-auto w-full max-w-[1400px] flex-1 overflow-y-auto px-4 pb-8 pt-6">
+        <main className="relative mx-auto w-full max-w-[1400px] px-4 pb-8 pt-6">
           <Outlet />
         </main>
       </div>
