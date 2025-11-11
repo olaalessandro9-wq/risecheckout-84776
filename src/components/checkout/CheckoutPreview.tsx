@@ -763,13 +763,7 @@ const CheckoutPreviewComponent = ({
           <div className="space-y-2.5 mb-4">
             <button
               type="button"
-              onClick={() => {
-                console.log('[CheckoutPreview] Cores dos botões:', {
-                  selectedButton: customization.design.colors.selectedButton,
-                  unselectedButton: customization.design.colors.unselectedButton
-                });
-                setSelectedPayment('pix');
-              }}
+              onClick={() => setSelectedPayment('pix')}
               className="w-full px-4 py-3 rounded-lg border-2 transition-all duration-200 text-left"
               style={{
                 backgroundColor: selectedPayment === 'pix'
