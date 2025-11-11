@@ -1,14 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { MoreVertical } from "lucide-react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Edit, Trash2 } from "lucide-react";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,24 +21,29 @@ import { useState } from "react";
 
 interface Webhook {
   id: string;
+  name: string;
   url: string;
   events: string[];
-  active: boolean;
-  created_at: string;
+  product_id: string | null;
+  product?: {
+    name: string;
+  };
 }
 
 interface WebhooksListProps {
   webhooks: Webhook[];
   onEdit: (webhook: Webhook) => void;
   onDelete: (webhookId: string) => Promise<void>;
+  selectedProduct: string;
 }
 
 const EVENT_LABELS: Record<string, string> = {
-  pix_generated: "PIX Gerado",
-  purchase_approved: "Compra Aprovada",
+  purchase_approved: "Compra aprovada",
+  refund: "Reembolso",
+  chargeback: "Chargeback",
 };
 
-export function WebhooksList({ webhooks, onEdit, onDelete }: WebhooksListProps) {
+export function WebhooksList({ webhooks, onEdit, onDelete, selectedProduct }: WebhooksListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [webhookToDelete, setWebhookToDelete] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -63,21 +66,14 @@ export function WebhooksList({ webhooks, onEdit, onDelete }: WebhooksListProps) 
     }
   };
 
-  const maskUrl = (url: string) => {
-    try {
-      const urlObj = new URL(url);
-      const path = urlObj.pathname.length > 20 
-        ? urlObj.pathname.substring(0, 20) + "..." 
-        : urlObj.pathname;
-      return `${urlObj.protocol}//${urlObj.host}${path}`;
-    } catch {
-      return url.length > 40 ? url.substring(0, 40) + "..." : url;
-    }
-  };
+  // Filtrar webhooks por produto selecionado
+  const filteredWebhooks = selectedProduct === "all"
+    ? webhooks
+    : webhooks.filter(w => w.product_id === selectedProduct);
 
-  if (webhooks.length === 0) {
+  if (filteredWebhooks.length === 0) {
     return (
-      <div className="text-center py-8">
+      <div className="text-center py-12">
         <p className="text-sm" style={{ color: "var(--subtext)" }}>
           Nenhum webhook configurado ainda
         </p>
@@ -87,63 +83,49 @@ export function WebhooksList({ webhooks, onEdit, onDelete }: WebhooksListProps) 
 
   return (
     <>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead style={{ color: "var(--text)" }}>URL</TableHead>
-              <TableHead style={{ color: "var(--text)" }}>Eventos</TableHead>
-              <TableHead style={{ color: "var(--text)" }}>Status</TableHead>
-              <TableHead className="text-right" style={{ color: "var(--text)" }}>
-                Ações
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {webhooks.map((webhook) => (
-              <TableRow key={webhook.id}>
-                <TableCell className="font-mono text-sm" style={{ color: "var(--text)" }}>
-                  {maskUrl(webhook.url)}
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {webhook.events.map((event) => (
-                      <Badge key={event} variant="outline" className="text-xs">
-                        {EVENT_LABELS[event] || event}
-                      </Badge>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={webhook.active ? "default" : "secondary"}
-                    className={webhook.active ? "bg-green-600" : "bg-gray-600"}
-                  >
-                    {webhook.active ? "ATIVO" : "INATIVO"}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onEdit(webhook)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteClick(webhook.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="space-y-2">
+        {/* Header */}
+        <div className="grid grid-cols-[2fr,3fr] gap-4 px-4 py-2 text-sm font-medium" style={{ color: "var(--subtext)" }}>
+          <div>Nome</div>
+          <div>URL</div>
+        </div>
+
+        {/* Lista de webhooks */}
+        {filteredWebhooks.map((webhook) => (
+          <div
+            key={webhook.id}
+            className="grid grid-cols-[2fr,3fr,auto] gap-4 items-center px-4 py-3 rounded-lg border border-border hover:bg-accent/50 transition-colors"
+          >
+            <div>
+              <p className="font-medium text-sm" style={{ color: "var(--text)" }}>
+                {webhook.name}
+              </p>
+            </div>
+            
+            <div className="font-mono text-xs" style={{ color: "var(--subtext)" }}>
+              {webhook.url}
+            </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEdit(webhook)}>
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleDeleteClick(webhook.id)}
+                  className="text-red-600"
+                >
+                  Excluir
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        ))}
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

@@ -312,7 +312,21 @@ const Integracoes = () => {
         </Card>
 
         {/* Webhooks Integration */}
-        <WebhooksConfig />
+        <Card>
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle style={{ color: 'var(--text)' }}>Webhooks</CardTitle>
+                <CardDescription style={{ color: 'var(--subtext)' }}>
+                  Configure as integrações com os seus apps
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <WebhooksConfig />
+          </CardContent>
+        </Card>
 
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12">

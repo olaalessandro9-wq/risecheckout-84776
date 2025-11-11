@@ -2,73 +2,112 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Copy, Eye, EyeOff } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface WebhookFormProps {
   webhook?: {
     id: string;
+    name: string;
     url: string;
     events: string[];
-    active: boolean;
-    secret: string;
+    product_id: string | null;
   };
   onSave: (data: {
+    name: string;
     url: string;
     events: string[];
-    active: boolean;
-    secret?: string;
+    product_id: string | null;
   }) => Promise<void>;
   onCancel: () => void;
 }
 
 const AVAILABLE_EVENTS = [
-  { value: "pix_generated", label: "PIX Gerado", description: "Quando um PIX é criado" },
-  { value: "purchase_approved", label: "Compra Aprovada", description: "Quando o pagamento é confirmado" },
+  { value: "purchase_approved", label: "Compra aprovada" },
+  { value: "refund", label: "Reembolso" },
+  { value: "chargeback", label: "Chargeback" },
 ];
 
+interface Product {
+  id: string;
+  name: string;
+}
+
 export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
+  const { user } = useAuth();
+  const [name, setName] = useState(webhook?.name || "");
   const [url, setUrl] = useState(webhook?.url || "");
-  const [events, setEvents] = useState<string[]>(webhook?.events || []);
-  const [active, setActive] = useState(webhook?.active ?? true);
-  const [secret, setSecret] = useState("");
-  const [showSecret, setShowSecret] = useState(false);
+  const [productId, setProductId] = useState<string>(webhook?.product_id || "");
+  const [selectedEvents, setSelectedEvents] = useState<string[]>(
+    webhook?.events || ["purchase_approved"]
+  );
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const isEditing = !!webhook;
 
-  // Gerar secret automaticamente para novos webhooks
   useEffect(() => {
-    if (!isEditing) {
-      const generatedSecret = `whsec_${crypto.randomUUID().replace(/-/g, "")}`;
-      setSecret(generatedSecret);
-    }
-  }, [isEditing]);
+    loadProducts();
+  }, [user]);
 
-  const handleEventToggle = (eventValue: string) => {
-    setEvents((prev) =>
-      prev.includes(eventValue)
-        ? prev.filter((e) => e !== eventValue)
-        : [...prev, eventValue]
-    );
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, name")
+        .eq("user_id", user?.id)
+        .eq("status", "active")
+        .order("name");
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      console.error("Error loading products:", error);
+      toast.error("Erro ao carregar produtos");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCopySecret = () => {
-    navigator.clipboard.writeText(secret);
-    toast.success("Secret copiado para a área de transferência!");
+  const handleEventChange = (event: string) => {
+    setSelectedEvents((prev) => {
+      if (prev.includes(event)) {
+        return prev.filter((e) => e !== event);
+      }
+      return [...prev, event];
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!name.trim()) {
+      toast.error("Nome é obrigatório");
+      return;
+    }
 
     if (!url.trim()) {
       toast.error("URL é obrigatória");
       return;
     }
 
-    if (events.length === 0) {
+    if (!productId) {
+      toast.error("Selecione um produto");
+      return;
+    }
+
+    if (selectedEvents.length === 0) {
       toast.error("Selecione pelo menos um evento");
       return;
     }
@@ -83,18 +122,12 @@ export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
 
     setSaving(true);
     try {
-      const data: any = {
+      await onSave({
+        name: name.trim(),
         url: url.trim(),
-        events,
-        active,
-      };
-
-      // Incluir secret apenas para novos webhooks
-      if (!isEditing) {
-        data.secret = secret;
-      }
-
-      await onSave(data);
+        events: selectedEvents,
+        product_id: productId,
+      });
     } catch (error) {
       console.error("Erro ao salvar webhook:", error);
       toast.error("Erro ao salvar webhook");
@@ -103,109 +136,89 @@ export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
+        <Label htmlFor="webhook-name" style={{ color: "var(--text)" }}>
+          Nome <span className="text-red-500">*</span>
+        </Label>
+        <Input
+          id="webhook-name"
+          type="text"
+          placeholder="Ex: N8N NOVO"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="webhook-url" style={{ color: "var(--text)" }}>
-          URL do Webhook <span className="text-red-500">*</span>
+          URL <span className="text-red-500">*</span>
         </Label>
         <Input
           id="webhook-url"
           type="url"
-          placeholder="https://seu-servidor.com/webhook"
+          placeholder="http://72.60.249.53:5678/webhook/welcome"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          className="font-mono"
+          className="font-mono text-sm"
           required
         />
-        <p className="text-xs" style={{ color: "var(--subtext)" }}>
-          O endpoint que receberá as notificações de eventos
-        </p>
       </div>
 
-      {!isEditing && (
-        <div className="space-y-2">
-          <Label htmlFor="webhook-secret" style={{ color: "var(--text)" }}>
-            Secret (Chave Secreta)
-          </Label>
-          <div className="flex gap-2">
-            <Input
-              id="webhook-secret"
-              type={showSecret ? "text" : "password"}
-              value={secret}
-              readOnly
-              className="font-mono flex-1"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              onClick={() => setShowSecret(!showSecret)}
-            >
-              {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              onClick={handleCopySecret}
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-          </div>
-          <p className="text-xs text-yellow-600 dark:text-yellow-500">
-            ⚠️ Copie e guarde esta chave em local seguro. Ela será usada para validar as
-            requisições e não poderá ser visualizada novamente.
-          </p>
-        </div>
-      )}
+      <div className="space-y-2">
+        <Label htmlFor="webhook-product" style={{ color: "var(--text)" }}>
+          Produto <span className="text-red-500">*</span>
+        </Label>
+        <Select value={productId} onValueChange={setProductId}>
+          <SelectTrigger id="webhook-product">
+            <SelectValue placeholder="Selecione um produto" />
+          </SelectTrigger>
+          <SelectContent>
+            {products.map((product) => (
+              <SelectItem key={product.id} value={product.id}>
+                {product.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="space-y-2">
         <Label style={{ color: "var(--text)" }}>
           Eventos <span className="text-red-500">*</span>
         </Label>
-        <div className="space-y-3">
+        <div className="flex flex-wrap gap-2">
           {AVAILABLE_EVENTS.map((event) => (
-            <div key={event.value} className="flex items-start space-x-3">
-              <Checkbox
-                id={`event-${event.value}`}
-                checked={events.includes(event.value)}
-                onCheckedChange={() => handleEventToggle(event.value)}
-              />
-              <div className="grid gap-1 leading-none">
-                <label
-                  htmlFor={`event-${event.value}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                  style={{ color: "var(--text)" }}
-                >
-                  {event.label}
-                </label>
-                <p className="text-xs" style={{ color: "var(--subtext)" }}>
-                  {event.description}
-                </p>
-              </div>
-            </div>
+            <button
+              key={event.value}
+              type="button"
+              onClick={() => handleEventChange(event.value)}
+              className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
+                selectedEvents.includes(event.value)
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background border-border hover:bg-accent"
+              }`}
+            >
+              {event.label}
+            </button>
           ))}
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Label htmlFor="webhook-active" style={{ color: "var(--text)" }}>
-            Ativo
-          </Label>
-          <Switch
-            id="webhook-active"
-            checked={active}
-            onCheckedChange={setActive}
-          />
         </div>
       </div>
 
       <div className="flex gap-2 pt-4">
         <Button type="submit" disabled={saving}>
           {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isEditing ? "Atualizar" : "Criar Webhook"}
+          Salvar
         </Button>
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancelar

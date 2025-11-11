@@ -1,71 +1,114 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus, Webhook } from "lucide-react";
+import { Loader2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { WebhooksList } from "./WebhooksList";
 import { WebhookForm } from "./WebhookForm";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 interface WebhookData {
   id: string;
+  name: string;
   url: string;
   events: string[];
-  active: boolean;
-  secret: string;
+  product_id: string | null;
   created_at: string;
+  product?: {
+    name: string;
+  };
+}
+
+interface Product {
+  id: string;
+  name: string;
 }
 
 export function WebhooksConfig() {
   const { user } = useAuth();
   const [webhooks, setWebhooks] = useState<WebhookData[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [editingWebhook, setEditingWebhook] = useState<WebhookData | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<string>("all");
 
   useEffect(() => {
     if (user) {
-      loadWebhooks();
+      loadData();
     }
   }, [user]);
 
-  const loadWebhooks = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Carregar produtos
+      const { data: productsData, error: productsError } = await supabase
+        .from("products")
+        .select("id, name")
+        .eq("user_id", user?.id)
+        .eq("status", "active")
+        .order("name");
+
+      if (productsError) throw productsError;
+      setProducts(productsData || []);
+
+      // Carregar webhooks
+      const { data: webhooksData, error: webhooksError } = await supabase
         .from("outbound_webhooks")
-        .select("*")
+        .select(`
+          *,
+          product:products(name)
+        `)
         .eq("vendor_id", user?.id)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-
-      setWebhooks(data || []);
+      if (webhooksError) throw webhooksError;
+      setWebhooks(webhooksData || []);
     } catch (error) {
-      console.error("Error loading webhooks:", error);
-      toast.error("Erro ao carregar webhooks");
+      console.error("Error loading data:", error);
+      toast.error("Erro ao carregar dados");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSave = async (data: {
+    name: string;
     url: string;
     events: string[];
-    active: boolean;
-    secret?: string;
+    product_id: string | null;
   }) => {
     try {
+      // Gerar secret automaticamente (não será exibido ao usuário)
+      const secret = `whsec_${crypto.randomUUID().replace(/-/g, "")}`;
+
       if (editingWebhook) {
         // Atualizar webhook existente
         const { error } = await supabase
           .from("outbound_webhooks")
           .update({
+            name: data.name,
             url: data.url,
             events: data.events,
-            active: data.active,
+            product_id: data.product_id,
             updated_at: new Date().toISOString(),
           })
           .eq("id", editingWebhook.id);
@@ -78,19 +121,21 @@ export function WebhooksConfig() {
           .from("outbound_webhooks")
           .insert({
             vendor_id: user?.id,
+            name: data.name,
             url: data.url,
             events: data.events,
-            active: data.active,
-            secret: data.secret!,
+            product_id: data.product_id,
+            secret: secret,
+            active: true,
           });
 
         if (error) throw error;
         toast.success("Webhook criado com sucesso!");
       }
 
-      setShowForm(false);
+      setSheetOpen(false);
       setEditingWebhook(null);
-      loadWebhooks();
+      loadData();
     } catch (error) {
       console.error("Error saving webhook:", error);
       throw error;
@@ -99,7 +144,7 @@ export function WebhooksConfig() {
 
   const handleEdit = (webhook: WebhookData) => {
     setEditingWebhook(webhook);
-    setShowForm(true);
+    setSheetOpen(true);
   };
 
   const handleDelete = async (webhookId: string) => {
@@ -112,7 +157,7 @@ export function WebhooksConfig() {
       if (error) throw error;
 
       toast.success("Webhook excluído com sucesso!");
-      loadWebhooks();
+      loadData();
     } catch (error) {
       console.error("Error deleting webhook:", error);
       toast.error("Erro ao excluir webhook");
@@ -121,87 +166,89 @@ export function WebhooksConfig() {
   };
 
   const handleCancel = () => {
-    setShowForm(false);
+    setSheetOpen(false);
     setEditingWebhook(null);
   };
 
   const handleNewWebhook = () => {
     setEditingWebhook(null);
-    setShowForm(true);
+    setSheetOpen(true);
   };
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <Webhook className="h-6 w-6" style={{ color: "var(--primary)" }} />
-            <div>
-              <CardTitle style={{ color: "var(--text)" }}>Webhooks</CardTitle>
-              <CardDescription style={{ color: "var(--subtext)" }}>
-                Configure endpoints para receber notificações de eventos em tempo real
-              </CardDescription>
+    <>
+      <div className="space-y-4">
+        {/* Header com busca e filtros */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Pesquisar"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
             </div>
-            {webhooks.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {webhooks.length}
-              </Badge>
-            )}
+            
+            <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Filtrar por produto" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os produtos</SelectItem>
+                {products.map((product) => (
+                  <SelectItem key={product.id} value={product.id}>
+                    {product.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          {!showForm && (
-            <Button onClick={handleNewWebhook} size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Webhook
-            </Button>
-          )}
+
+          <Button onClick={handleNewWebhook}>
+            <Plus className="h-4 w-4 mr-2" />
+            Adicionar
+          </Button>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {showForm ? (
-          <div className="border rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-4" style={{ color: "var(--text)" }}>
+
+        {/* Lista de webhooks */}
+        <WebhooksList
+          webhooks={webhooks}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          selectedProduct={selectedProduct}
+        />
+      </div>
+
+      {/* Sheet lateral para criar/editar */}
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent className="sm:max-w-[500px] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>
               {editingWebhook ? "Editar Webhook" : "Novo Webhook"}
-            </h3>
+            </SheetTitle>
+            <SheetDescription>
+              Configure as integrações com os seus apps
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
             <WebhookForm
               webhook={editingWebhook || undefined}
               onSave={handleSave}
               onCancel={handleCancel}
             />
           </div>
-        ) : (
-          <>
-            <WebhooksList
-              webhooks={webhooks}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-            
-            {webhooks.length > 0 && (
-              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                <h4 className="text-sm font-semibold mb-2" style={{ color: "var(--text)" }}>
-                  📘 Como usar
-                </h4>
-                <ul className="text-xs space-y-1" style={{ color: "var(--subtext)" }}>
-                  <li>• Os webhooks serão enviados via POST com JSON no corpo</li>
-                  <li>• Use o header <code className="bg-white dark:bg-gray-800 px-1 rounded">X-Rise-Signature</code> para validar a autenticidade</li>
-                  <li>• O payload inclui dados completos do pedido, cliente e produto</li>
-                  <li>• Seu endpoint deve responder com status 2xx para confirmar recebimento</li>
-                </ul>
-              </div>
-            )}
-          </>
-        )}
-      </CardContent>
-    </Card>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
