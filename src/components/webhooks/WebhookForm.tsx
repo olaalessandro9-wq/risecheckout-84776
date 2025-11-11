@@ -108,14 +108,18 @@ export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
 
       if (error) {
         console.error("Error loading webhook products:", error);
+        setSelectedProductIds([]);
         return;
       }
 
       if (data && data.length > 0) {
         setSelectedProductIds(data.map((wp) => wp.product_id));
+      } else {
+        setSelectedProductIds([]);
       }
     } catch (error) {
       console.error("Error loading webhook products:", error);
+      setSelectedProductIds([]);
     }
   };
 
@@ -244,7 +248,7 @@ export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
               >
                 <Checkbox
                   id={`product-${product.id}`}
-                  checked={selectedProductIds.includes(product.id)}
+                  checked={Array.isArray(selectedProductIds) && selectedProductIds.includes(product.id)}
                   onCheckedChange={() => handleProductToggle(product.id)}
                 />
                 <label
@@ -258,7 +262,7 @@ export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          {selectedProductIds.length} produto(s) selecionado(s)
+          {Array.isArray(selectedProductIds) ? selectedProductIds.length : 0} produto(s) selecionado(s)
         </p>
       </div>
 
