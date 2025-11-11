@@ -80,10 +80,14 @@ export function TestWebhookDialog({
 
       // Enviar através de uma Edge Function auxiliar que faz o POST
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
       const response = await fetch(`${supabaseUrl}/functions/v1/send-webhook-test`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${supabaseAnonKey}`,
+          "apikey": supabaseAnonKey,
         },
         body: JSON.stringify({
           webhook_id: webhookId,
