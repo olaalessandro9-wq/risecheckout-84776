@@ -64,12 +64,18 @@ export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
   }, [user]);
 
   const loadProducts = async () => {
+    if (!user?.id) {
+      console.log("User not loaded yet, skipping products load");
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from("products")
         .select("id, name")
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .eq("status", "active")
         .order("name");
 
