@@ -53,13 +53,14 @@ serve(async (req) => {
     console.log("[trigger-webhooks] Pedido encontrado:", order.id);
 
     // Buscar webhooks ativos do vendedor para este evento e produto
+    // Incluir webhooks configurados para "Todos os produtos" (product_id = null)
     const { data: webhooks, error: webhooksError } = await supabaseClient
       .from("outbound_webhooks")
       .select("*")
       .eq("vendor_id", order.vendor_id)
-      .eq("product_id", order.product_id)
       .eq("active", true)
-      .contains("events", [event_type]);
+      .contains("events", [event_type])
+      .or(`product_id.eq.${order.product_id},product_id.is.null`);
 
     if (webhooksError) {
       console.error("[trigger-webhooks] Erro ao buscar webhooks:", webhooksError);
