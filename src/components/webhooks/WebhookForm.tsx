@@ -70,11 +70,16 @@ export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
         .eq("status", "active")
         .order("name");
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error loading products:", error);
+        toast.error("Erro ao carregar produtos");
+        return;
+      }
+      
       setProducts(data || []);
     } catch (error) {
       console.error("Error loading products:", error);
-      toast.error("Erro ao carregar produtos");
+      // Não mostrar toast se os produtos carregaram com sucesso
     } finally {
       setLoading(false);
     }
