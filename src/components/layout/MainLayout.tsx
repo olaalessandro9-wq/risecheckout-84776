@@ -39,8 +39,10 @@ export function MainLayout({ children }: MainLayoutProps) {
             </button>
           </div>
         </header>
-        <main className="flex-1 p-8 bg-bg overflow-y-auto">
-          {children}
+        <main className="flex-1 bg-bg overflow-y-auto">
+          <div className="p-8">
+            {children}
+          </div>
         </main>
       </div>
     </>
