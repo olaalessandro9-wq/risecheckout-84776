@@ -103,26 +103,33 @@ export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
 
   const loadWebhookProducts = async (webhookId: string) => {
     try {
-      // Como não existe tabela webhook_products, usar product_id direto do webhook
+      // Buscar produtos da tabela webhook_products
       const { data, error } = await supabase
-        .from("outbound_webhooks")
+        .from("webhook_products")
         .select("product_id")
-        .eq("id", webhookId)
-        .single();
+        .eq("webhook_id", webhookId);
 
       if (error) {
-        console.error("Error loading webhook product:", error);
-        setSelectedProductIds([]);
+        console.error("Error loading webhook products:", error);
+        // Fallback: tentar buscar product_id direto do webhook (compatibilidade com webhooks antigos)
+        const { data: webhookData, error: webhookError } = await supabase
+          .from("outbound_webhooks")
+          .select("product_id")
+          .eq("id", webhookId)
+          .single();
+        
+        if (!webhookError && webhookData?.product_id) {
+          console.log("🔍 Usando product_id do webhook (fallback):", webhookData.product_id);
+          setSelectedProductIds([webhookData.product_id]);
+        } else {
+          setSelectedProductIds([]);
+        }
         return;
       }
 
-      const webhookData = data as any;
-      if (webhookData?.product_id) {
-        console.log("🔍 Produto do webhook:", webhookData.product_id);
-        setSelectedProductIds([webhookData.product_id]);
-      } else {
-        setSelectedProductIds([]);
-      }
+      const productIds = data.map((item: any) => item.product_id);
+      console.log("🔍 Produtos do webhook carregados:", productIds);
+      setSelectedProductIds(productIds);
     } catch (error) {
       console.error("Error loading webhook products:", error);
       setSelectedProductIds([]);
