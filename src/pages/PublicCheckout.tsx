@@ -469,16 +469,8 @@ const PublicCheckout = () => {
         throw new Error("Produto não encontrado");
       }
 
-      // 2. Calcular valor total (produto + order bumps)
-      // IMPORTANTE: checkout!.product.price já está em centavos!
-      const productPrice = checkout!.product.price; // já é em centavos
-      
-      const selectedBumpsTotal = Array.from(selectedBumps).reduce((total, bumpId) => {
-        const bump = orderBumps.find(b => b.id === bumpId);
-        return total + (bump ? Number(bump.price) : 0);
-      }, 0);
-      
-      const totalCents = productPrice + selectedBumpsTotal;
+      // 2. O preço será calculado NO BACKEND para segurança
+      // NÃO calculamos o preço no frontend para evitar manipulação
 
       // 3. Criar pedido via Edge Function (seguro - bypassa RLS)
       const { data: orderResponse, error: orderError } = await supabase.functions.invoke(
@@ -489,20 +481,13 @@ const PublicCheckout = () => {
             product_id: checkout!.product.id,
             customer_email: formData.email,
             customer_name: formData.name,
-            amount_cents: totalCents,
+            // ✅ SEGURO: Não enviamos amount_cents - será calculado no backend
             currency: "BRL",
             payment_method: selectedPayment,
             gateway: "pushinpay",
             status: "pending",
-            order_bumps: Array.from(selectedBumps).map(bumpId => {
-              const bump = orderBumps.find(b => b.id === bumpId);
-              return {
-                order_bump_id: bumpId,
-                product_id: bump?.product?.id,
-                offer_id: bump?.offer?.id,
-                price: bump?.price
-              };
-            })
+            // ✅ SEGURO: Enviamos apenas IDs dos bumps, não os preços
+            order_bump_ids: Array.from(selectedBumps)
           },
         }
       );
@@ -512,6 +497,9 @@ const PublicCheckout = () => {
           "Erro ao criar pedido: " + (orderError?.message || orderResponse?.error || "Erro desconhecido")
         );
       }
+
+      // ✅ SEGURO: Usar amount_cents retornado pelo backend (calculado no servidor)
+      const totalCents = orderResponse.amount_cents;
 
       // 4. Disparar evento Purchase (client-side)
       trackPurchase(checkout, orderResponse.order_id, totalCents);
