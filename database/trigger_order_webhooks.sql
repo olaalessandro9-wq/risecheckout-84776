@@ -1,4 +1,4 @@
--- Trigger que usa a Edge Function send-webhook-test com autenticação
+-- Trigger de webhooks com fallback para orders sem order_items
 
 CREATE OR REPLACE FUNCTION public.trigger_order_webhooks()
 RETURNS trigger
@@ -14,11 +14,12 @@ DECLARE
   edge_function_payload JSONB;
   request_id BIGINT;
   supabase_service_key TEXT;
+  has_order_items BOOLEAN;
 BEGIN
   edge_function_url := 'https://wivbtmtgpsxupfjwwovf.supabase.co/functions/v1/send-webhook-test';
   supabase_service_key := current_setting('app.settings.service_role_key', true);
   
-  -- Se não conseguir pegar a service key, usar uma key fixa (TEMPORÁRIO)
+  -- Se não conseguir pegar a service key, usar uma key fixa
   IF supabase_service_key IS NULL OR supabase_service_key = '' THEN
     supabase_service_key := 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpdmJ0bXRncHN4dXBmand3b3ZmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTA2NjMyOCwiZXhwIjoyMDc2NjQyMzI4fQ.ztPJHTkCi4XYkihlBVVXL6Xrissm_vDQQklYfAqxUS0';
   END IF;
@@ -90,6 +91,9 @@ BEGIN
       
       event_type := 'purchase_approved';
       
+      -- Verificar se há order_items para este pedido
+      SELECT EXISTS(SELECT 1 FROM order_items WHERE order_id = NEW.id) INTO has_order_items;
+      
       -- Buscar webhooks ativos para este vendor e evento
       FOR webhook_record IN
         SELECT w.id, w.url, w.events
@@ -98,99 +102,110 @@ BEGIN
           AND w.active = true
           AND w.events @> ARRAY[event_type]::text[]
       LOOP
-        -- Para cada item do pedido (produto principal + order bumps)
-        FOR product_record IN
-          SELECT oi.product_id, oi.product_name, oi.amount_cents, oi.is_bump
-          FROM order_items oi
-          WHERE oi.order_id = NEW.id
-        LOOP
-          -- Verificar se este produto está configurado no webhook
-          IF EXISTS (
-            SELECT 1 FROM webhook_products wp
-            WHERE wp.webhook_id = webhook_record.id
-              AND wp.product_id = product_record.product_id
-          ) THEN
-            -- Preparar payload
-            webhook_payload := jsonb_build_object(
-              'event', event_type,
-              'timestamp', NOW(),
-              'vendor_id', NEW.vendor_id,
-              'product_id', product_record.product_id,
-              'order_id', NEW.id,
-              'data', jsonb_build_object(
-                'product_name', product_record.product_name,
-                'amount_cents', product_record.amount_cents,
-                'is_bump', product_record.is_bump,
-                'customer_name', NEW.customer_name,
-                'customer_email', NEW.customer_email,
-                'paid_at', NEW.paid_at
-              )
-            );
-            
-            edge_function_payload := jsonb_build_object(
-              'webhook_id', webhook_record.id,
-              'webhook_url', webhook_record.url,
-              'event_type', event_type,
-              'payload', webhook_payload
-            );
-            
-            SELECT INTO request_id net.http_post(
-              edge_function_url,
-              edge_function_payload,
-              '{}'::jsonb,
-              jsonb_build_object(
-                'Content-Type', 'application/json',
-                'Authorization', 'Bearer ' || supabase_service_key,
-                'apikey', supabase_service_key
-              ),
-              30000
-            );
-          END IF;
-        END LOOP;
         
-        -- Se não houver order_items, enviar para o produto principal
-        IF NOT FOUND THEN
-          IF EXISTS (
-            SELECT 1 FROM webhook_products wp
-            WHERE wp.webhook_id = webhook_record.id
-              AND wp.product_id = NEW.product_id
-          ) THEN
-            webhook_payload := jsonb_build_object(
-              'event', event_type,
-              'timestamp', NOW(),
-              'vendor_id', NEW.vendor_id,
-              'product_id', NEW.product_id,
-              'order_id', NEW.id,
-              'data', jsonb_build_object(
-                'product_name', 'Produto Principal',
-                'amount_cents', NEW.amount_cents,
-                'is_bump', false,
-                'customer_name', NEW.customer_name,
-                'customer_email', NEW.customer_email,
-                'paid_at', NEW.paid_at
-              )
-            );
-            
-            edge_function_payload := jsonb_build_object(
-              'webhook_id', webhook_record.id,
-              'webhook_url', webhook_record.url,
-              'event_type', event_type,
-              'payload', webhook_payload
-            );
-            
-            SELECT INTO request_id net.http_post(
-              edge_function_url,
-              edge_function_payload,
-              '{}'::jsonb,
-              jsonb_build_object(
-                'Content-Type', 'application/json',
-                'Authorization', 'Bearer ' || supabase_service_key,
-                'apikey', supabase_service_key
-              ),
-              30000
-            );
+        IF has_order_items THEN
+          -- CASO 1: Há order_items - iterar sobre eles (suporte a order bumps)
+          FOR product_record IN
+            SELECT oi.product_id, oi.product_name, oi.amount_cents, oi.is_bump
+            FROM order_items oi
+            WHERE oi.order_id = NEW.id
+          LOOP
+            -- Verificar se este produto está configurado no webhook
+            IF EXISTS (
+              SELECT 1 FROM webhook_products wp
+              WHERE wp.webhook_id = webhook_record.id
+                AND wp.product_id = product_record.product_id
+            ) THEN
+              -- Preparar payload
+              webhook_payload := jsonb_build_object(
+                'event', event_type,
+                'timestamp', NOW(),
+                'vendor_id', NEW.vendor_id,
+                'product_id', product_record.product_id,
+                'order_id', NEW.id,
+                'data', jsonb_build_object(
+                  'product_name', product_record.product_name,
+                  'amount_cents', product_record.amount_cents,
+                  'is_bump', product_record.is_bump,
+                  'customer_name', NEW.customer_name,
+                  'customer_email', NEW.customer_email,
+                  'paid_at', NEW.paid_at
+                )
+              );
+              
+              edge_function_payload := jsonb_build_object(
+                'webhook_id', webhook_record.id,
+                'webhook_url', webhook_record.url,
+                'event_type', event_type,
+                'payload', webhook_payload
+              );
+              
+              SELECT INTO request_id net.http_post(
+                edge_function_url,
+                edge_function_payload,
+                '{}'::jsonb,
+                jsonb_build_object(
+                  'Content-Type', 'application/json',
+                  'Authorization', 'Bearer ' || supabase_service_key,
+                  'apikey', supabase_service_key
+                ),
+                30000
+              );
+            END IF;
+          END LOOP;
+        ELSE
+          -- CASO 2: NÃO há order_items - usar product_id da tabela orders (fallback)
+          IF NEW.product_id IS NOT NULL THEN
+            -- Verificar se este produto está configurado no webhook
+            IF EXISTS (
+              SELECT 1 FROM webhook_products wp
+              WHERE wp.webhook_id = webhook_record.id
+                AND wp.product_id = NEW.product_id
+            ) THEN
+              -- Buscar nome do produto
+              SELECT p.name INTO product_record.product_name
+              FROM products p
+              WHERE p.id = NEW.product_id;
+              
+              -- Preparar payload
+              webhook_payload := jsonb_build_object(
+                'event', event_type,
+                'timestamp', NOW(),
+                'vendor_id', NEW.vendor_id,
+                'product_id', NEW.product_id,
+                'order_id', NEW.id,
+                'data', jsonb_build_object(
+                  'product_name', COALESCE(product_record.product_name, 'Produto'),
+                  'amount_cents', NEW.amount_cents,
+                  'is_bump', false,
+                  'customer_name', NEW.customer_name,
+                  'customer_email', NEW.customer_email,
+                  'paid_at', NEW.paid_at
+                )
+              );
+              
+              edge_function_payload := jsonb_build_object(
+                'webhook_id', webhook_record.id,
+                'webhook_url', webhook_record.url,
+                'event_type', event_type,
+                'payload', webhook_payload
+              );
+              
+              SELECT INTO request_id net.http_post(
+                edge_function_url,
+                edge_function_payload,
+                '{}'::jsonb,
+                jsonb_build_object(
+                  'Content-Type', 'application/json',
+                  'Authorization', 'Bearer ' || supabase_service_key,
+                  'apikey', supabase_service_key
+                ),
+                30000
+              );
+            END IF;
           END IF;
         END IF;
+        
       END LOOP;
       
     END IF;
@@ -200,3 +215,10 @@ BEGIN
   RETURN NEW;
 END;
 $function$;
+
+-- Recriar o trigger
+DROP TRIGGER IF EXISTS order_webhooks_trigger ON orders;
+CREATE TRIGGER order_webhooks_trigger
+  AFTER INSERT OR UPDATE ON orders
+  FOR EACH ROW
+  EXECUTE FUNCTION trigger_order_webhooks();
