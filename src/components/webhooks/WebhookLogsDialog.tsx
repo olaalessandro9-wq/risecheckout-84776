@@ -117,8 +117,8 @@ export function WebhookLogsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[1200px] max-h-[80vh]">
-        <DialogHeader>
+      <DialogContent className="max-w-[95vw] w-[1400px] h-[85vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Logs</DialogTitle>
           <DialogDescription>
             Histórico de entregas do webhook: {webhookName}
@@ -126,28 +126,26 @@ export function WebhookLogsDialog({
         </DialogHeader>
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex items-center justify-center flex-1">
             <Loader2 className="h-6 w-6 animate-spin" />
           </div>
         ) : logs.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center flex-1 flex items-center justify-center">
             <p className="text-sm" style={{ color: "var(--subtext)" }}>
               Nenhum log encontrado ainda
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-[1fr,1.5fr] gap-6 h-[500px]">
+          <div className="grid grid-cols-[400px,1fr] gap-6 flex-1 min-h-0">
             {/* Lista de Logs (Esquerda) */}
-            <div className="border-r pr-4">
-              <ScrollArea className="h-full">
-                <div className="space-y-2">
-                  {/* Header */}
-                  <div className="grid grid-cols-[2fr,1fr] gap-4 px-4 py-2 text-sm font-medium border-b" style={{ color: "var(--subtext)" }}>
-                    <div>Descrição</div>
-                    <div className="text-right">Status</div>
-                  </div>
-
-                  {/* Logs */}
+            <div className="border-r pr-4 flex flex-col min-h-0">
+              <div className="grid grid-cols-[2fr,1fr] gap-4 px-4 py-2 text-sm font-medium border-b flex-shrink-0" style={{ color: "var(--subtext)" }}>
+                <div>Descrição</div>
+                <div className="text-right">Status</div>
+              </div>
+              
+              <ScrollArea className="flex-1 mt-2">
+                <div className="space-y-2 pr-4">
                   {logs.map((log) => (
                     <div
                       key={log.id}
@@ -158,15 +156,15 @@ export function WebhookLogsDialog({
                           : "border-border hover:bg-accent/50"
                       }`}
                     >
-                      <div>
-                        <p className="font-medium text-sm" style={{ color: "var(--text)" }}>
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate" style={{ color: "var(--text)" }}>
                           {EVENT_LABELS[log.event_type] || log.event_type}
                         </p>
-                        <p className="text-xs" style={{ color: "var(--subtext)" }}>
+                        <p className="text-xs truncate" style={{ color: "var(--subtext)" }}>
                           {formatDate(log.created_at)}
                         </p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex-shrink-0">
                         {getStatusBadge(log.status, log.response_status)}
                       </div>
                     </div>
@@ -176,10 +174,10 @@ export function WebhookLogsDialog({
             </div>
 
             {/* Painel de Detalhes (Direita) */}
-            <div className="pl-4">
+            <div className="flex flex-col min-h-0">
               {selectedLog ? (
-                <ScrollArea className="h-full">
-                  <div className="space-y-4">
+                <ScrollArea className="flex-1">
+                  <div className="space-y-4 pr-4">
                     <h3 className="text-lg font-semibold" style={{ color: "var(--text)" }}>
                       Detalhes
                     </h3>
@@ -235,7 +233,7 @@ export function WebhookLogsDialog({
                         <p className="text-xs font-medium mb-1" style={{ color: "var(--subtext)" }}>
                           Resposta:
                         </p>
-                        <pre className="text-xs bg-accent px-3 py-2 rounded overflow-auto max-h-32" style={{ color: "var(--text)" }}>
+                        <pre className="text-xs bg-accent px-3 py-2 rounded overflow-auto max-h-32 whitespace-pre-wrap break-all" style={{ color: "var(--text)" }}>
                           {selectedLog.response_body}
                         </pre>
                       </div>
@@ -246,14 +244,14 @@ export function WebhookLogsDialog({
                       <p className="text-xs font-medium mb-1" style={{ color: "var(--subtext)" }}>
                         Conteúdo Enviado:
                       </p>
-                      <pre className="text-xs bg-accent px-3 py-2 rounded overflow-auto max-h-96" style={{ color: "var(--text)" }}>
+                      <pre className="text-xs bg-accent px-3 py-2 rounded overflow-auto max-h-[400px] whitespace-pre-wrap break-all" style={{ color: "var(--text)" }}>
                         {JSON.stringify(selectedLog.payload, null, 2)}
                       </pre>
                     </div>
                   </div>
                 </ScrollArea>
               ) : (
-                <div className="flex items-center justify-center h-full">
+                <div className="flex items-center justify-center flex-1">
                   <p className="text-sm" style={{ color: "var(--subtext)" }}>
                     Selecione um log para ver os detalhes
                   </p>
