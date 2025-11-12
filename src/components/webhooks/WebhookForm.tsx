@@ -103,29 +103,23 @@ export function WebhookForm({ webhook, onSave, onCancel }: WebhookFormProps) {
 
   const loadWebhookProducts = async (webhookId: string) => {
     try {
+      // Como não existe tabela webhook_products, usar product_id direto do webhook
       const { data, error } = await supabase
-        .from("webhook_products")
+        .from("outbound_webhooks")
         .select("product_id")
-        .eq("webhook_id", webhookId);
+        .eq("id", webhookId)
+        .single();
 
       if (error) {
-        console.error("Error loading webhook products:", error);
+        console.error("Error loading webhook product:", error);
         setSelectedProductIds([]);
         return;
       }
 
-      if (data && data.length > 0) {
-        const productIds = data.map((wp) => wp.product_id);
-        console.log("🔍 Produtos carregados do webhook:", productIds);
-        console.log("🔍 Produtos disponíveis na lista:", products.map(p => p.id));
-        
-        // Filtrar apenas produtos que existem na lista atual
-        const validIds = productIds.filter((id) => 
-          products.some((p) => p.id === id)
-        );
-        console.log("✅ Produtos válidos (filtrados):", validIds);
-        
-        setSelectedProductIds(validIds);
+      const webhookData = data as any;
+      if (webhookData?.product_id) {
+        console.log("🔍 Produto do webhook:", webhookData.product_id);
+        setSelectedProductIds([webhookData.product_id]);
       } else {
         setSelectedProductIds([]);
       }

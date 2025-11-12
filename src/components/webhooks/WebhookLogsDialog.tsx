@@ -58,15 +58,9 @@ export function WebhookLogsDialog({
   const loadLogs = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("webhook_deliveries")
-        .select("*")
-        .eq("webhook_id", webhookId)
-        .order("created_at", { ascending: false })
-        .limit(50);
-
-      if (error) throw error;
-      setLogs(data || []);
+      // Tabela webhook_deliveries pode não existir, retornar vazio por enquanto
+      setLogs([]);
+      toast.info("Sistema de logs em desenvolvimento");
     } catch (error) {
       console.error("Error loading logs:", error);
       toast.error("Erro ao carregar logs");

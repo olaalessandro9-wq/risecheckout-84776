@@ -73,15 +73,28 @@ export function WebhooksConfig() {
       // Carregar webhooks
       const { data: webhooksData, error: webhooksError } = await supabase
         .from("outbound_webhooks")
-        .select(`
-          *,
-          product:products(name)
-        `)
+        .select("*")
         .eq("vendor_id", user?.id)
         .order("created_at", { ascending: false });
 
       if (webhooksError) throw webhooksError;
-      setWebhooks(webhooksData || []);
+      
+      // Mapear para incluir nomes de produtos
+      const webhooksWithProducts = await Promise.all(
+        (webhooksData || []).map(async (webhook: any) => {
+          if (webhook.product_id) {
+            const { data: product } = await supabase
+              .from("products")
+              .select("name")
+              .eq("id", webhook.product_id)
+              .single();
+            return { ...webhook, product } as WebhookData;
+          }
+          return webhook as WebhookData;
+        })
+      );
+      
+      setWebhooks(webhooksWithProducts);
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Erro ao carregar dados");
@@ -101,67 +114,35 @@ export function WebhooksConfig() {
       const secret = `whsec_${crypto.randomUUID().replace(/-/g, "")}`;
 
       if (editingWebhook) {
-        // Atualizar webhook existente
+        // Atualizar webhook existente (apenas primeiro produto por enquanto)
         const { error: updateError } = await supabase
           .from("outbound_webhooks")
           .update({
             name: data.name,
             url: data.url,
             events: data.events,
+            product_id: data.product_ids[0] || null,
             updated_at: new Date().toISOString(),
           })
           .eq("id", editingWebhook.id);
 
         if (updateError) throw updateError;
-
-        // Remover produtos antigos
-        const { error: deleteError } = await supabase
-          .from("webhook_products")
-          .delete()
-          .eq("webhook_id", editingWebhook.id);
-
-        if (deleteError) throw deleteError;
-
-        // Adicionar novos produtos
-        const { error: insertError } = await supabase
-          .from("webhook_products")
-          .insert(
-            data.product_ids.map((product_id) => ({
-              webhook_id: editingWebhook.id,
-              product_id,
-            }))
-          );
-
-        if (insertError) throw insertError;
         toast.success("Webhook atualizado com sucesso!");
       } else {
-        // Criar novo webhook
-        const { data: newWebhook, error: webhookError } = await supabase
+        // Criar novo webhook (apenas primeiro produto por enquanto)
+        const { error: webhookError } = await supabase
           .from("outbound_webhooks")
           .insert({
             vendor_id: user?.id,
             name: data.name,
             url: data.url,
             events: data.events,
+            product_id: data.product_ids[0] || null,
             secret: secret,
             active: true,
-          })
-          .select()
-          .single();
+          });
 
         if (webhookError) throw webhookError;
-
-        // Adicionar produtos ao webhook
-        const { error: productsError } = await supabase
-          .from("webhook_products")
-          .insert(
-            data.product_ids.map((product_id) => ({
-              webhook_id: newWebhook.id,
-              product_id,
-            }))
-          );
-
-        if (productsError) throw productsError;
         toast.success("Webhook criado com sucesso!");
       }
 

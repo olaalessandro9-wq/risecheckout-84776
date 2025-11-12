@@ -35,8 +35,9 @@ export function FacebookPixelConfig() {
       if (error) throw error;
 
       if (data) {
-        setPixelId(data.config?.pixel_id || "");
-        setAccessToken(data.config?.access_token || "");
+        const config = data.config as { pixel_id?: string; access_token?: string } | null;
+        setPixelId(config?.pixel_id || "");
+        setAccessToken(config?.access_token || "");
         setActive(data.active || false);
       }
     } catch (error) {

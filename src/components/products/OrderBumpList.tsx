@@ -9,6 +9,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface OrderBump {
   id: string;
@@ -31,9 +48,123 @@ interface OrderBumpListProps {
   maxOrderBumps?: number;
 }
 
+interface SortableOrderBumpItemProps {
+  orderBump: OrderBump;
+  index: number;
+  onEdit?: (orderBump: OrderBump) => void;
+  onRemove: (id: string) => void;
+}
+
+function SortableOrderBumpItem({ orderBump, index, onEdit, onRemove }: SortableOrderBumpItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: orderBump.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`bg-card border border-border rounded-lg p-4 flex items-start justify-between hover:border-primary/50 transition-colors ${
+        isDragging ? 'z-50 shadow-lg ring-2 ring-primary/20' : ''
+      }`}
+    >
+      <div className="flex items-start gap-3 flex-1">
+        <div className="flex items-center gap-2">
+          <div 
+            {...attributes} 
+            {...listeners} 
+            className="cursor-grab active:cursor-grabbing touch-none"
+          >
+            <GripVertical className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
+          </div>
+          <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
+            <span className="text-sm font-medium text-primary">{index + 1}</span>
+          </div>
+        </div>
+        
+        <div className="flex-1">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h4 className="text-sm font-medium text-foreground mb-1">
+                {orderBump.product_name}
+              </h4>
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <span>
+                  Preço: R$ {orderBump.offer_price 
+                    ? (orderBump.offer_price / 100).toFixed(2) 
+                    : (orderBump.product_price / 100).toFixed(2)}
+                </span>
+                {orderBump.offer_name && (
+                  <>
+                    <span>•</span>
+                    <span className="text-primary">Oferta: {orderBump.offer_name}</span>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-accent"
+                >
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {onEdit && (
+                  <DropdownMenuItem
+                    onClick={() => onEdit(orderBump)}
+                    className="cursor-pointer"
+                  >
+                    <Pencil className="w-4 h-4 mr-2" />
+                    Editar
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  onClick={() => onRemove(orderBump.id)}
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Deletar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function OrderBumpList({ productId, onAdd, onEdit, maxOrderBumps = 5 }: OrderBumpListProps) {
   const [orderBumps, setOrderBumps] = useState<OrderBump[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Evita cliques acidentais
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     loadOrderBumps();
@@ -102,6 +233,42 @@ export function OrderBumpList({ productId, onAdd, onEdit, maxOrderBumps = 5 }: O
     }
   };
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (!over || active.id === over.id) return;
+    
+    const oldIndex = orderBumps.findIndex((b) => b.id === active.id);
+    const newIndex = orderBumps.findIndex((b) => b.id === over.id);
+    
+    // 1. Atualizar estado local imediatamente (UI responsiva)
+    const newOrder = arrayMove(orderBumps, oldIndex, newIndex);
+    setOrderBumps(newOrder);
+    
+    // 2. Salvar automaticamente no banco de dados
+    setIsSaving(true);
+    try {
+      // Atualizar a posição de todos os order bumps
+      const updates = newOrder.map((bump, index) => 
+        supabase
+          .from('order_bumps')
+          .update({ position: index })
+          .eq('id', bump.id)
+      );
+      
+      await Promise.all(updates);
+      
+      toast.success('Ordem atualizada com sucesso!');
+    } catch (error) {
+      console.error('Erro ao atualizar ordem:', error);
+      toast.error('Erro ao salvar nova ordem');
+      // Reverter estado local em caso de erro
+      loadOrderBumps();
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleRemove = async (id: string) => {
     try {
       const { error } = await supabase
@@ -132,76 +299,28 @@ export function OrderBumpList({ productId, onAdd, onEdit, maxOrderBumps = 5 }: O
   return (
     <div className="space-y-4">
       {orderBumps.length > 0 && (
-        <div className="space-y-3">
-          {orderBumps.map((orderBump, index) => (
-            <div 
-              key={orderBump.id} 
-              className="bg-card border border-border rounded-lg p-4 flex items-start justify-between hover:border-primary/50 transition-colors"
-            >
-              <div className="flex items-start gap-3 flex-1">
-                <div className="flex items-center gap-2">
-                  <GripVertical className="w-4 h-4 text-muted-foreground cursor-move" />
-                  <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
-                    <span className="text-sm font-medium text-primary">{index + 1}</span>
-                  </div>
-                </div>
-                
-                <div className="flex-1">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium text-foreground mb-1">
-                        {orderBump.product_name}
-                      </h4>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span>
-                          Preço: R$ {orderBump.offer_price 
-                            ? (orderBump.offer_price / 100).toFixed(2) 
-                            : (orderBump.product_price / 100).toFixed(2)}
-                        </span>
-                        {orderBump.offer_name && (
-                          <>
-                            <span>•</span>
-                            <span className="text-primary">Oferta: {orderBump.offer_name}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="hover:bg-accent"
-                        >
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {onEdit && (
-                          <DropdownMenuItem
-                            onClick={() => onEdit(orderBump)}
-                            className="cursor-pointer"
-                          >
-                            <Pencil className="w-4 h-4 mr-2" />
-                            Editar
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem
-                          onClick={() => handleRemove(orderBump.id)}
-                          className="cursor-pointer text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Deletar
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={orderBumps.map(b => b.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-3">
+              {orderBumps.map((orderBump, index) => (
+                <SortableOrderBumpItem
+                  key={orderBump.id}
+                  orderBump={orderBump}
+                  index={index}
+                  onEdit={onEdit}
+                  onRemove={handleRemove}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {orderBumps.length === 0 && (
@@ -221,10 +340,10 @@ export function OrderBumpList({ productId, onAdd, onEdit, maxOrderBumps = 5 }: O
       <div className="flex items-center justify-between pt-4">
         <Button 
           onClick={onAdd}
-          disabled={orderBumps.length >= maxOrderBumps}
+          disabled={orderBumps.length >= maxOrderBumps || isSaving}
           className="bg-primary hover:bg-primary/90"
         >
-          Adicionar Order Bump
+          {isSaving ? "Salvando..." : "Adicionar Order Bump"}
         </Button>
         <span className="text-sm text-muted-foreground">
           {orderBumps.length}/{maxOrderBumps}
@@ -233,4 +352,3 @@ export function OrderBumpList({ productId, onAdd, onEdit, maxOrderBumps = 5 }: O
     </div>
   );
 }
-
