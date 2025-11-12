@@ -186,7 +186,7 @@ A PushinPay geralmente oferece um botão "Testar Webhook". Use-o para verificar 
 
 ### 5.1. Configurar Integração no Frontend
 
-1. Acesse: https://risecheckout.lovable.app (ou preview)
+1. Acesse: https://risecheckout.com (ou preview)
 2. Faça login como vendedor
 3. Vá em **Financeiro**
 4. Configure a integração:
@@ -342,7 +342,7 @@ supabase functions logs pushinpay-get-status --project-ref wivbtmtgpsxupfjwwovf
 2. Verificar se preflight retorna 204:
    ```bash
    curl -X OPTIONS https://wivbtmtgpsxupfjwwovf.supabase.co/functions/v1/encrypt-token \
-     -H "Origin: https://risecheckout.lovable.app" \
+     -H "Origin: https://risecheckout.com" \
      -H "Access-Control-Request-Method: POST" \
      -v
    ```

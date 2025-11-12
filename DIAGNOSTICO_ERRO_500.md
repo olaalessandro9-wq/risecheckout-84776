@@ -176,7 +176,7 @@ supabase functions logs encrypt-token --project-ref wivbtmtgpsxupfjwwovf
 
 ### **Passo 4: Testar no Frontend**
 
-1. Acesse: https://risecheckout.lovable.app/financeiro
+1. Acesse: https://risecheckout.com/financeiro
 2. Insira um token de teste
 3. Selecione ambiente "Sandbox"
 4. Clique em "Salvar integração"
@@ -201,7 +201,7 @@ supabase functions logs encrypt-token --project-ref wivbtmtgpsxupfjwwovf
 
 - [ ] Preflight OPTIONS retorna 204
 - [ ] Header `x-client-info` está permitido
-- [ ] Origem `https://risecheckout.lovable.app` está na whitelist
+- [ ] Origem `https://risecheckout.com` está na whitelist
 - [ ] Nenhum erro de CORS no console do navegador
 
 ### **Verificações de Integração PushinPay**

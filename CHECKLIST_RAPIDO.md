@@ -83,7 +83,7 @@ Esperado: `{"encrypted":"..."}`
 
 #### **Teste 2: Salvar Integração**
 
-1. Acesse: https://risecheckout.lovable.app/financeiro
+1. Acesse: https://risecheckout.com/financeiro
 2. Cole token de Sandbox da PushinPay
 3. Selecione "Sandbox (testes)"
 4. Clique em "Salvar integração"

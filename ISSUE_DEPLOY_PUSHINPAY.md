@@ -164,7 +164,7 @@ Siga o guia de QA completo: `GUIA_QA_SANDBOX.md`
 **Testes Obrigatórios:**
 
 1. ✅ **Salvar Integração**
-   - Acesse: https://risecheckout.lovable.app/financeiro
+   - Acesse: https://risecheckout.com/financeiro
    - Insira token de Sandbox
    - Clique em "Salvar integração"
    - Esperado: Toast de sucesso, sem erro 500
@@ -286,7 +286,7 @@ echo "URL: https://wivbtmtgpsxupfjwwovf.supabase.co/functions/v1/pushinpay-webho
 - **Supabase Dashboard:** https://supabase.com/dashboard/project/wivbtmtgpsxupfjwwovf
 - **PushinPay Dashboard:** https://app.pushinpay.com.br
 - **Documentação PushinPay:** https://app.theneo.io/pushinpay/pix/criar-pix
-- **Frontend (Produção):** https://risecheckout.lovable.app/financeiro
+- **Frontend (Produção):** https://risecheckout.com/financeiro
 - **Repositório GitHub:** https://github.com/olaalessandro9-wq/lovabloo-checkout-16140-81239-42802
 
 ---

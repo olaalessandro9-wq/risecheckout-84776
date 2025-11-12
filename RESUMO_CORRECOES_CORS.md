@@ -34,8 +34,8 @@ Baseado nos prints do console fornecidos:
 **Código:**
 ```typescript
 const ALLOWED_ORIGINS = new Set<string>([
-  'https://risecheckout.lovable.app',
-  'https://preview--risecheckout.lovable.app',
+  'https://risecheckout.com',
+  'https://preview.risecheckout.com',
   'http://localhost:5173',
   'http://localhost:3000',
 ]);
@@ -167,13 +167,13 @@ supabase functions deploy pushinpay-webhook
 **Requisição:**
 ```
 OPTIONS /functions/v1/encrypt-token
-Origin: https://risecheckout.lovable.app
+Origin: https://risecheckout.com
 ```
 
 **Resposta esperada:**
 ```
 Status: 200 OK
-Access-Control-Allow-Origin: https://risecheckout.lovable.app
+Access-Control-Allow-Origin: https://risecheckout.com
 Access-Control-Allow-Methods: GET,POST,OPTIONS
 Access-Control-Allow-Headers: content-type, authorization, x-requested-with
 Access-Control-Allow-Credentials: true
@@ -185,14 +185,14 @@ Vary: Origin
 **Requisição:**
 ```
 POST /functions/v1/encrypt-token
-Origin: https://risecheckout.lovable.app
+Origin: https://risecheckout.com
 Body: { "token": "test_token_123" }
 ```
 
 **Resposta esperada:**
 ```
 Status: 200 OK
-Access-Control-Allow-Origin: https://risecheckout.lovable.app
+Access-Control-Allow-Origin: https://risecheckout.com
 Body: { "encrypted": "..." }
 ```
 
@@ -228,7 +228,7 @@ Body: { "encrypted": "..." }
 **Solução:** Adicionar em `_shared/cors.ts`:
 ```typescript
 const ALLOWED_ORIGINS = new Set<string>([
-  'https://risecheckout.lovable.app',
+  'https://risecheckout.com',
   'https://seu-novo-dominio.com', // Adicionar aqui
   // ...
 ]);

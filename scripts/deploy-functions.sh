@@ -138,7 +138,7 @@ echo "     URL: https://wivbtmtgpsxupfjwwovf.supabase.co/functions/v1/pushinpay-
 echo "     Eventos: pix.created, pix.paid, pix.expired, pix.canceled"
 echo ""
 echo "  2. Testar integração em Sandbox:"
-echo "     - Acesse: https://risecheckout.lovable.app/financeiro"
+echo "     - Acesse: https://risecheckout.com/financeiro"
 echo "     - Configure token de Sandbox"
 echo "     - Crie um pedido de teste (mínimo R$ 0,50)"
 echo "     - Gere QR Code e simule pagamento"

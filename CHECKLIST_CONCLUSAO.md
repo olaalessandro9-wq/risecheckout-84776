@@ -94,8 +94,8 @@
 ### **D) Configuração de CORS**
 
 - [ ] **D1.** Whitelist de origens configurada
-  - `https://risecheckout.lovable.app`
-  - `https://preview--risecheckout.lovable.app`
+  - `https://risecheckout.com`
+  - `https://preview.risecheckout.com`
   - `http://localhost:5173`
   - `http://localhost:3000`
   - Evidência: Código do módulo `_shared/cors.ts`

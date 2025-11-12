@@ -166,7 +166,7 @@ curl -X POST https://wivbtmtgpsxupfjwwovf.supabase.co/functions/v1/encrypt-token
 
 **Passos:**
 
-1. Acesse: https://risecheckout.lovable.app/financeiro
+1. Acesse: https://risecheckout.com/financeiro
 2. No campo "API Token", cole o token de Sandbox da PushinPay
 3. No campo "Ambiente", selecione "Sandbox (testes)"
 4. Clique em "Salvar integração"

@@ -189,7 +189,7 @@ echo ""
 
 echo "Teste 2: Salvar Integração no Frontend"
 echo ""
-echo "1. Acesse: https://risecheckout.lovable.app/financeiro"
+echo "1. Acesse: https://risecheckout.com/financeiro"
 echo "2. Cole o token de Sandbox da PushinPay"
 echo "3. Selecione \"Sandbox (testes)\""
 echo "4. Clique em \"Salvar integração\""

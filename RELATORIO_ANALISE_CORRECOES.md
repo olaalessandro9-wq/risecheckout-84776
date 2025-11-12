@@ -153,7 +153,7 @@ export function corsHeaders(origin: string | null): Record<string, string> {
   // Fallback para produção quando origem não está na whitelist
   const allowOrigin = origin && ALLOWED_ORIGINS.has(origin) 
     ? origin 
-    : 'https://risecheckout.lovable.app';  // ✅ Fallback
+    : 'https://risecheckout.com';  // ✅ Fallback
   
   return {
     'Access-Control-Allow-Origin': allowOrigin,
@@ -177,7 +177,7 @@ export function corsHeaders(origin: string | null): Record<string, string> {
 **Requisição:**
 ```http
 OPTIONS /functions/v1/encrypt-token HTTP/1.1
-Origin: https://risecheckout.lovable.app
+Origin: https://risecheckout.com
 Access-Control-Request-Method: POST
 Access-Control-Request-Headers: x-client-info, content-type, authorization
 ```
@@ -185,7 +185,7 @@ Access-Control-Request-Headers: x-client-info, content-type, authorization
 **Resposta esperada:**
 ```http
 HTTP/1.1 204 No Content
-Access-Control-Allow-Origin: https://risecheckout.lovable.app
+Access-Control-Allow-Origin: https://risecheckout.com
 Access-Control-Allow-Methods: GET,POST,OPTIONS
 Access-Control-Allow-Headers: authorization, content-type, apikey, x-client-info, prefer, x-requested-with
 Access-Control-Allow-Credentials: false
@@ -197,7 +197,7 @@ Vary: Origin
 **Requisição:**
 ```http
 POST /functions/v1/encrypt-token HTTP/1.1
-Origin: https://risecheckout.lovable.app
+Origin: https://risecheckout.com
 Content-Type: application/json
 x-client-info: supabase-js/2.x.x
 
@@ -207,7 +207,7 @@ x-client-info: supabase-js/2.x.x
 **Resposta esperada:**
 ```http
 HTTP/1.1 200 OK
-Access-Control-Allow-Origin: https://risecheckout.lovable.app
+Access-Control-Allow-Origin: https://risecheckout.com
 Content-Type: application/json
 
 {"encrypted":"..."}

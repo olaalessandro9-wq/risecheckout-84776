@@ -47,7 +47,7 @@ Verifique:
 
 ### Teste 1: Preflight OPTIONS
 
-1. Abra o painel em `https://risecheckout.lovable.app`
+1. Abra o painel em `https://risecheckout.com`
 2. Abra DevTools → Network
 3. Acesse a página Financeiro
 4. Insira um token de teste
@@ -57,7 +57,7 @@ Verifique:
 **Verificações:**
 
 - [ ] **Status:** 200 OK
-- [ ] **Header `Access-Control-Allow-Origin`:** `https://risecheckout.lovable.app`
+- [ ] **Header `Access-Control-Allow-Origin`:** `https://risecheckout.com`
 - [ ] **Header `Access-Control-Allow-Methods`:** Inclui `POST, OPTIONS`
 - [ ] **Header `Access-Control-Allow-Headers`:** Inclui `content-type, authorization`
 - [ ] **Header `Vary`:** `Origin`
@@ -71,7 +71,7 @@ Após o preflight, localize a requisição **POST** para `encrypt-token`:
 
 - [ ] **Status:** 200 OK
 - [ ] **Response Body:** `{ "encrypted": "..." }`
-- [ ] **Header `Access-Control-Allow-Origin`:** `https://risecheckout.lovable.app`
+- [ ] **Header `Access-Control-Allow-Origin`:** `https://risecheckout.com`
 - [ ] **Header `Content-Type`:** `application/json`
 
 ### Teste 3: UI de Sucesso
@@ -88,8 +88,8 @@ Após o preflight, localize a requisição **POST** para `encrypt-token`:
 
 Teste em cada ambiente:
 
-- [ ] **Produção:** `https://risecheckout.lovable.app`
-- [ ] **Preview:** `https://preview--risecheckout.lovable.app`
+- [ ] **Produção:** `https://risecheckout.com`
+- [ ] **Preview:** `https://preview.risecheckout.com`
 - [ ] **Localhost (Vite):** `http://localhost:5173`
 - [ ] **Localhost (alternativo):** `http://localhost:3000`
 
@@ -145,7 +145,7 @@ supabase functions deploy encrypt-token --no-verify-jwt
 2. Se necessário, adicione a origem em `_shared/cors.ts`:
    ```typescript
    export const ALLOWED_ORIGINS = [
-     'https://risecheckout.lovable.app',
+     'https://risecheckout.com',
      'https://seu-novo-dominio.com',
      // ...
    ];
@@ -222,7 +222,7 @@ Failed to send a request to the Edge Function
 ✅ **Depois:**
 ```
 Status: 200 OK
-Access-Control-Allow-Origin: https://risecheckout.lovable.app
+Access-Control-Allow-Origin: https://risecheckout.com
 { "encrypted": "..." }
 ```
 

@@ -38,8 +38,8 @@ Cada função foi deployada com:
 ### Origens CORS Permitidas
 
 Todas as funções permitem requisições de:
-1. `https://risecheckout.lovable.app` (produção)
-2. `https://preview--risecheckout.lovable.app` (preview)
+1. `https://risecheckout.com` (produção)
+2. `https://preview.risecheckout.com` (preview)
 3. `http://localhost:5173` (desenvolvimento Vite)
 4. `http://localhost:3000` (desenvolvimento alternativo)
 

@@ -176,7 +176,7 @@ Siga o guia completo: `GUIA_QA_SANDBOX.md`
 **Testes Obrigatórios:**
 
 1. ✅ **Salvar Integração**
-   - Acesse: https://risecheckout.lovable.app/financeiro
+   - Acesse: https://risecheckout.com/financeiro
    - Insira token de Sandbox
    - Clique em "Salvar integração"
    - **Esperado:** Toast de sucesso, sem erro 500

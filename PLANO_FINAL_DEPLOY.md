@@ -96,7 +96,7 @@ curl -X POST "https://wivbtmtgpsxupfjwwovf.supabase.co/functions/v1/encrypt-toke
 
 ### Teste 2 – Salvar Integração no Frontend
 
-1. Acesse: https://risecheckout.lovable.app/financeiro
+1. Acesse: https://risecheckout.com/financeiro
 2. Cole o **token Sandbox** da PushinPay
 3. Selecione "Sandbox (testes)"
 4. Clique em **Salvar integração**

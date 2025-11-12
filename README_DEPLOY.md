@@ -40,7 +40,7 @@ Acesse: https://app.pushinpay.com.br/settings/webhooks
 
 ### **2. Teste no Frontend**
 
-1. Acesse: https://risecheckout.lovable.app/financeiro
+1. Acesse: https://risecheckout.com/financeiro
 2. Cole seu **token da PushinPay** (Sandbox ou Produção)
 3. Clique em **Salvar integração**
 4. Crie um pedido de R$ 0,50 ou mais

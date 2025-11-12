@@ -505,8 +505,8 @@ serve(async (req: Request) => {
  * Whitelist de origens permitidas usando Set para lookup O(1)
  */
 const ALLOWED_ORIGINS = new Set<string>([
-  'https://risecheckout.lovable.app',          // Produção
-  'https://preview--risecheckout.lovable.app', // Preview
+  'https://risecheckout.com',          // Produção
+  'https://preview.risecheckout.com', // Preview
   'http://localhost:5173',                     // Vite dev
   'http://localhost:3000',                     // Alternativa local
 ]);
@@ -518,7 +518,7 @@ export function corsHeaders(origin: string | null): Record<string, string> {
   // Se origem não está na whitelist, usa a origem de produção como fallback
   const allowOrigin = origin && ALLOWED_ORIGINS.has(origin) 
     ? origin 
-    : 'https://risecheckout.lovable.app';
+    : 'https://risecheckout.com';
   
   return {
     'Access-Control-Allow-Origin': allowOrigin,
@@ -592,7 +592,7 @@ export function withCorsError(
 **Preflight OPTIONS:**
 ```http
 HTTP/1.1 204 No Content
-Access-Control-Allow-Origin: https://risecheckout.lovable.app
+Access-Control-Allow-Origin: https://risecheckout.com
 Vary: Origin
 Access-Control-Allow-Methods: GET,POST,OPTIONS
 Access-Control-Allow-Headers: authorization, content-type, apikey, x-client-info, prefer, x-requested-with
@@ -602,7 +602,7 @@ Access-Control-Allow-Credentials: false
 **Requisição POST:**
 ```http
 HTTP/1.1 200 OK
-Access-Control-Allow-Origin: https://risecheckout.lovable.app
+Access-Control-Allow-Origin: https://risecheckout.com
 Vary: Origin
 Content-Type: application/json
 Access-Control-Allow-Methods: GET,POST,OPTIONS
@@ -614,8 +614,8 @@ Access-Control-Allow-Credentials: false
 
 | Origem | Propósito |
 |--------|-----------|
-| `https://risecheckout.lovable.app` | Produção |
-| `https://preview--risecheckout.lovable.app` | Preview Lovable |
+| `https://risecheckout.com` | Produção |
+| `https://preview.risecheckout.com` | Preview Lovable |
 | `http://localhost:5173` | Desenvolvimento local (Vite) |
 | `http://localhost:3000` | Desenvolvimento local (alternativa) |
 
@@ -838,8 +838,8 @@ As origens permitidas estão **hardcoded** no módulo `_shared/cors.ts`:
 
 ```typescript
 const ALLOWED_ORIGINS = new Set<string>([
-  'https://risecheckout.lovable.app',
-  'https://preview--risecheckout.lovable.app',
+  'https://risecheckout.com',
+  'https://preview.risecheckout.com',
   'http://localhost:5173',
   'http://localhost:3000',
 ]);
@@ -855,7 +855,7 @@ const ALLOWED_ORIGINS = new Set<string>([
 
 - **Ambiente:** Sandbox (não testado em produção ainda)
 - **Token:** Aguardando configuração do vendedor
-- **Domínio:** `https://preview--risecheckout.lovable.app`
+- **Domínio:** `https://preview.risecheckout.com`
 
 ### 7.2. Testes Planejados (Pós-Deploy)
 
@@ -1036,8 +1036,8 @@ supabase functions deploy pushinpay-webhook
 
 | Domínio | Status |
 |---------|--------|
-| `https://risecheckout.lovable.app` | ✅ Permitido |
-| `https://preview--risecheckout.lovable.app` | ✅ Permitido |
+| `https://risecheckout.com` | ✅ Permitido |
+| `https://preview.risecheckout.com` | ✅ Permitido |
 | `http://localhost:5173` | ✅ Permitido (dev) |
 | `http://localhost:3000` | ✅ Permitido (dev) |
 | Outros domínios | ❌ Bloqueados |
