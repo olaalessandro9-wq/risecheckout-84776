@@ -13,9 +13,9 @@ export default function AppShell() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-background text-foreground">
+    <div className="flex min-h-screen w-full bg-background text-foreground">
       <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+      <div className="flex min-w-0 flex-1 flex-col">
         <Topbar scrolled={scrolled} onNotificationsClick={handleNotificationsClick} />
         {/* Sentinel invisível para ativar a sombra ao rolar */}
         <div ref={sentinelRef} className="h-1 w-full" />
