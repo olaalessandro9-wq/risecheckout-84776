@@ -762,17 +762,71 @@ export type Database = {
           },
         ]
       }
+      order_items: {
+        Row: {
+          amount_cents: number
+          created_at: string | null
+          id: string
+          is_bump: boolean
+          order_id: string
+          product_id: string
+          product_name: string
+          quantity: number
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string | null
+          id?: string
+          is_bump?: boolean
+          order_id: string
+          product_id: string
+          product_name: string
+          quantity?: number
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string | null
+          id?: string
+          is_bump?: boolean
+          order_id?: string
+          product_id?: string
+          product_name?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           amount_cents: number
           created_at: string
           currency: string
           customer_email: string | null
+          customer_ip: string | null
           customer_name: string | null
           gateway: string
           gateway_payment_id: string | null
           id: string
+          paid_at: string | null
           payment_method: string | null
+          pix_created_at: string | null
+          pix_id: string | null
+          pix_qr_code: string | null
+          pix_status: string | null
           product_id: string
           status: string
           updated_at: string
@@ -783,11 +837,17 @@ export type Database = {
           created_at?: string
           currency?: string
           customer_email?: string | null
+          customer_ip?: string | null
           customer_name?: string | null
           gateway: string
           gateway_payment_id?: string | null
           id?: string
+          paid_at?: string | null
           payment_method?: string | null
+          pix_created_at?: string | null
+          pix_id?: string | null
+          pix_qr_code?: string | null
+          pix_status?: string | null
           product_id: string
           status: string
           updated_at?: string
@@ -798,11 +858,17 @@ export type Database = {
           created_at?: string
           currency?: string
           customer_email?: string | null
+          customer_ip?: string | null
           customer_name?: string | null
           gateway?: string
           gateway_payment_id?: string | null
           id?: string
+          paid_at?: string | null
           payment_method?: string | null
+          pix_created_at?: string | null
+          pix_id?: string | null
+          pix_qr_code?: string | null
+          pix_status?: string | null
           product_id?: string
           status?: string
           updated_at?: string
@@ -824,6 +890,8 @@ export type Database = {
           created_at: string
           events: string[]
           id: string
+          name: string | null
+          product_id: string | null
           secret: string
           secret_encrypted: string | null
           updated_at: string
@@ -835,6 +903,8 @@ export type Database = {
           created_at?: string
           events: string[]
           id?: string
+          name?: string | null
+          product_id?: string | null
           secret: string
           secret_encrypted?: string | null
           updated_at?: string
@@ -846,13 +916,23 @@ export type Database = {
           created_at?: string
           events?: string[]
           id?: string
+          name?: string | null
+          product_id?: string | null
           secret?: string
           secret_encrypted?: string | null
           updated_at?: string
           url?: string
           vendor_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "outbound_webhooks_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_gateway_settings: {
         Row: {
@@ -1268,6 +1348,42 @@ export type Database = {
           },
           {
             foreignKeyName: "webhook_deliveries_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "outbound_webhooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_products: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string
+          webhook_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id: string
+          webhook_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhook_products_webhook_id_fkey"
             columns: ["webhook_id"]
             isOneToOne: false
             referencedRelation: "outbound_webhooks"
