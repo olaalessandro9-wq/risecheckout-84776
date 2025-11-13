@@ -26,7 +26,16 @@ Deno.serve(async (req) => {
     // Buscar webhooks pendentes ou com falha
     const { data: pendingWebhooks, error: fetchError } = await supabase
       .from("webhook_deliveries")
-      .select("*")
+      .select(`
+        id,
+        order_id,
+        webhook_id,
+        event_type,
+        payload,
+        status,
+        attempts,
+        created_at
+      `)
       .in("status", ["pending", "failed"])
       .order("created_at", { ascending: true })
       .limit(50); // Limite de 50 por execução
@@ -62,16 +71,16 @@ Deno.serve(async (req) => {
       try {
         console.log(`[retry-webhooks] Processando webhook ${webhook.id} (order: ${webhook.order_id})`);
 
-        // Buscar webhook URL do vendedor
+        // Buscar webhook URL
         const { data: webhookConfig } = await supabase
           .from("outbound_webhooks")
           .select("url, events")
-          .eq("vendor_id", webhook.vendor_id)
+          .eq("id", webhook.webhook_id)
           .eq("active", true)
           .single();
 
         if (!webhookConfig) {
-          console.log(`[retry-webhooks] Webhook config não encontrado para vendor ${webhook.vendor_id}`);
+          console.log(`[retry-webhooks] Webhook config não encontrado para webhook_id ${webhook.webhook_id}`);
           results.failed++;
           continue;
         }
@@ -79,7 +88,7 @@ Deno.serve(async (req) => {
         // Verificar se o evento está habilitado
         const events = webhookConfig.events || [];
         if (!events.includes(webhook.event_type)) {
-          console.log(`[retry-webhooks] Evento ${webhook.event_type} não habilitado para vendor ${webhook.vendor_id}`);
+          console.log(`[retry-webhooks] Evento ${webhook.event_type} não habilitado`);
           results.failed++;
           continue;
         }
