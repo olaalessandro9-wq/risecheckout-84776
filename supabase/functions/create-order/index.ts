@@ -72,7 +72,8 @@ serve(async (req) => {
     });
 
     // 2. Calcular preço do produto principal
-    const productPriceCents = Math.round(Number(product.price) * 100);
+    // ✅ CORRIGIDO: product.price já está em centavos, não precisa multiplicar
+    const productPriceCents = Math.round(Number(product.price));
     let totalCents = productPriceCents;
 
     // 3. Buscar order bumps (se houver)
@@ -122,7 +123,8 @@ serve(async (req) => {
             }
           }
 
-          const bumpPriceCents = Math.round(bumpPrice * 100);
+          // ✅ CORRIGIDO: bumpPrice já está em centavos, não precisa multiplicar
+          const bumpPriceCents = Math.round(bumpPrice);
           totalCents += bumpPriceCents;
 
           return {
