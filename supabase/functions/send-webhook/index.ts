@@ -64,7 +64,7 @@ serve(async (req) => {
         body: JSON.stringify(payload),
       });
     } catch (e) {
-      error = e;
+      error = e as Error;
       console.error("Error sending webhook:", e);
     }
 
@@ -109,7 +109,7 @@ serve(async (req) => {
         .from("webhook_deliveries")
         .update({
           status: "failed",
-          response_body: error?.message || "Failed to send webhook",
+          response_body: (error as Error)?.message || "Failed to send webhook",
           attempts: 1,
           last_attempt_at: new Date().toISOString(),
         })
@@ -118,7 +118,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: false,
-          error: error?.message || "Failed to send webhook",
+          error: (error as Error)?.message || "Failed to send webhook",
         }),
         {
           status: 500,
@@ -129,7 +129,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error in send-webhook function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error as Error)?.message || "Unknown error" }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
