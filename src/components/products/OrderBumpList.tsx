@@ -102,8 +102,8 @@ function SortableOrderBumpItem({ orderBump, index, onEdit, onRemove }: SortableO
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <span>
                   Preço: R$ {orderBump.offer_price 
-                    ? (orderBump.offer_price / 100).toFixed(2) 
-                    : (orderBump.product_price / 100).toFixed(2)}
+                    ? Number(orderBump.offer_price).toFixed(2) 
+                    : Number(orderBump.product_price).toFixed(2)}
                 </span>
                 {orderBump.offer_name && (
                   <>

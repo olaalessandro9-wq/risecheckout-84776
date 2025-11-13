@@ -15,7 +15,7 @@ export function trackViewContent(
       content_name: checkout.product?.name || "Produto",
       content_ids: [checkout.product?.id || "unknown"],
       content_type: "product",
-      value: (checkout.product?.price || 0) / 100,
+      value: Number(checkout.product?.price || 0),
       currency: "BRL",
     });
     setViewContentTracked(true);
@@ -58,7 +58,7 @@ export function trackAddToCart(bump: any) {
     FacebookPixelEvents.addToCart({
       content_name: bump.name || "Order Bump",
       content_ids: [bump.id || "unknown"],
-      value: (bump.price || 0) / 100,
+      value: Number(bump.price || 0),
       currency: "BRL",
     });
   });
