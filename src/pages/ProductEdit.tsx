@@ -31,6 +31,7 @@ import { useConfirmDelete } from "@/components/common/ConfirmDelete";
 import { UnsavedChangesGuard } from "@/providers/UnsavedChangesGuard";
 import { useConfirmDiscard } from "@/hooks/useConfirmDiscard";
 import { ConfirmDeleteProductDialog } from "@/components/common/ConfirmDeleteProductDialog";
+import { EditPriceDialog } from "@/components/products/EditPriceDialog";
 
 const ProductEditInner = () => {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ const ProductEditInner = () => {
   const { confirm: confirmDiscard, ConfirmRenderer } = useConfirmDiscard();
   const { product, loading, imageFile, setImageFile, saveProduct, deleteProduct, loadProduct, productId } = useProduct();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editPriceDialogOpen, setEditPriceDialogOpen] = useState(false);
   
   // Estado para a seção Geral
   const [generalData, setGeneralData] = useState({
@@ -1353,24 +1355,18 @@ const ProductEditInner = () => {
                 <h3 className="text-lg font-semibold text-foreground mb-4">Preço</h3>
                 <div className="space-y-2">
                   <Label htmlFor="price" className="text-foreground">Preço</Label>
-                  <CurrencyInput
-                    id="price"
-                    value={generalData.price}
-                    onChange={(newValue) => {
-                      setGeneralData({ ...generalData, price: newValue });
-                      setGeneralModified(true);
-                      if (errors.price) {
-                        setErrors({ ...errors, price: "" });
-                      }
-                    }}
-                    className={`bg-background text-foreground ${
-                      errors.price ? "border-red-500 focus:border-red-500" : "border-border"
-                    }`}
-                    error={errors.price}
-                  />
-                  {errors.price && (
-                    <p className="text-sm text-red-500">{errors.price}</p>
-                  )}
+                  <div
+                    onClick={() => setEditPriceDialogOpen(true)}
+                    className="flex items-center justify-between px-3 py-2 border border-border rounded-md bg-background text-foreground cursor-pointer hover:border-primary transition-colors"
+                  >
+                    <span className="text-base">
+                      R$ {(generalData.price / 100).toFixed(2).replace(".", ",")}
+                    </span>
+                    <span className="text-xs text-muted-foreground">Clique para editar</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Ao alterar o preço, ele será atualizado automaticamente em todos os links e checkouts
+                  </p>
                 </div>
               </div>
 
@@ -1807,11 +1803,23 @@ const ProductEditInner = () => {
       <ConfirmRenderer />
     
       <ConfirmDeleteProductDialog
-      open={deleteDialogOpen}
-      onOpenChange={setDeleteDialogOpen}
-      productName={product?.name}
-      onConfirm={handleDelete}
-    />
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        productName={product?.name}
+        onConfirm={handleDelete}
+      />
+
+      <EditPriceDialog
+        open={editPriceDialogOpen}
+        onOpenChange={setEditPriceDialogOpen}
+        productId={productId}
+        currentPrice={generalData.price}
+        onPriceUpdated={(newPrice) => {
+          setGeneralData({ ...generalData, price: newPrice });
+          // Recarregar dados para atualizar outras abas
+          loadProduct();
+        }}
+      />
     </>
   );
 };

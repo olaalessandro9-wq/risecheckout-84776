@@ -721,7 +721,7 @@ const PublicCheckout = () => {
                       className="text-lg font-semibold mt-1"
                       style={{ color: design.colors.primaryText }}
                     >
-                      R$ {Number(checkout.product?.price || 0).toFixed(2).replace('.', ',')}
+                      R$ {(Number(checkout.product?.price || 0) / 100).toFixed(2).replace('.', ',')}
                     </p>
                     <p 
                       className="text-xs mt-0.5"
@@ -1092,13 +1092,13 @@ const PublicCheckout = () => {
                                         className="text-xs md:text-sm line-through" 
                                         style={{ color: design.colors.secondaryText }}
                                       >
-                                        R$ {Number(bump.original_price || 0).toFixed(2).replace('.', ',')}
+                                        R$ {(Number(bump.original_price || 0) / 100).toFixed(2).replace('.', ',')}
                                       </span>
                                       <span 
                                         className="text-lg md:text-xl font-bold" 
                                         style={{ color: design.colors.orderBump?.priceText || design.colors.active }}
                                       >
-                                        R$ {Number(bump.price || 0).toFixed(2).replace('.', ',')}
+                                        R$ {(Number(bump.price || 0) / 100).toFixed(2).replace('.', ',')}
                                       </span>
                                     </>
                                   ) : (
@@ -1106,7 +1106,7 @@ const PublicCheckout = () => {
                                       className="text-lg md:text-xl font-bold" 
                                       style={{ color: design.colors.orderBump?.priceText || design.colors.active }}
                                     >
-                                      R$ {Number(bump.price || 0).toFixed(2).replace('.', ',')}
+                                      R$ {(Number(bump.price || 0) / 100).toFixed(2).replace('.', ',')}
                                     </span>
                                   )}
                                 </div>
@@ -1205,7 +1205,7 @@ const PublicCheckout = () => {
                             className="text-sm font-bold whitespace-nowrap"
                             style={{ color: design.colors.orderSummary?.priceText || '#000000' }}
                           >
-                            R$ {Number(checkout.product?.price || 0).toFixed(2).replace('.', ',')}
+                            R$ {(Number(checkout.product?.price || 0) / 100).toFixed(2).replace('.', ',')}
                           </p>
                         </div>
                       </div>
@@ -1237,7 +1237,7 @@ const PublicCheckout = () => {
                                     className="text-sm font-bold whitespace-nowrap"
                                     style={{ color: design.colors.active }}
                                   >
-                                    R$ {Number(bump.price || 0).toFixed(2).replace('.', ',')}
+                                    R$ {(Number(bump.price || 0) / 100).toFixed(2).replace('.', ',')}
                                   </p>
                                 </div>
                               </div>
@@ -1316,7 +1316,7 @@ const PublicCheckout = () => {
                             className="text-sm font-bold whitespace-nowrap"
                             style={{ color: design.colors.orderSummary?.priceText || '#000000' }}
                           >
-                            R$ {Number(checkout.product?.price || 0).toFixed(2).replace('.', ',')}
+                            R$ {(Number(checkout.product?.price || 0) / 100).toFixed(2).replace('.', ',')}
                           </p>
                         </div>
                       </div>
@@ -1348,7 +1348,7 @@ const PublicCheckout = () => {
                                     className="text-sm font-bold whitespace-nowrap"
                                     style={{ color: design.colors.active }}
                                   >
-                                    R$ {Number(bump.price || 0).toFixed(2).replace('.', ',')}
+                                    R$ {(Number(bump.price || 0) / 100).toFixed(2).replace('.', ',')}
                                   </p>
                                 </div>
                               </div>
