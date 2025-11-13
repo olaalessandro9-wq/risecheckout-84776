@@ -153,7 +153,7 @@ serve(async (req) => {
     }
 
     // Criar PIX na PushinPay
-    const pushinpayResponse = await fetch(`${apiUrl}/pix/cashIn`, {
+    let pushinpayResponse = await fetch(`${apiUrl}/pix/cashIn`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${vendorData.pushinpay_token}`,
@@ -166,6 +166,29 @@ serve(async (req) => {
         split_rules: split_rules  // ✅ ATUALIZADO: Agora envia split_rules
       })
     });
+
+    // ✅ FALLBACK: Se erro 422 e tinha split, tentar sem split
+    if (!pushinpayResponse.ok && pushinpayResponse.status === 422 && split_rules.length > 0) {
+      console.log("[pushinpay-create-pix] Erro 422 com split, tentando sem split...");
+      
+      pushinpayResponse = await fetch(`${apiUrl}/pix/cashIn`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${vendorData.pushinpay_token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          value: valueInCents,
+          webhook_url: null,
+          split_rules: []  // Sem split
+        })
+      });
+      
+      if (pushinpayResponse.ok) {
+        console.log("[pushinpay-create-pix] ✅ PIX criado sem split (fallback)");
+      }
+    }
 
     if (!pushinpayResponse.ok) {
       const errorText = await pushinpayResponse.text();
