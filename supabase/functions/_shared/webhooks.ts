@@ -20,10 +20,19 @@ export async function dispatchWebhook(
   console.log(`[dispatchWebhook] Iniciando para evento ${eventType}, order ${orderId}`);
 
   try {
-    // 1. Buscar vendor_id do pedido
+    // 1. Buscar dados completos do pedido
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("vendor_id, product_id")
+      .select(`
+        vendor_id,
+        product_id,
+        customer_name,
+        customer_email,
+        total_value_cents,
+        pix_id,
+        pix_qr_code,
+        pix_status
+      `)
       .eq("id", orderId)
       .single();
 
@@ -34,7 +43,36 @@ export async function dispatchWebhook(
 
     console.log(`[dispatchWebhook] Pedido encontrado, vendor_id: ${order.vendor_id}`);
 
-    // 2. Buscar webhooks ativos do vendedor
+    // 2. Buscar dados do produto principal
+    const { data: product, error: productError } = await supabase
+      .from("products")
+      .select("id, name, price")
+      .eq("id", order.product_id)
+      .single();
+
+    if (productError || !product) {
+      console.error("[dispatchWebhook] Produto não encontrado:", productError);
+    }
+
+    // 3. Enriquecer payload com dados completos
+    const enrichedPayload = {
+      ...payload,
+      product_id: order.product_id,
+      data: {
+        product_name: product?.name || "Produto não encontrado",
+        amount_cents: product ? Math.floor(parseFloat(product.price) * 100) : order.total_value_cents,
+        is_bump: false,
+        customer_name: order.customer_name,
+        customer_email: order.customer_email,
+        ...(payload.pix && {
+          pix: payload.pix
+        })
+      }
+    };
+
+    console.log("[dispatchWebhook] Payload enriquecido:", JSON.stringify(enrichedPayload, null, 2));
+
+    // 4. Buscar webhooks ativos do vendedor
     const { data: webhooks, error: webhooksError } = await supabase
       .from("outbound_webhooks")
       .select("id, url, events")
@@ -53,7 +91,7 @@ export async function dispatchWebhook(
 
     console.log(`[dispatchWebhook] Encontrados ${webhooks.length} webhook(s) ativos`);
 
-    // 3. Filtrar webhooks que escutam este evento
+    // 5. Filtrar webhooks que escutam este evento
     const relevantWebhooks = webhooks.filter(wh => 
       wh.events && wh.events.includes(eventType)
     );
@@ -65,7 +103,7 @@ export async function dispatchWebhook(
 
     console.log(`[dispatchWebhook] Enviando para ${relevantWebhooks.length} webhook(s)`);
 
-    // 4. Disparar webhook para cada URL configurada
+    // 6. Disparar webhook para cada URL configurada
     const dispatchPromises = relevantWebhooks.map(async (webhook) => {
       try {
         console.log(`[dispatchWebhook] Enviando para webhook ${webhook.id} (${webhook.url})`);
@@ -83,7 +121,7 @@ export async function dispatchWebhook(
               webhook_url: webhook.url,
               order_id: orderId,
               event_type: eventType,
-              payload: payload
+              payload: enrichedPayload
             })
           }
         );
