@@ -1206,6 +1206,33 @@ export type Database = {
         }
         Relationships: []
       }
+      trigger_debug_logs: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          event_type: string | null
+          id: number
+          message: string | null
+          order_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          event_type?: string | null
+          id?: number
+          message?: string | null
+          order_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          event_type?: string | null
+          id?: number
+          message?: string | null
+          order_id?: string | null
+        }
+        Relationships: []
+      }
       upsells: {
         Row: {
           active: boolean | null
