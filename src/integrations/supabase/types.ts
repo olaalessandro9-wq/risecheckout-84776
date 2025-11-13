@@ -1449,7 +1449,7 @@ export type Database = {
       }
       generate_checkout_slug: { Args: never; Returns: string }
       generate_link_slug: {
-        Args: { offer_name: string; offer_price: number }
+        Args: { offer_name?: string; offer_price?: number }
         Returns: string
       }
       generate_unique_payment_slug: {
