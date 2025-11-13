@@ -96,12 +96,15 @@ serve(async (req) => {
       );
     }
 
-    // ✅ NOVO: Buscar configurações da plataforma (token e split percentage)
+    // ✅ NOVO: Buscar configurações da plataforma (account_id e split percentage)
     const { data: platformSettings, error: platformError } = await supabaseClient
       .from("platform_settings")
       .select("key, value")
-      .in("key", ["pushinpay_platform_token", "platform_split_percentage"]);
-
+      .in("key", [
+        "pushinpay_platform_account_id",
+        "platform_split_percentage"
+      ]);
+    
     if (platformError) {
       console.error("[pushinpay-create-pix] Erro ao buscar configurações da plataforma:", platformError);
     }
@@ -114,11 +117,11 @@ serve(async (req) => {
       });
     }
 
-    const platformToken = platformConfig["pushinpay_platform_token"];
+    const platformAccountId = platformConfig["pushinpay_platform_account_id"];
     const splitPercentage = parseFloat(platformConfig["platform_split_percentage"] || "0");
 
     console.log("[pushinpay-create-pix] Configurações de split:", {
-      hasPlatformToken: !!platformToken,
+      hasPlatformAccountId: !!platformAccountId,
       splitPercentage: splitPercentage
     });
 
@@ -135,21 +138,36 @@ serve(async (req) => {
       vendorData.pushinpay_token.substring(0, 10)
     );
 
-    // ✅ NOVO: Construir split_rules se houver token da plataforma e percentual > 0
+    // ✅ CORRIGIDO: Construir split_rules conforme documentação oficial da PushinPay
     const split_rules: any[] = [];
     
-    if (platformToken && splitPercentage > 0) {
+    if (platformAccountId && splitPercentage > 0) {
+      // Calcular valor do split em centavos
+      const splitValueInCents = Math.floor(valueInCents * (splitPercentage / 100));
+      
       split_rules.push({
-        recipient_token: platformToken,
-        percentage: splitPercentage
+        value: splitValueInCents,
+        account_id: platformAccountId
       });
       
       console.log("[pushinpay-create-pix] Split configurado:", {
         percentage: splitPercentage,
-        platformTokenPreview: platformToken.substring(0, 10)
+        splitValueInCents: splitValueInCents,
+        platformAccountId: platformAccountId
       });
     } else {
-      console.log("[pushinpay-create-pix] Split não configurado (sem token ou percentual = 0)");
+      console.log("[pushinpay-create-pix] ⚠️ ERRO: Split não configurado (obrigatório!)");
+      
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: "Split não configurado. Entre em contato com o suporte."
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500
+        }
+      );
     }
 
     // Criar PIX na PushinPay
@@ -167,28 +185,7 @@ serve(async (req) => {
       })
     });
 
-    // ✅ FALLBACK: Se erro 422 e tinha split, tentar sem split
-    if (!pushinpayResponse.ok && pushinpayResponse.status === 422 && split_rules.length > 0) {
-      console.log("[pushinpay-create-pix] Erro 422 com split, tentando sem split...");
-      
-      pushinpayResponse = await fetch(`${apiUrl}/pix/cashIn`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${vendorData.pushinpay_token}`,
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          value: valueInCents,
-          webhook_url: null,
-          split_rules: []  // Sem split
-        })
-      });
-      
-      if (pushinpayResponse.ok) {
-        console.log("[pushinpay-create-pix] ✅ PIX criado sem split (fallback)");
-      }
-    }
+    // ❌ FALLBACK REMOVIDO: Split é obrigatório para o modelo de negócio
 
     if (!pushinpayResponse.ok) {
       const errorText = await pushinpayResponse.text();
