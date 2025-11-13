@@ -1256,10 +1256,10 @@ const PublicCheckout = () => {
                             Total
                           </span>
                           <span style={{ color: design.colors.orderSummary?.priceText || '#000000' }}>
-                            R$ {((Number(checkout.product?.price) || 0) + (Array.from(selectedBumps).reduce((total, bumpId) => {
+                            R$ {(((Number(checkout.product?.price) || 0) + (Array.from(selectedBumps).reduce((total, bumpId) => {
                               const bump = orderBumps.find(b => b.id === bumpId);
                               return total + (bump ? Number(bump.price) : 0);
-                            }, 0))).toFixed(2).replace('.', ',')}
+                            }, 0))) / 100).toFixed(2).replace('.', ',')}
                           </span>
                         </div>
                       </div>
@@ -1367,10 +1367,10 @@ const PublicCheckout = () => {
                             Total
                           </span>
                           <span style={{ color: design.colors.orderSummary?.priceText || '#000000' }}>
-                            R$ {((Number(checkout.product?.price) || 0) + (Array.from(selectedBumps).reduce((total, bumpId) => {
+                            R$ {(((Number(checkout.product?.price) || 0) + (Array.from(selectedBumps).reduce((total, bumpId) => {
                               const bump = orderBumps.find(b => b.id === bumpId);
                               return total + (bump ? Number(bump.price) : 0);
-                            }, 0))).toFixed(2).replace('.', ',')}
+                            }, 0))) / 100).toFixed(2).replace('.', ',')}
                           </span>
                         </div>
                       </div>
