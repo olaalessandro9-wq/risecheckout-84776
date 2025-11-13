@@ -30,7 +30,6 @@ export async function dispatchWebhook(
         customer_name,
         customer_email,
         amount_cents,
-        total_value_cents,
         currency,
         payment_method,
         gateway,
@@ -75,7 +74,7 @@ export async function dispatchWebhook(
       .single();
 
     // 4. Construir payload no formato Cakto
-    const totalValueCents = order.total_value_cents || order.amount_cents || 0;
+    const totalValueCents = order.amount_cents || 0;
     const productPriceCents = product ? Math.floor(parseFloat(product.price) * 100) : totalValueCents;
     
     const caktoPayload = {
