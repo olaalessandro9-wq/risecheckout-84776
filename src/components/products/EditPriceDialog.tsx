@@ -110,7 +110,6 @@ export function EditPriceDialog({
               value={price}
               onChange={setPrice}
               className="bg-background text-foreground border-border"
-              autoFocus
             />
             <p className="text-xs text-muted-foreground">
               O preço será atualizado no produto e na oferta padrão
