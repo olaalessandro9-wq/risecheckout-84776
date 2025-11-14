@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.46.1";
-import { dispatchWebhook } from "../_shared/webhooks.ts";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -167,23 +166,9 @@ serve(async (req) => {
     // Atualizar status do pedido
     const newStatus = await updateOrderStatus(orderId, payload);
 
-    // ✅ NOVO: Disparar webhook purchase_approved se status = PAID
-    if (newStatus === "PAID") {
-      console.log("[pushinpay-webhook] Disparando webhook purchase_approved");
-      
-      dispatchWebhook(orderId, "purchase_approved", {
-        event: "purchase_approved",
-        order_id: orderId,
-        payment: {
-          pix_id: payload.id,
-          status: "paid",
-          value: payload.value
-        },
-        timestamp: new Date().toISOString()
-      }).catch((err) =>
-        console.error("[pushinpay-webhook] Erro ao disparar webhook:", err)
-      );
-    }
+    // Webhook purchase_approved será disparado automaticamente pelo trigger
+    // do banco de dados quando o status mudar para "PAID"
+    console.log("[pushinpay-webhook] Status atualizado para:", newStatus);
 
     return new Response(
       JSON.stringify({ ok: true }),

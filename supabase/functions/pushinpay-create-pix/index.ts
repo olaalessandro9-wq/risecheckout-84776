@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { dispatchWebhook } from "../_shared/webhooks.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "https://risecheckout.com",
@@ -251,20 +250,8 @@ serve(async (req) => {
       console.error("[pushinpay-create-pix] Erro ao enviar email:", err)
     );
 
-    // ✅ NOVO: Disparar webhook pix_generated (não bloqueia a resposta)
-    dispatchWebhook(orderId, "pix_generated", {
-      event: "pix_generated",
-      order_id: orderId,
-      pix: {
-        id: pixData.id,
-        qr_code: pixData.qr_code,
-        status: pixData.status,
-        value_cents: valueInCents
-      },
-      timestamp: new Date().toISOString()
-    }).catch((err) =>
-      console.error("[pushinpay-create-pix] Erro ao disparar webhook:", err)
-    );
+    // Webhook será disparado automaticamente pelo trigger do banco de dados
+    // quando pix_qr_code for atualizado na tabela orders
 
     return new Response(
       JSON.stringify({
