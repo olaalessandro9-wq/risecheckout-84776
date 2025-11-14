@@ -189,6 +189,6 @@ CREATE TRIGGER order_webhooks_trigger
   FOR EACH ROW
   EXECUTE FUNCTION trigger_order_webhooks();
 
--- IMPORTANTE: Configurar a variável app.supabase_service_role_key
--- Executar como superuser:
--- ALTER DATABASE postgres SET app.supabase_service_role_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+-- IMPORTANTE: A configuração de autenticação deve ser gerenciada pelo Supabase
+-- A Edge Function send-webhook utiliza variáveis de ambiente seguras
+-- Nenhum token ou credencial deve ser hardcoded neste arquivo

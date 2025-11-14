@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { dispatchWebhook } from "../_shared/webhooks.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://risecheckout.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type"
 };
 

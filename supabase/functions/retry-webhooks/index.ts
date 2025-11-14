@@ -8,7 +8,7 @@ const supabase = createClient(
 );
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://risecheckout.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type"
 };
 
@@ -164,8 +164,8 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        success: true,
-        ...results
+        ...results,
+        success: true
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
