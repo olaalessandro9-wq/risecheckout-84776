@@ -12,11 +12,11 @@ serve(async (req) => {
   }
 
   try {
-    // Verificar autenticação - APENAS service_role pode chamar
-    const authHeader = req.headers.get("authorization");
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    // Verificar autenticação interna usando X-Internal-Secret
+    const internalSecret = req.headers.get("x-internal-secret");
+    const expectedSecret = Deno.env.get("INTERNAL_WEBHOOK_SECRET");
     
-    if (!authHeader || !authHeader.includes(serviceRoleKey || "")) {
+    if (!internalSecret || internalSecret !== expectedSecret) {
       console.error("[dispatch-webhook] Unauthorized access attempt");
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
